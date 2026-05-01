@@ -1,469 +1,170 @@
-# 视觉语义执行代理（Visual Semantic Action Agent）
+# Visual Semantic Action Agent
 
-## 📋 项目概述
+基于 Android 的视觉语义执行代理原型。项目目标是把“拍照/语音/文字输入”转成“结构化语义理解 + Android 系统动作执行”，优先服务比赛演示场景，例如活动海报入日历、地点识别后导航、复杂物理界面导视和 TTS 反馈。
 
-本项目是一个基于Android的智能Agent系统，整合了视觉大模型、语音识别、文本转语音和系统Intent调度等功能，实现从物理世界的视觉感知到操作系统数字动作的完整链路。
+## 当前状态
 
-**核心愿景**：赋予移动设备看懂物理世界的能力，并直接在手机系统中自动执行复杂的数字动作，从而形成完整的智能体（Agent）工作流。
+- 当前阶段：MVP 原型补全中
+- 已打通主链路：
+  - CameraX 预览与拍照
+  - 图片 Base64 编码
+  - 语音单次识别
+  - 云端多模态请求
+  - JSON 清洗与解析
+  - Intent 分发
+  - TTS 反馈
+- 当前优先验证场景：
+  - 海报/活动信息 -> 日历
+  - 地点识别 -> 地图导航
 
----
+## 当前模型接入
 
-## 🏗️ 架构体系
+项目现已默认接入比赛可用的 vivo 大模型接口，而不是本地 BlueLM-7B 部署方案。
 
-### 三层核心架构
+- 接口地址：`https://api-ai.vivo.com.cn/v1/chat/completions`
+- 默认模型：`Volc-DeepSeek-V3.2`
+- 鉴权方式：`Authorization: Bearer AppKey`
+- 请求协议：OpenAI 兼容 `chat/completions`
+- 图像输入：`messages[].content` 中混合 `text` 与 `image_url`
 
-```
-┌─────────────────────────────────────────────────────────┐
-│              INPUT LAYER (感知层)                       │
-│  CameraX单帧截图 + SpeechRecognizer语音识别             │
-└────────────────────┬────────────────────────────────────┘
-                     │
-        ┌────────────▼─────────────┐
-        │   Base64编码 + 文本打包   │
-        └────────────┬─────────────┘
-                     │
-┌────────────────────▼────────────────────────────────────┐
-│           PROCESSING LAYER (认知层)                     │
-│  视觉大语言模型API (Claude/GPT-4V/BlueLM)               │
-│  严格Prompt工程 + 结构化JSON输出                        │
-└────────────────────┬────────────────────────────────────┘
-                     │
-        ┌────────────▼──────────────┐
-        │   JSON解析 + 脏数据清洗    │
-        └────────────┬──────────────┘
-                     │
-┌────────────────────▼────────────────────────────────────┐
-│           EXECUTION LAYER (行动层)                      │
-│  Android Intent路由 + 系统应用调度                      │
-│  TextToSpeech反馈 + UI加载状态管理                      │
-└─────────────────────────────────────────────────────────┘
-```
+这样更适合当前项目，因为它直接支持：
 
-### 四个核心模块
+- 云端图片理解
+- OpenAI 风格消息格式
+- Android 端低成本接入
+- 比赛演示所需的快速闭环
 
-#### 📱 模块A：UI交互基座 (`ui/`)
+相比之下，BlueLM-7B 更适合作为后续离线化或自部署扩展，不适合当前先把 demo 跑通的阶段。
 
-- **文件**：`CameraScreen.kt`, `LoadingOverlay.kt`
-- **功能**：
-  - Jetpack Compose全屏相机界面
-  - 圆形FAB拍摄按钮 + 触觉反馈
-  - 全屏Loading Overlay（半透明背景）
-  - 手势物理拦截（防止并发请求）
-  - 阶段性动态提示文案
+## 项目结构
 
-**关键特性**：
-
-```kotlin
-// 视觉阻断层 + 手势拦截 + 动态心理抚慰
-LoadingOverlay(
-    isVisible = isLoading,
-    currentStage = currentStage,  // 0: 扫描, 1: 分析, 2: 生成
-    stageMessages = listOf(
-        "正在扫描物理空间特征…",
-        "云端语义深度解析中…",
-        "正在生成执行策略…"
-    )
-)
-```
-
-#### 📷 模块B：CameraX截帧与Base64转换 (`camera/`, `utils/`)
-
-- **文件**：`CameraManager.kt`, `EncodingUtils.kt`
-- **功能**：
-  - CameraX单帧拍照（ImageCapture）
-  - ImageProxy -> Bitmap内存转换
-  - JPEG压缩（质量80）+ Base64编码
-  - 纯内存处理（避免磁盘I/O）
-
-**关键实现**：
-
-```kotlin
-// 摒弃视频流，采用离散化截图
-imageCapture = ImageCapture.Builder()
-    .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-    .build()
-
-// 内存中直接转换为Base64（无磁盘I/O）
-val baos = ByteArrayOutputStream()
-bitmap.compress(Bitmap.CompressFormat.JPEG, 80, baos)
-val base64String = Base64.encodeToString(baos.toByteArray(), Base64.NO_WRAP)
-```
-
-#### 🌐 模块C：网络通信与结构化输出 (`network/`)
-
-- **文件**：`VLMNetworkClient.kt`
-- **功能**：
-  - OpenAI兼容API调用
-  - 多模态请求载荷构建
-  - 三重约束强制JSON输出
-  - JSON脏数据清洗
-
-**关键机制**：
-
-1. **系统提示词（三重约束）**：
-   - 强制JSON-only输出
-   - 角色设定与红线声明
-   - JSON Schema约束
-
-2. **API级别结构化输出**：
-
-   ```json
-   {
-     "action": "create_event|navigate|tts_feedback|send_sms|unknown",
-     "title": "string",
-     "time": "unix_timestamp",
-     "location": "string",
-     "answer": "string",
-     "target_found": boolean
-   }
-   ```
-
-3. **脏数据清洗**：
-   ```kotlin
-   // 自动提取JSON，移除Markdown包装
-   val cleanJson = JsonCleansingUtils.extractJsonFromDirtyText(dirtyResponse)
-   ```
-
-#### 🚀 模块D：Intent路由引擎 (`intent/`)
-
-- **文件**：`IntentDispatcher.kt`
-- **功能**：
-  - JSON反序列化
-  - Intent构造与分发
-  - 意图解析预检（ActivityNotFoundException防护）
-
-**支持的操作**：
-
-```kotlin
-when (response.action) {
-    "create_event"    -> createCalendarEvent()    // 日历事件
-    "navigate"        -> navigateToLocation()     // 地图导航
-    "tts_feedback"    -> playTTS()                // 语音反馈
-    "send_sms"        -> sendSMS()                // 短信发送
-    else              -> handleUnknown()
-}
-```
-
-#### 🎤 辅助模块：语音与文本处理
-
-- **VoiceRecognitionManager** (`voice/`)：原生SpeechRecognizer
-- **TextToSpeechManager** (`tts/`)：原生TextToSpeech引擎
-
----
-
-## 📂 项目结构
-
-```
+```text
 VisualSemanticAgent/
 ├── app/
-│   ├── src/main/
-│   │   ├── java/com/vsa/visualsemanticagent/
-│   │   │   ├── ui/                          # 模块A：UI基座
-│   │   │   │   ├── CameraScreen.kt
-│   │   │   │   └── LoadingOverlay.kt
-│   │   │   ├── camera/                      # 模块B：截帧
-│   │   │   │   └── CameraManager.kt
-│   │   │   ├── network/                     # 模块C：网络通信
-│   │   │   │   └── VLMNetworkClient.kt
-│   │   │   ├── intent/                      # 模块D：Intent路由
-│   │   │   │   └── IntentDispatcher.kt
-│   │   │   ├── model/                       # 数据模型
-│   │   │   │   └── VLMModels.kt
-│   │   │   ├── voice/                       # 语音识别
-│   │   │   │   └── VoiceRecognitionManager.kt
-│   │   │   ├── tts/                         # 文本转语音
-│   │   │   │   └── TextToSpeechManager.kt
-│   │   │   ├── utils/                       # 工具函数
-│   │   │   │   └── EncodingUtils.kt
-│   │   │   ├── MainActivity.kt              # 应用入口
-│   │   │   └── BuildConfig.kt
-│   │   ├── res/
-│   │   │   ├── values/
-│   │   │   │   ├── strings.xml
-│   │   │   │   └── themes.xml
-│   │   │   └── AndroidManifest.xml
-│   ├── build.gradle                        # App级配置
-│   └── proguard-rules.pro
-├── build.gradle                            # 项目级配置
+│   ├── build.gradle
+│   └── src/
+│       ├── androidTest/
+│       ├── main/
+│       │   ├── AndroidManifest.xml
+│       │   ├── java/com/vsa/visualsemanticagent/
+│       │   │   ├── camera/
+│       │   │   ├── intent/
+│       │   │   ├── model/
+│       │   │   ├── network/
+│       │   │   ├── tts/
+│       │   │   ├── ui/
+│       │   │   ├── utils/
+│       │   │   ├── voice/
+│       │   │   └── MainActivity.kt
+│       │   └── res/
+│       └── test/
+├── build.gradle
 ├── settings.gradle
-└── README.md
+├── QUICKSTART.md
+├── ARCHITECTURE.md
+├── API_GUIDE.md
+└── DEVELOPMENT_GUIDE.md
 ```
 
----
+## 核心链路
 
-## 🚀 核心工作流程
-
-### 完整执行链路
-
-```
-用户拍摄 + 语音指令
-        │
-        ▼
-    模块B: CameraX截帧
-    ├─ 单帧图像捕获
-    ├─ ImageProxy -> Bitmap转换
-    └─ JPEG压缩 + Base64编码
-        │
-        ▼
-    模块C: 网络通信
-    ├─ 构建OpenAI兼容请求
-    ├─ 系统提示词约束
-    └─ 云端VLM推理
-        │
-        ▼
-    JSON响应处理
-    ├─ 脏数据清洗
-    ├─ Gson反序列化
-    └─ Schema验证
-        │
-        ▼
-    模块D: Intent分发
-    ├─ Action路由判断
-    ├─ 参数提取
-    └─ 系统应用调起
-        │
-        ▼
-    TTS反馈 / 异常处理
+```text
+用户拍照/输入文字或语音
+    ->
+CameraX 截图
+    ->
+Base64 编码
+    ->
+vivo 多模态模型接口
+    ->
+严格 JSON 输出
+    ->
+VLMResponse 解析
+    ->
+Intent / TTS 执行
 ```
 
----
+## 关键模块
 
-## 🎯 应用场景
+- `MainActivity.kt`
+  - 串联 UI、拍照、语音、网络、Intent 和 TTS
+- `camera/CameraManager.kt`
+  - CameraX 绑定、拍照、图像转换
+- `network/VLMNetworkClient.kt`
+  - 对接 vivo `chat/completions`
+  - 自动添加 `request_id`
+  - 构建多模态请求
+  - 清洗并解析模型输出
+- `intent/IntentDispatcher.kt`
+  - 根据 `action` 调起日历、地图、短信等系统能力
+- `voice/VoiceRecognitionManager.kt`
+  - 使用原生 `SpeechRecognizer`
+- `tts/TextToSpeechManager.kt`
+  - 使用原生 `TextToSpeech`
 
-### 场景1：物理信息实体化（Physical to OS Action）
+## 配置方式
 
-- **用户行为**：拍摄海报 + "帮我把这个活动安排进行程"
-- **系统流程**：
-  1. 视觉识别：活动名称、时间、地点
-  2. 构造Intent：`ACTION_INSERT` + CalendarContract
-  3. 结果：系统日历应用弹起，日程已填充
+在 `app/build.gradle` 的 `defaultConfig` 中填写比赛提供的 AppKey：
 
-### 场景2：复杂物理界面降噪（Physical UI Copilot）
-
-- **用户行为**：对准微波炉面板 + "我只想解冻这块肉，该按哪个键？"
-- **系统流程**：
-  1. 视觉分析：识别所有图标、按键位置
-  2. 语义推理：关联"解冻"与雪花按钮
-  3. 结果：TTS播报"请按第三排左数第二个…"
-
-### 场景3：无障碍视觉寻物（Semantic Targeting）
-
-- **用户行为**：对准杂乱房间 + "我的黑色保温杯在哪里？"
-- **系统流程**：
-  1. 视觉识别：检测保温杯位置
-  2. 空间推理：相对位置关系（相对于笔记本电脑右侧）
-  3. 结果：TTS播报"在笔记本电脑的右侧，靠近键盘边缘…"
-
----
-
-## ⚙️ 技术栈
-
-| 组件     | 技术                | 版本   |
-| -------- | ------------------- | ------ |
-| UI框架   | Jetpack Compose     | 1.6.1  |
-| 相机     | CameraX             | 1.3.1  |
-| 网络     | OkHttp3             | 4.11.0 |
-| JSON解析 | Gson                | 2.10.1 |
-| 日志     | Timber              | 5.0.1  |
-| 协程     | Kotlin Coroutines   | 1.9.10 |
-| 编译目标 | Android 34 (API 34) |        |
-| 最低版本 | Android 10 (API 29) |        |
-
----
-
-## 🔧 配置与依赖
-
-### 权限声明（AndroidManifest.xml）
-
-```xml
-<uses-permission android:name="android.permission.CAMERA" />
-<uses-permission android:name="android.permission.RECORD_AUDIO" />
-<uses-permission android:name="android.permission.INTERNET" />
-<uses-permission android:name="android.permission.READ_CALENDAR" />
-<uses-permission android:name="android.permission.WRITE_CALENDAR" />
+```gradle
+buildConfigField "String", "VLM_API_KEY", "\"你的AppKey\""
+buildConfigField "String", "VLM_MODEL_NAME", "\"Volc-DeepSeek-V3.2\""
+buildConfigField "String", "VLM_API_ENDPOINT", "\"https://api-ai.vivo.com.cn/v1/chat/completions\""
 ```
 
-### API密钥配置
+当前默认参数策略：
 
-在 `VLMNetworkClient` 中配置云端API：
+- `stream = false`
+- `max_tokens = 2048`
+- `temperature = 0.2`
+- `reasoning_effort = "minimal"`
+- `thinking.type = "disabled"`
 
-```kotlin
-val client = VLMNetworkClient(
-    apiKey = "your-api-key-here",
-    modelName = "claude-3-5-sonnet-20241022",
-    apiEndpoint = "https://api.anthropic.com/v1/messages"
-)
-```
+这套参数更适合移动端 demo：优先保证速度、稳定性和结构化输出。
 
----
+## 当前支持的 action
 
-## 🛡️ 稳定性与防护策略
+模型输出 JSON 中的 `action` 目前支持：
 
-### 1. 延迟掩盖（UX心理学）
+- `create_event`
+- `navigate`
+- `tts_feedback`
+- `send_sms`
+- `unknown`
 
-- ✅ 全屏Loading Overlay + 半透明背景
-- ✅ 手势物理拦截（防止并发请求）
-- ✅ 阶段性动态提示文案（0-3秒逐段更新）
+对应数据模型位于：
 
-### 2. 异常隔离（多层防护）
+- `app/src/main/java/com/vsa/visualsemanticagent/model/VLMModels.kt`
 
-```kotlin
-try {
-    // 完整流程
-    val vlmResponse = sendToVLM(base64Image, userText)
-    dispatchIntent(vlmResponse)
-} catch (e: SocketTimeoutException) {
-    // 网络超时
-    playFallbackMessage()
-} catch (e: JsonSyntaxException) {
-    // JSON解析失败
-    playFallbackMessage()
-} catch (e: ActivityNotFoundException) {
-    // 目标应用不存在
-    playFallbackMessage()
-}
-```
+## 运行建议
 
-### 3. 优雅的兜底话术
+当前最重要的不是继续扩功能，而是先做真实验证：
 
-```kotlin
-// 任何异常情况下，播放预设的友好消息
-playTextToSpeech(
-    "抱歉，当前的物理环境特征过于复杂，我未能完全看清，" +
-    "能请您稍微靠近一点或者调整一下光线再试一次吗？"
-)
-```
+1. 在 Android Studio 打开工程。
+2. 填入 `VLM_API_KEY`。
+3. 真机运行。
+4. 先验证两个主演示场景：
+   - 海报识别并拉起日历
+   - 地点识别并拉起地图
 
----
+## 当前已知限制
 
-## 📝 使用指南
+- 还没有完成 Android Studio 下的真实编译验证。
+- 当前测试覆盖仍偏最小化，主要保证主链路代码先成型。
+- `response_format` 没有继续强绑定在请求体中，当前主要依赖 prompt 严格约束 JSON 输出。
+- README、设计文档和项目说明仍可能存在部分“成熟度高于实现度”的旧表述，后续还要继续统一。
 
-### 编译和运行
+## 后续建议
 
-```bash
-# 克隆或解压项目
-cd VisualSemanticAgent
+- 优先完成真机闭环验证
+- 给网络异常、限流和 JSON 解析失败增加重试与降级策略
+- 增加更真实的单元测试
+- 收敛文档表述，让方案、README、代码状态一致
 
-# 配置gradle（确保Android SDK已安装）
-./gradlew clean
+## 参考
 
-# 编译Debug版本
-./gradlew assembleDebug
-
-# 编译Release版本
-./gradlew assembleRelease
-
-# 直接安装到设备
-./gradlew installDebug
-```
-
-### 实现自定义业务逻辑
-
-#### 1. 扩展Action类型
-
-编辑 `network/VLMNetworkClient.kt` 的系统提示词：
-
-```kotlin
-private fun buildSystemPrompt(): String {
-    return """
-    ...
-    "action": "create_event|navigate|tts_feedback|send_sms|YOUR_NEW_ACTION|unknown"
-    ...
-    """
-}
-```
-
-#### 2. 添加新的Intent分发器
-
-编辑 `intent/IntentDispatcher.kt`：
-
-```kotlin
-when (response.action) {
-    "your_new_action" -> handleYourNewAction(response)
-    ...
-}
-```
-
-#### 3. 调整AI提示词
-
-优化 `VLMNetworkClient.buildSystemPrompt()` 中的JSON Schema和场景指导
-
----
-
-## 🎓 AI辅助编码指南
-
-### 模块A：UI框架提示词
-
-```
-"请扮演资深Android UI架构师，使用Kotlin和Jetpack Compose编写全屏相机界面。
-要求：
-1. 底部中央圆形FAB按钮
-2. 点击触发HapticFeedbackType.LongPress
-3. 完整的Composable函数结构
-4. 响应式布局设计"
-```
-
-### 模块B：CameraX截帧提示词
-
-```
-"使用CameraX ImageCapture实现内存中的单帧图像处理。
-要求：
-1. OnImageCapturedCallback获取ImageProxy
-2. ImageProxy.planes提取字节缓冲
-3. BitmapFactory.decodeByteArray解析
-4. ByteArrayOutputStream压缩为JPEG (质量80)
-5. Base64.encodeToString返回字符串
-6. 绝对禁止磁盘I/O"
-```
-
-### 模块C：网络请求提示词
-
-```
-"使用OkHttp3编写VLM网络请求类。
-要求：
-1. Kotlin Coroutine suspend函数
-2. 接收Base64图片和文本
-3. 构建OpenAI兼容多模态Payload
-4. response_format={"type": "json_object"}
-5. 系统提示词包含严格JSON约束
-6. 15秒超时设置"
-```
-
-### 模块D：Intent路由提示词
-
-```
-"使用Kotlin编写Intent分发器。
-要求：
-1. 接收Gson解析的VLMResponse
-2. when语句根据action分支
-3. create_event: Intent.ACTION_INSERT + CalendarContract
-4. navigate: Intent.ACTION_VIEW + google.navigation:q=
-5. tts_feedback: TextToSpeech朗读
-6. 每次startActivity前检查resolveActivity"
-```
-
----
-
-## 📚 参考资源
-
-- [Android CameraX官方文档](https://developer.android.com/media/camera/camerax)
-- [Jetpack Compose官方文档](https://developer.android.com/develop/ui/compose)
-- [Claude API文档](https://docs.anthropic.com/claude/)
-- [Android Intent官方文档](https://developer.android.com/guide/components/intents-common)
-
----
-
-## 📄 许可证
-
-本项目用于教育和研究用途。
-
----
-
-## ✨ 贡献指南
-
-欢迎提交Issue和Pull Request！
-
----
-
-**最后更新**：2026年5月1日
-**版本**：1.0.0
+- vivo 比赛模型接口：`https://api-ai.vivo.com.cn/v1/chat/completions`
+- Android CameraX
+- Android SpeechRecognizer
+- Android TextToSpeech
+- Android Intent / Calendar / Maps

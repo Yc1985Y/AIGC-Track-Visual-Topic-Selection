@@ -18,8 +18,8 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         buildConfigField "String", "VLM_API_KEY", "\"\""
-        buildConfigField "String", "VLM_MODEL_NAME", "\"gpt-4.1-mini\""
-        buildConfigField "String", "VLM_API_ENDPOINT", "\"https://api.openai.com/v1/chat/completions\""
+        buildConfigField "String", "VLM_MODEL_NAME", "\"Volc-DeepSeek-V3.2\""
+        buildConfigField "String", "VLM_API_ENDPOINT", "\"https://api-ai.vivo.com.cn/v1/chat/completions\""
     }
 
     buildTypes {

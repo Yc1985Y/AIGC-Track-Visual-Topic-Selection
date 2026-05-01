@@ -6,12 +6,14 @@ import com.vsa.visualsemanticagent.model.VLMResponse
 import com.vsa.visualsemanticagent.utils.JsonCleansingUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
+import java.util.UUID
 
 class VLMNetworkClient(
     private val apiKey: String,
@@ -31,9 +33,14 @@ class VLMNetworkClient(
         base64Image: String,
         userText: String
     ): VLMResponse = withContext(Dispatchers.IO) {
+        val requestId = UUID.randomUUID().toString()
         val requestBody = buildRequestPayload(base64Image, userText)
         val request = Request.Builder()
-            .url(apiEndpoint)
+            .url(
+                apiEndpoint.toHttpUrl().newBuilder()
+                    .addQueryParameter("request_id", requestId)
+                    .build()
+            )
             .header("Authorization", "Bearer $apiKey")
             .header("Content-Type", "application/json")
             .post(requestBody)
@@ -41,7 +48,10 @@ class VLMNetworkClient(
 
         val response = httpClient.newCall(request).execute()
         if (!response.isSuccessful) {
-            throw IllegalStateException("API request failed with code: ${response.code}")
+            val errorBody = response.body?.string().orEmpty()
+            throw IllegalStateException(
+                "API request failed with code: ${response.code}, request_id=$requestId, body=$errorBody"
+            )
         }
 
         val responseBody = response.body?.string().orEmpty()
@@ -55,7 +65,9 @@ class VLMNetworkClient(
         mapOf(
             "model" to modelName,
             "temperature" to 0.2,
-            "response_format" to mapOf("type" to "json_object"),
+            "stream" to false,
+            "max_tokens" to 2048,
+            "reasoning_effort" to "minimal",
             "messages" to listOf(
                 mapOf("role" to "system", "content" to buildSystemPrompt()),
                 mapOf(
@@ -73,7 +85,8 @@ class VLMNetworkClient(
                         )
                     )
                 )
-            )
+            ),
+            "thinking" to mapOf("type" to "disabled")
         )
     ).toRequestBody("application/json".toMediaType())
 
@@ -81,6 +94,7 @@ class VLMNetworkClient(
         return """
 你是视觉语义执行代理的结构化决策引擎。
 你必须严格输出一个合法 JSON 对象，不能输出任何解释、Markdown、前后缀。
+你的输出会被 Android 客户端直接解析并驱动系统动作。
 
 可选 action 只有：
 - create_event：从海报、通知、名片等图像中提取活动信息并建议写入日历
@@ -106,6 +120,7 @@ class VLMNetworkClient(
 2. 如果用户是描述/问答/导视类需求，优先返回 tts_feedback。
 3. 如果检测到活动主题、时间、地点且用户有安排意图，返回 create_event。
 4. 如果检测到明确地点且用户有前往意图，返回 navigate。
+5. 除 JSON 外不要输出任何额外文本。
         """.trimIndent()
     }
 
