@@ -8,6 +8,7 @@ import android.graphics.YuvImage
 import android.util.Base64
 import androidx.camera.core.ImageProxy
 import java.io.ByteArrayOutputStream
+import kotlin.math.min
 
 object ImageEncodingUtils {
 
@@ -27,19 +28,99 @@ object ImageEncodingUtils {
     }
 
     private fun yuv420888ToNv21(image: ImageProxy): ByteArray {
-        val yBuffer = image.planes[0].buffer
-        val uBuffer = image.planes[1].buffer
-        val vBuffer = image.planes[2].buffer
+        val width = image.width
+        val height = image.height
+        val ySize = width * height
+        val uvSize = width * height / 2
+        val nv21 = ByteArray(ySize + uvSize)
 
-        val ySize = yBuffer.remaining()
-        val uSize = uBuffer.remaining()
-        val vSize = vBuffer.remaining()
+        val yPlane = image.planes[0]
+        val uPlane = image.planes[1]
+        val vPlane = image.planes[2]
 
-        val nv21 = ByteArray(ySize + uSize + vSize)
-        yBuffer.get(nv21, 0, ySize)
-        vBuffer.get(nv21, ySize, vSize)
-        uBuffer.get(nv21, ySize + vSize, uSize)
+        copyLumaPlane(
+            plane = yPlane,
+            width = width,
+            height = height,
+            output = nv21
+        )
+        copyChromaPlanes(
+            uPlane = uPlane,
+            vPlane = vPlane,
+            width = width,
+            height = height,
+            output = nv21,
+            outputOffset = ySize
+        )
         return nv21
+    }
+
+    private fun copyLumaPlane(
+        plane: ImageProxy.PlaneProxy,
+        width: Int,
+        height: Int,
+        output: ByteArray
+    ) {
+        val buffer = plane.buffer
+        val rowStride = plane.rowStride
+        val pixelStride = plane.pixelStride
+        val rowBuffer = ByteArray(rowStride)
+        var outputOffset = 0
+
+        repeat(height) { row ->
+            val length = min(rowStride, buffer.remaining())
+            buffer.get(rowBuffer, 0, length)
+
+            if (pixelStride == 1) {
+                System.arraycopy(rowBuffer, 0, output, outputOffset, width)
+                outputOffset += width
+            } else {
+                repeat(width) { col ->
+                    output[outputOffset++] = rowBuffer[col * pixelStride]
+                }
+            }
+
+            val nextRowPosition = min(buffer.capacity(), (row + 1) * rowStride)
+            buffer.position(nextRowPosition)
+        }
+    }
+
+    private fun copyChromaPlanes(
+        uPlane: ImageProxy.PlaneProxy,
+        vPlane: ImageProxy.PlaneProxy,
+        width: Int,
+        height: Int,
+        output: ByteArray,
+        outputOffset: Int
+    ) {
+        val chromaWidth = width / 2
+        val chromaHeight = height / 2
+        val uBuffer = uPlane.buffer
+        val vBuffer = vPlane.buffer
+        val uRowStride = uPlane.rowStride
+        val vRowStride = vPlane.rowStride
+        val uPixelStride = uPlane.pixelStride
+        val vPixelStride = vPlane.pixelStride
+        val uRow = ByteArray(uRowStride)
+        val vRow = ByteArray(vRowStride)
+        var offset = outputOffset
+
+        repeat(chromaHeight) { row ->
+            val uLength = min(uRowStride, uBuffer.remaining())
+            val vLength = min(vRowStride, vBuffer.remaining())
+            uBuffer.get(uRow, 0, uLength)
+            vBuffer.get(vRow, 0, vLength)
+
+            repeat(chromaWidth) { col ->
+                output[offset++] = vRow[col * vPixelStride]
+                output[offset++] = uRow[col * uPixelStride]
+            }
+
+            val nextUPosition = min(uBuffer.capacity(), (row + 1) * uRowStride)
+            val nextVPosition = min(vBuffer.capacity(), (row + 1) * vRowStride)
+            uBuffer.position(nextUPosition)
+            vBuffer.position(nextVPosition)
+        }
     }
 }
 

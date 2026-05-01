@@ -19,7 +19,10 @@ class TextToSpeechManager(context: Context) : TextToSpeech.OnInitListener {
             return
         }
 
-        tts.language = Locale.SIMPLIFIED_CHINESE
+        val result = tts.setLanguage(Locale.SIMPLIFIED_CHINESE)
+        if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+            Timber.w("Simplified Chinese TTS is unavailable, falling back to default locale")
+        }
         tts.setSpeechRate(1.0f)
         pendingTexts.forEach { speak(it) }
         pendingTexts.clear()

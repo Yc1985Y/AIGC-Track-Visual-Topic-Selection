@@ -8,7 +8,7 @@ import com.google.gson.annotations.SerializedName
  */
 data class VLMResponse(
     @SerializedName("action")
-    val action: String, // 意图路由分类标签
+    val action: String? = null, // 意图路由分类标签
     
     @SerializedName("title")
     val title: String? = null, // 提取的事件/信息标题

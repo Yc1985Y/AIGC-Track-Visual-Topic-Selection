@@ -14,7 +14,7 @@ object ResponseInterpreter {
     )
 
     fun normalize(response: VLMResponse): VLMResponse {
-        val normalizedAction = response.action.trim().lowercase()
+        val normalizedAction = response.action.cleanValue()?.lowercase().orEmpty()
         val safeAction = normalizedAction.takeIf { it in supportedActions } ?: ModelConstants.ACTION_UNKNOWN
 
         return response.copy(
