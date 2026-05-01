@@ -20,10 +20,6 @@
     @com.google.gson.annotations.SerializedName <fields>;
 }
 
-# Preserve Moshi
--keep class com.squareup.moshi.** { *; }
--keepclassmembers class com.squareup.moshi.** { *; }
-
 # Preserve CameraX
 -keep class androidx.camera.** { *; }
 -keepclassmembers class androidx.camera.** { *; }

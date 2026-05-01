@@ -275,6 +275,9 @@ val intentDispatcher = IntentDispatcher(
 
 #### 解析意图
 
+> 说明：以下 `parseIntent/executeIntent` 示例属于早期概念设计接口，不是当前 Android 原型中的真实公开 API。
+> 当前工程以 `MainActivity -> VLMNetworkClient -> ResponseInterpreter -> IntentDispatcher` 这条主链路为准。
+
 ```kotlin
 // 从自然语言解析意图
 val intent = intentDispatcher.parseIntent(

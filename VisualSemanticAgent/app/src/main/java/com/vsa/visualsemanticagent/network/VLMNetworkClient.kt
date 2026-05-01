@@ -8,6 +8,7 @@ import com.vsa.visualsemanticagent.utils.JsonCleansingUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.CancellationException
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -63,6 +64,8 @@ class VLMNetworkClient(
                 lastError = e
                 Timber.w(e, "VLM response parsing failed on attempt ${attempt + 1}")
                 throw e
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: VLMApiException) {
                 lastError = e
                 Timber.w(e, "VLM API rejected request on attempt ${attempt + 1}")
@@ -106,7 +109,7 @@ class VLMNetworkClient(
         base64Image: String,
         userText: String
     ) = gson.toJson(
-        mapOf(
+        mutableMapOf<String, Any>(
             "model" to modelName,
             "temperature" to 0.2,
             "stream" to false,
@@ -129,9 +132,19 @@ class VLMNetworkClient(
                         )
                     )
                 )
-            ),
-            "thinking" to mapOf("type" to "disabled")
-        )
+            )
+        ).apply {
+            when {
+                modelName.contains("qwen", ignoreCase = true) -> {
+                    put("enable_thinking", false)
+                }
+                modelName.contains("deepseek", ignoreCase = true) ||
+                    modelName.contains("doubao", ignoreCase = true) ||
+                    modelName.contains("seed", ignoreCase = true) -> {
+                    put("thinking", mapOf("type" to "disabled"))
+                }
+            }
+        }
     ).toRequestBody("application/json".toMediaType())
 
     private fun buildSystemPrompt(): String {

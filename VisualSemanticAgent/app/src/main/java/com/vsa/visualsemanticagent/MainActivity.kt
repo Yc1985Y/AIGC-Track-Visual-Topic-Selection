@@ -34,6 +34,7 @@ import com.vsa.visualsemanticagent.utils.PromptPresets
 import com.vsa.visualsemanticagent.utils.ResponseInterpreter
 import com.vsa.visualsemanticagent.voice.VoiceRecognitionException
 import com.vsa.visualsemanticagent.voice.VoiceRecognitionManager
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -182,7 +183,9 @@ class MainActivity : ComponentActivity() {
             modelName = BuildConfig.VLM_MODEL_NAME,
             apiEndpoint = BuildConfig.VLM_API_ENDPOINT
         )
-        voiceRecognitionManager.initialize()
+        if (audioPermissionGranted) {
+            voiceRecognitionManager.initialize()
+        }
         statusText = ""
         resultText = ""
         appInitialized = true
@@ -228,6 +231,9 @@ class MainActivity : ComponentActivity() {
                 commandText = voiceRecognitionManager.listenOnce()
                 statusText = "已识别语音指令"
             } catch (e: Exception) {
+                if (e is CancellationException) {
+                    throw e
+                }
                 Timber.e(e, "Voice capture failed")
                 handleError(e, RecoveryAction.RETRY_VOICE)
             } finally {
@@ -281,6 +287,9 @@ class MainActivity : ComponentActivity() {
                     playTextToSpeech(speechText)
                 }
             } catch (e: Exception) {
+                if (e is CancellationException) {
+                    throw e
+                }
                 Timber.e(e, "Error during capture flow")
                 handleError(e, RecoveryAction.RETRY_CAPTURE)
                 if (lastError.isNotBlank()) {
@@ -359,12 +368,48 @@ class MainActivity : ComponentActivity() {
     private fun resolveErrorMessage(throwable: Throwable): String {
         return when (throwable) {
             is VLMNetworkException -> getString(R.string.network_error)
-            is VLMApiException -> getString(R.string.model_error)
+            is VLMApiException -> mapApiErrorMessage(throwable)
             is VLMResponseParseException -> getString(R.string.parse_error)
             is ActivityNotFoundException -> mapActivityNotFoundMessage(throwable)
-            is VoiceRecognitionException -> getString(R.string.voice_capture_failed)
+            is VoiceRecognitionException -> mapVoiceRecognitionMessage(throwable)
             is IllegalStateException -> mapIllegalStateMessage(throwable)
+            is IllegalArgumentException -> mapIllegalArgumentMessage(throwable)
             else -> throwable.message ?: getString(R.string.error_occurred)
+        }
+    }
+
+    private fun mapApiErrorMessage(throwable: VLMApiException): String {
+        val responseBody = throwable.responseBody.lowercase()
+        return when {
+            throwable.code == 429 || responseBody.contains("rate limit") || responseBody.contains("429") -> {
+                getString(R.string.model_rate_limited)
+            }
+            responseBody.contains("no model access permission") || responseBody.contains("permission expires") -> {
+                getString(R.string.model_permission_denied)
+            }
+            responseBody.contains("today usage limit") -> {
+                getString(R.string.model_daily_quota_exceeded)
+            }
+            else -> getString(R.string.model_error)
+        }
+    }
+
+    private fun mapIllegalArgumentMessage(throwable: IllegalArgumentException): String {
+        val message = throwable.message.orEmpty()
+        return when {
+            message.contains("Missing location", ignoreCase = true) -> getString(R.string.location_missing)
+            message.contains("Missing phone number", ignoreCase = true) -> getString(R.string.phone_number_missing)
+            message.contains("Missing sms content", ignoreCase = true) -> getString(R.string.sms_content_missing)
+            else -> message.ifBlank { getString(R.string.error_occurred) }
+        }
+    }
+
+    private fun mapVoiceRecognitionMessage(throwable: VoiceRecognitionException): String {
+        val message = throwable.message.orEmpty()
+        return when {
+            message.contains("unavailable", ignoreCase = true) -> getString(R.string.voice_not_supported)
+            message.contains("no speech recognized", ignoreCase = true) -> getString(R.string.voice_capture_failed)
+            else -> getString(R.string.voice_capture_failed)
         }
     }
 

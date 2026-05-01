@@ -154,9 +154,21 @@ buildConfigField "String", "VLM_API_ENDPOINT", "\"https://api-ai.vivo.com.cn/v1/
 - `response_format` 没有继续强绑定在请求体中，当前主要依赖 prompt 严格约束 JSON 输出。
 - README、设计文档和项目说明仍可能存在部分“成熟度高于实现度”的旧表述，后续还要继续统一。
 
+## 本轮补充
+
+本轮重点没有继续扩大功能面，而是先补了几类更影响真机验证效率的稳定性问题：
+
+- 修正 Gradle 仓库声明冲突与 `ui-graphics` 版本缺失，降低 Android Studio Sync 风险
+- 移除当前未实际使用的 Moshi / `kapt` 依赖，减少构建噪音
+- 增强导航地点 URL 编码兼容，降低中文地点跳转失败风险
+- 增强模型接口错误映射，便于区分限流、权限不足、当日额度耗尽
+- 根据模型名兼容 `thinking.type` / `enable_thinking` 参数，减少不同 vivo 模型切换时的请求风险
+- 在协程取消场景下避免误弹错误提示，减少回前台、销毁页面时的噪音
+
 ## 后续建议
 
 - 优先完成真机闭环验证
+- 先在 Android Studio 完成 Gradle Sync 与 Debug 构建
 - 给网络异常、限流和 JSON 解析失败增加重试与降级策略
 - 增加更真实的单元测试
 - 收敛文档表述，让方案、README、代码状态一致

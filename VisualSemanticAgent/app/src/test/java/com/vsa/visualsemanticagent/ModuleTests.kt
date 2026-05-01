@@ -25,6 +25,13 @@ class JsonCleansingUtilsTest {
     }
 
     @Test
+    fun removeMarkdownWrappers_removesPlainCodeFence() {
+        val wrapped = "```\n{\"action\":\"unknown\"}\n```"
+        val json = JsonCleansingUtils.removeMarkdownWrappers(wrapped)
+        assertEquals("{\"action\":\"unknown\"}", json)
+    }
+
+    @Test
     fun extractJsonFromDirtyText_keepsBraces() {
         val dirty = "prefix {\"action\":\"navigate\",\"location\":\"北京\"} suffix"
         val json = JsonCleansingUtils.extractJsonFromDirtyText(dirty)
@@ -68,5 +75,18 @@ class JsonCleansingUtilsTest {
         val message = ResponseInterpreter.buildStatusMessage(response)
 
         assertEquals("暂时无法确定最合适的动作。", message)
+    }
+
+    @Test
+    fun normalizeResponse_defaultsMissingActionToUnknown() {
+        val raw = VLMResponse(
+            action = null,
+            description = "测试描述"
+        )
+
+        val normalized = ResponseInterpreter.normalize(raw)
+
+        assertEquals(ModelConstants.ACTION_UNKNOWN, normalized.action)
+        assertEquals("测试描述", normalized.description)
     }
 }

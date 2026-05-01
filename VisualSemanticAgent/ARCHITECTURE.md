@@ -151,6 +151,9 @@ IntentDispatcher
 2. **控制意图** - 执行动作、调整参数
 3. **交互意图** - 对话、反馈、学习
 
+> 说明：以下 `parseIntent/executeIntent/cancelIntent` 为较早阶段的架构草案接口。
+> 当前 Android 原型实际实现并未暴露该组 API，当前以 `VLMResponse.action` + `IntentDispatcher.dispatchIntent()` 为主。
+
 **关键API**:
 
 ```kotlin

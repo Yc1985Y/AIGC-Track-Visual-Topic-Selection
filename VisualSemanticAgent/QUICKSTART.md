@@ -190,9 +190,9 @@ MainActivity
 | 文档                                           | 内容               | 适用人群           |
 | ---------------------------------------------- | ------------------ | ------------------ |
 | [ARCHITECTURE.md](./ARCHITECTURE.md)           | 系统架构设计       | 架构师、高级开发者 |
-| [API_GUIDE.md](./API_GUIDE.md)                 | API 完整参考       | 开发者、集成人员   |
+| [API_GUIDE.md](./API_GUIDE.md)                 | API/设计参考       | 开发者、集成人员   |
 | [DEVELOPMENT_GUIDE.md](./DEVELOPMENT_GUIDE.md) | 开发规范和最佳实践 | 开发者、测试人员   |
-| [PROJECT_SUMMARY.md](./PROJECT_SUMMARY.md)     | 项目完成总结       | 项目经理、决策者   |
+| [PROJECT_SUMMARY.md](./PROJECT_SUMMARY.md)     | 历史阶段总结       | 项目经理、决策者   |
 
 ### 从哪里开始
 

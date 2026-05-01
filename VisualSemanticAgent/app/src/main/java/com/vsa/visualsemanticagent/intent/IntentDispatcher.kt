@@ -14,6 +14,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.util.Locale
+import java.net.URLEncoder
 
 /**
  * 模块D：Android Intent 操作系统路由引擎
@@ -101,9 +102,10 @@ class IntentDispatcher(private val context: Context) {
      */
     private fun navigateToLocation(response: VLMResponse): DispatchResult {
         val location = response.location ?: throw IllegalArgumentException("Missing location")
+        val encodedLocation = URLEncoder.encode(location, Charsets.UTF_8.name())
         
         val intent = Intent(Intent.ACTION_VIEW).apply {
-            data = Uri.parse("google.navigation:q=$location")
+            data = Uri.parse("google.navigation:q=$encodedLocation")
             setPackage("com.google.android.apps.maps")
         }
         
@@ -113,7 +115,7 @@ class IntentDispatcher(private val context: Context) {
             intent
         } else {
             Intent(Intent.ACTION_VIEW).apply {
-                data = Uri.parse("geo:0,0?q=$location")
+                data = Uri.parse("geo:0,0?q=$encodedLocation")
             }
         }
         
@@ -168,8 +170,10 @@ class IntentDispatcher(private val context: Context) {
         val patterns = listOf(
             "yyyy-MM-dd HH:mm",
             "yyyy/MM/dd HH:mm",
+            "yyyy.MM.dd HH:mm",
             "yyyy年M月d日 HH:mm",
             "yyyy年M月d日 H:mm",
+            "M月d日 HH:mm",
             "yyyy-MM-dd"
         )
 
@@ -177,7 +181,12 @@ class IntentDispatcher(private val context: Context) {
             try {
                 val formatter = DateTimeFormatter.ofPattern(pattern, Locale.CHINA)
                 val localDateTime = if (pattern.contains("HH") || pattern.contains("H:mm")) {
-                    LocalDateTime.parse(trimmed, formatter)
+                    if (pattern.startsWith("M月")) {
+                        val currentYear = LocalDateTime.now().year
+                        LocalDateTime.parse("$currentYear年$trimmed", DateTimeFormatter.ofPattern("yyyy年M月d日 HH:mm", Locale.CHINA))
+                    } else {
+                        LocalDateTime.parse(trimmed, formatter)
+                    }
                 } else {
                     return LocalDateTime.parse("$trimmed 09:00", DateTimeFormatter.ofPattern("$pattern HH:mm", Locale.CHINA))
                         .atZone(ZoneId.systemDefault())

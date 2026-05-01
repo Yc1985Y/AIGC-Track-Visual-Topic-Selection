@@ -28,6 +28,9 @@
     <string name="generating_strategy">正在生成执行策略…</string>
     <string name="network_error">网络连接失败，请检查网络后重试。</string>
     <string name="model_error">视觉语义处理失败，请稍后重试。</string>
+    <string name="model_rate_limited">模型接口当前较忙，请稍后重试。</string>
+    <string name="model_permission_denied">当前 AppKey 没有模型访问权限，请检查比赛配置。</string>
+    <string name="model_daily_quota_exceeded">今日模型调用额度已用完，请稍后再试。</string>
     <string name="parse_error">模型响应解析失败，请重试。</string>
     <string name="location_missing">模型没有返回可导航地点，请换一个角度或补充文字指令再试。</string>
     <string name="phone_number_missing">模型没有返回有效手机号，暂时无法发短信。</string>

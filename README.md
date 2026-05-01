@@ -37,6 +37,14 @@
 - 结果卡片回显
 - 错误弹层与有限重试
 
+这轮又补了一批更偏稳定性的收口项：
+
+- Gradle / 依赖配置纠偏，降低 Android Studio Sync 失败风险
+- 导航地点编码兼容，减少中文地点跳转失败
+- 模型接口更细的错误映射，便于定位限流/权限/额度问题
+- 针对不同 vivo 模型的思考参数兼容处理
+- 更稳妥的协程取消处理，减少中断时误报错误
+
 更详细的工程说明见：
 
 - [VisualSemanticAgent/README.md](./VisualSemanticAgent/README.md)
@@ -59,7 +67,7 @@
 
 ## 下一步
 
-- 在 Android Studio 中完成真实编译
+- 在 Android Studio 中先完成 Gradle Sync 与 Debug 构建
 - 配置比赛 `AppKey`
 - 验证“活动入日历”和“地点导航”两个主演示场景
 - 根据真实接口表现继续补充容错与测试
