@@ -37,7 +37,8 @@ class JsonCleansingUtilsTest {
         val raw = VLMResponse(
             action = "CREATE_MEETING",
             title = "  测试活动  ",
-            answer = "  好的  "
+            answer = "  好的  ",
+            phoneNumber = " 138-0013-8000 "
         )
 
         val normalized = ResponseInterpreter.normalize(raw)
@@ -45,6 +46,7 @@ class JsonCleansingUtilsTest {
         assertEquals(ModelConstants.ACTION_UNKNOWN, normalized.action)
         assertEquals("测试活动", normalized.title)
         assertEquals("好的", normalized.answer)
+        assertEquals("13800138000", normalized.phoneNumber)
     }
 
     @Test
@@ -57,5 +59,14 @@ class JsonCleansingUtilsTest {
         val message = ResponseInterpreter.buildStatusMessage(response, "正在打开地图导航。")
 
         assertEquals("正在打开地图导航。", message)
+    }
+
+    @Test
+    fun buildStatusMessage_usesFallbackForUnknownAction() {
+        val response = VLMResponse(action = ModelConstants.ACTION_UNKNOWN)
+
+        val message = ResponseInterpreter.buildStatusMessage(response)
+
+        assertEquals("暂时无法确定最合适的动作。", message)
     }
 }

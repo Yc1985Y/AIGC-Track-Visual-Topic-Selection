@@ -3,6 +3,7 @@ package com.vsa.visualsemanticagent.camera
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Matrix
+import android.view.Surface
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -25,16 +26,22 @@ object CameraManager {
     private var imageCapture: ImageCapture? = null
     private var cameraProvider: ProcessCameraProvider? = null
     private var cameraExecutor: ExecutorService? = null
+    private var boundPreviewView: PreviewView? = null
 
     fun bindCamera(
         context: Context,
         lifecycleOwner: LifecycleOwner,
         previewView: PreviewView
     ) {
+        if (boundPreviewView === previewView && imageCapture != null && cameraProvider != null) {
+            return
+        }
+
         val providerFuture = ProcessCameraProvider.getInstance(context)
         providerFuture.addListener({
             val provider = providerFuture.get()
             cameraProvider = provider
+            boundPreviewView = previewView
 
             val preview = Preview.Builder().build().apply {
                 surfaceProvider = previewView.surfaceProvider
@@ -42,6 +49,7 @@ object CameraManager {
 
             imageCapture = ImageCapture.Builder()
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                .setTargetRotation(previewView.display?.rotation ?: Surface.ROTATION_0)
                 .build()
 
             provider.unbindAll()
@@ -93,6 +101,7 @@ object CameraManager {
         cameraExecutor = null
         cameraProvider = null
         imageCapture = null
+        boundPreviewView = null
     }
 
     private fun getCameraExecutor(): ExecutorService {

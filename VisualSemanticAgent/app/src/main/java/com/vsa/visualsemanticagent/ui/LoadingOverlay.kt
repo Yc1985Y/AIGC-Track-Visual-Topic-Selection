@@ -2,6 +2,8 @@ package com.vsa.visualsemanticagent.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -89,6 +91,8 @@ fun LoadingOverlay(
 fun ErrorOverlay(
     isVisible: Boolean,
     errorMessage: String = "发生错误",
+    showRetry: Boolean = true,
+    retryText: String = "重试",
     onRetry: () -> Unit = {},
     onDismiss: () -> Unit = {}
 ) {
@@ -110,7 +114,7 @@ fun ErrorOverlay(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .background(Color(0xFF2C2C2C), shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
+                .background(Color(0xFF2C2C2C), shape = RoundedCornerShape(12.dp))
                 .padding(24.dp)
         ) {
             Text(
@@ -126,10 +130,12 @@ fun ErrorOverlay(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                androidx.compose.material3.Button(onClick = onRetry) {
-                    Text("重试")
+                if (showRetry) {
+                    Button(onClick = onRetry) {
+                        Text(retryText)
+                    }
                 }
-                androidx.compose.material3.Button(onClick = onDismiss) {
+                Button(onClick = onDismiss) {
                     Text("关闭")
                 }
             }

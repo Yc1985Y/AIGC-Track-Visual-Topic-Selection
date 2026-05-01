@@ -26,7 +26,7 @@ class VoiceRecognitionManager(private val context: Context) {
 
     suspend fun listenOnce(languageTag: String = "zh-CN"): String {
         initialize()
-        val recognizer = speechRecognizer ?: throw IllegalStateException("Voice recognition unavailable")
+        val recognizer = speechRecognizer ?: throw VoiceRecognitionException("Voice recognition unavailable")
 
         return suspendCancellableCoroutine { continuation ->
             val listener = object : RecognitionListener {
@@ -39,16 +39,22 @@ class VoiceRecognitionManager(private val context: Context) {
                 override fun onEvent(eventType: Int, params: Bundle?) = Unit
 
                 override fun onError(error: Int) {
-                    continuation.resumeWithException(IllegalStateException("Speech recognition failed: $error"))
+                    if (continuation.isActive) {
+                        continuation.resumeWithException(VoiceRecognitionException("Speech recognition failed: $error"))
+                    }
                 }
 
                 override fun onResults(results: Bundle?) {
                     val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                     val text = matches?.firstOrNull()?.trim().orEmpty()
                     if (text.isBlank()) {
-                        continuation.resumeWithException(IllegalStateException("No speech recognized"))
+                        if (continuation.isActive) {
+                            continuation.resumeWithException(VoiceRecognitionException("No speech recognized"))
+                        }
                     } else {
-                        continuation.resume(text)
+                        if (continuation.isActive) {
+                            continuation.resume(text)
+                        }
                     }
                 }
             }
@@ -73,3 +79,5 @@ class VoiceRecognitionManager(private val context: Context) {
         speechRecognizer = null
     }
 }
+
+class VoiceRecognitionException(message: String) : IllegalStateException(message)

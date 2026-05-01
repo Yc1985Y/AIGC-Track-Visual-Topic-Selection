@@ -1,6 +1,7 @@
 package com.vsa.visualsemanticagent.network
 
 import com.google.gson.Gson
+import com.google.gson.JsonParseException
 import com.google.gson.JsonObject
 import com.vsa.visualsemanticagent.model.VLMResponse
 import com.vsa.visualsemanticagent.utils.JsonCleansingUtils
@@ -10,9 +11,11 @@ import kotlinx.coroutines.withContext
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
+import okhttp3.Response
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import timber.log.Timber
+import java.io.IOException
 import java.util.concurrent.TimeUnit
 import java.util.UUID
 
@@ -51,16 +54,28 @@ class VLMNetworkClient(
                     .post(requestBody)
                     .build()
 
-                val response = httpClient.newCall(request).execute()
-                if (!response.isSuccessful) {
-                    val errorBody = response.body?.string().orEmpty()
-                    throw IllegalStateException(
-                        "API request failed with code: ${response.code}, request_id=$requestId, body=$errorBody"
-                    )
+                httpClient.newCall(request).execute().use { response ->
+                    ensureSuccessfulResponse(response, requestId)
+                    val responseBody = response.body?.string().orEmpty()
+                    return@withContext parseOpenAIResponse(responseBody)
                 }
-
-                val responseBody = response.body?.string().orEmpty()
-                return@withContext parseOpenAIResponse(responseBody)
+            } catch (e: VLMResponseParseException) {
+                lastError = e
+                Timber.w(e, "VLM response parsing failed on attempt ${attempt + 1}")
+                throw e
+            } catch (e: VLMApiException) {
+                lastError = e
+                Timber.w(e, "VLM API rejected request on attempt ${attempt + 1}")
+                if (!e.isRetryable || attempt == 1) {
+                    throw e
+                }
+                delay(1200)
+            } catch (e: IOException) {
+                lastError = VLMNetworkException(e)
+                Timber.w(e, "VLM network failed on attempt ${attempt + 1}")
+                if (attempt == 0) {
+                    delay(1200)
+                }
             } catch (e: Exception) {
                 lastError = e
                 Timber.w(e, "VLM request failed on attempt ${attempt + 1}")
@@ -70,7 +85,21 @@ class VLMNetworkClient(
             }
         }
 
-        throw IllegalStateException("VLM request failed after retry", lastError)
+        throw lastError ?: IllegalStateException("VLM request failed after retry")
+    }
+
+    private fun ensureSuccessfulResponse(
+        response: Response,
+        requestId: String
+    ) {
+        if (response.isSuccessful) return
+
+        val errorBody = response.body?.string().orEmpty()
+        throw VLMApiException(
+            code = response.code,
+            requestId = requestId,
+            responseBody = errorBody
+        )
     }
 
     private fun buildRequestPayload(
@@ -153,9 +182,32 @@ class VLMNetworkClient(
                 JsonCleansingUtils.removeMarkdownWrappers(content)
             }
             return gson.fromJson(cleanedJson, VLMResponse::class.java)
+                ?: throw VLMResponseParseException("Empty parsed response", responseBody)
+        } catch (e: VLMResponseParseException) {
+            throw e
+        } catch (e: JsonParseException) {
+            Timber.e(e, "Failed to parse VLM response JSON: $responseBody")
+            throw VLMResponseParseException("Failed to parse VLM response JSON", responseBody, e)
         } catch (e: Exception) {
             Timber.e(e, "Failed to parse VLM response: $responseBody")
-            throw IllegalStateException("Failed to parse VLM response", e)
+            throw VLMResponseParseException("Failed to parse VLM response", responseBody, e)
         }
     }
 }
+
+class VLMNetworkException(cause: Throwable) : IOException(cause)
+
+class VLMApiException(
+    val code: Int,
+    val requestId: String,
+    val responseBody: String
+) : IllegalStateException("API request failed with code: $code, request_id=$requestId, body=$responseBody") {
+    val isRetryable: Boolean
+        get() = code == 429 || code in 500..599
+}
+
+class VLMResponseParseException(
+    message: String,
+    val rawResponse: String,
+    cause: Throwable? = null
+) : IllegalStateException(message, cause)

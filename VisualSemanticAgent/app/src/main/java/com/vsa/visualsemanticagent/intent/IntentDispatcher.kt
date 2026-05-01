@@ -8,6 +8,12 @@ import android.provider.CalendarContract.Events
 import com.vsa.visualsemanticagent.model.ModelConstants
 import com.vsa.visualsemanticagent.model.VLMResponse
 import timber.log.Timber
+import java.time.LocalDateTime
+import java.time.OffsetDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
+import java.util.Locale
 
 /**
  * 模块D：Android Intent 操作系统路由引擎
@@ -62,11 +68,8 @@ class IntentDispatcher(private val context: Context) {
             
             // 提取并设置事件详情
             response.time?.let { timeStr ->
-                try {
-                    val timeMillis = timeStr.toLong()
+                parseEventTimeMillis(timeStr)?.let { timeMillis ->
                     putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, timeMillis)
-                } catch (e: NumberFormatException) {
-                    Timber.e("Invalid time format: $timeStr")
                 }
             }
             
@@ -149,6 +152,65 @@ class IntentDispatcher(private val context: Context) {
         } else {
             Timber.e("No SMS app found")
             throw ActivityNotFoundException("SMS app not found")
+        }
+    }
+
+    private fun parseEventTimeMillis(timeStr: String): Long? {
+        val trimmed = timeStr.trim()
+        if (trimmed.isEmpty()) return null
+
+        trimmed.toLongOrNull()?.let { value ->
+            return if (value < 1_000_000_000_000L) value * 1000 else value
+        }
+
+        parseIsoDateTime(trimmed)?.let { return it }
+
+        val patterns = listOf(
+            "yyyy-MM-dd HH:mm",
+            "yyyy/MM/dd HH:mm",
+            "yyyy年M月d日 HH:mm",
+            "yyyy年M月d日 H:mm",
+            "yyyy-MM-dd"
+        )
+
+        patterns.forEach { pattern ->
+            try {
+                val formatter = DateTimeFormatter.ofPattern(pattern, Locale.CHINA)
+                val localDateTime = if (pattern.contains("HH") || pattern.contains("H:mm")) {
+                    LocalDateTime.parse(trimmed, formatter)
+                } else {
+                    return LocalDateTime.parse("$trimmed 09:00", DateTimeFormatter.ofPattern("$pattern HH:mm", Locale.CHINA))
+                        .atZone(ZoneId.systemDefault())
+                        .toInstant()
+                        .toEpochMilli()
+                }
+                return localDateTime
+                    .atZone(ZoneId.systemDefault())
+                    .toInstant()
+                    .toEpochMilli()
+            } catch (_: DateTimeParseException) {
+                Unit
+            }
+        }
+
+        Timber.w("Invalid time format: $timeStr")
+        return null
+    }
+
+    private fun parseIsoDateTime(value: String): Long? {
+        return try {
+            OffsetDateTime.parse(value)
+                .toInstant()
+                .toEpochMilli()
+        } catch (_: DateTimeParseException) {
+            try {
+                LocalDateTime.parse(value)
+                    .atZone(ZoneId.systemDefault())
+                    .toInstant()
+                    .toEpochMilli()
+            } catch (_: DateTimeParseException) {
+                null
+            }
         }
     }
 }

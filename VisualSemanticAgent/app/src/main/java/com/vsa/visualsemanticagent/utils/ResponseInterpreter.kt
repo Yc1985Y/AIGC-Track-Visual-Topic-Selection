@@ -24,7 +24,7 @@ object ResponseInterpreter {
             location = response.location.cleanValue(),
             answer = response.answer.cleanValue(),
             description = response.description.cleanValue(),
-            phoneNumber = response.phoneNumber.cleanValue()
+            phoneNumber = response.phoneNumber.normalizePhoneNumber()
         )
     }
 
@@ -66,5 +66,11 @@ object ResponseInterpreter {
     private fun String?.cleanValue(): String? {
         val cleaned = this?.trim().orEmpty()
         return cleaned.takeIf { it.isNotBlank() }
+    }
+
+    private fun String?.normalizePhoneNumber(): String? {
+        val cleaned = this.cleanValue() ?: return null
+        val normalized = cleaned.replace(" ", "").replace("-", "")
+        return normalized.takeIf { it.isNotBlank() }
     }
 }

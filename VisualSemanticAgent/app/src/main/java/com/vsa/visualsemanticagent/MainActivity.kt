@@ -15,11 +15,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.vsa.visualsemanticagent.camera.CameraManager
+import com.vsa.visualsemanticagent.intent.ActivityNotFoundException
 import com.vsa.visualsemanticagent.intent.IntentDispatcher
 import com.vsa.visualsemanticagent.model.VLMResponse
+import com.vsa.visualsemanticagent.network.VLMApiException
 import com.vsa.visualsemanticagent.network.VLMNetworkClient
+import com.vsa.visualsemanticagent.network.VLMNetworkException
+import com.vsa.visualsemanticagent.network.VLMResponseParseException
 import com.vsa.visualsemanticagent.tts.TextToSpeechManager
 import com.vsa.visualsemanticagent.ui.CameraPreviewScreen
 import com.vsa.visualsemanticagent.ui.ErrorOverlay
@@ -27,20 +32,31 @@ import com.vsa.visualsemanticagent.ui.LoadingOverlay
 import com.vsa.visualsemanticagent.utils.PromptPreset
 import com.vsa.visualsemanticagent.utils.PromptPresets
 import com.vsa.visualsemanticagent.utils.ResponseInterpreter
+import com.vsa.visualsemanticagent.voice.VoiceRecognitionException
 import com.vsa.visualsemanticagent.voice.VoiceRecognitionManager
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class MainActivity : ComponentActivity() {
 
+    private enum class RecoveryAction {
+        NONE,
+        REQUEST_PERMISSIONS,
+        RETRY_CAPTURE,
+        RETRY_VOICE
+    }
+
     private var isLoading by mutableStateOf(false)
     private var loadingStage by mutableStateOf(0)
     private var commandText by mutableStateOf("")
     private var statusText by mutableStateOf("")
     private var resultText by mutableStateOf("")
-    private var permissionsGranted by mutableStateOf(false)
+    private var cameraPermissionGranted by mutableStateOf(false)
+    private var audioPermissionGranted by mutableStateOf(false)
     private var lastError by mutableStateOf("")
     private var showErrorOverlay by mutableStateOf(false)
+    private var currentRecoveryAction by mutableStateOf(RecoveryAction.NONE)
+    private var appInitialized = false
 
     private lateinit var intentDispatcher: IntentDispatcher
     private lateinit var voiceRecognitionManager: VoiceRecognitionManager
@@ -52,25 +68,33 @@ class MainActivity : ComponentActivity() {
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
-        permissionsGranted = permissions[Manifest.permission.CAMERA] == true &&
-            permissions[Manifest.permission.RECORD_AUDIO] == true
+        cameraPermissionGranted = permissions[Manifest.permission.CAMERA] == true || hasPermission(Manifest.permission.CAMERA)
+        audioPermissionGranted = permissions[Manifest.permission.RECORD_AUDIO] == true || hasPermission(Manifest.permission.RECORD_AUDIO)
 
-        if (permissionsGranted) {
-            initializeApp()
+        if (cameraPermissionGranted) {
+            initializeAppIfNeeded()
+            if (!audioPermissionGranted) {
+                statusText = getString(R.string.microphone_permission_optional)
+            } else if (statusText == getString(R.string.permissions_missing)) {
+                statusText = ""
+            }
+            clearErrorState()
         } else {
-            statusText = getString(R.string.permissions_missing)
-            lastError = statusText
-            showErrorOverlay = true
+            showError(
+                message = getString(R.string.camera_permission_missing),
+                recoveryAction = RecoveryAction.REQUEST_PERMISSIONS
+            )
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG && Timber.forest().isEmpty()) {
             Timber.plant(Timber.DebugTree())
         }
 
+        refreshPermissionState()
         requestPermissions()
 
         setContent {
@@ -88,12 +112,19 @@ class MainActivity : ComponentActivity() {
                 resultText = resultText,
                 showErrorOverlay = showErrorOverlay,
                 errorText = lastError,
-                onRetry = {
-                    showErrorOverlay = false
-                    onCaptureButtonClicked()
-                },
-                onDismissError = { showErrorOverlay = false }
+                showRetry = currentRecoveryAction != RecoveryAction.NONE,
+                retryText = getRetryButtonText(),
+                onRetry = { onRetryRequested() },
+                onDismissError = { clearErrorState() }
             )
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        refreshPermissionState()
+        if (cameraPermissionGranted) {
+            initializeAppIfNeeded()
         }
     }
 
@@ -108,16 +139,39 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun requestPermissions() {
-        permissionLauncher.launch(
-            arrayOf(
-                Manifest.permission.CAMERA,
-                Manifest.permission.RECORD_AUDIO
-            )
-        )
+    private fun requestPermissions(
+        requestCamera: Boolean = true,
+        requestAudio: Boolean = true
+    ) {
+        refreshPermissionState()
+
+        val permissions = buildList {
+            if (requestCamera && !cameraPermissionGranted) {
+                add(Manifest.permission.CAMERA)
+            }
+            if (requestAudio && !audioPermissionGranted) {
+                add(Manifest.permission.RECORD_AUDIO)
+            }
+        }
+
+        if (permissions.isEmpty()) {
+            if (cameraPermissionGranted) {
+                initializeAppIfNeeded()
+            }
+            return
+        }
+
+        permissionLauncher.launch(permissions.toTypedArray())
     }
 
-    private fun initializeApp() {
+    private fun initializeAppIfNeeded() {
+        if (appInitialized) {
+            if (::voiceRecognitionManager.isInitialized && audioPermissionGranted) {
+                voiceRecognitionManager.initialize()
+            }
+            return
+        }
+
         intentDispatcher = IntentDispatcher(this)
         voiceRecognitionManager = VoiceRecognitionManager(this)
         textToSpeechManager = TextToSpeechManager(this)
@@ -129,10 +183,11 @@ class MainActivity : ComponentActivity() {
         voiceRecognitionManager.initialize()
         statusText = ""
         resultText = ""
+        appInitialized = true
     }
 
     private fun bindPreview(previewView: PreviewView) {
-        if (!permissionsGranted) return
+        if (!cameraPermissionGranted) return
         CameraManager.bindCamera(this, this, previewView)
     }
 
@@ -142,41 +197,62 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun onVoiceButtonClicked() {
-        if (!permissionsGranted || !::voiceRecognitionManager.isInitialized) return
+        if (!cameraPermissionGranted) {
+            showError(
+                message = getString(R.string.camera_permission_missing),
+                recoveryAction = RecoveryAction.REQUEST_PERMISSIONS
+            )
+            requestPermissions(requestCamera = true, requestAudio = false)
+            return
+        }
+        if (!audioPermissionGranted) {
+            showError(
+                message = getString(R.string.microphone_permission_missing),
+                recoveryAction = RecoveryAction.REQUEST_PERMISSIONS
+            )
+            requestPermissions(requestCamera = false, requestAudio = true)
+            return
+        }
+        if (!::voiceRecognitionManager.isInitialized) {
+            initializeAppIfNeeded()
+        }
 
         lifecycleScope.launch {
             try {
-                showErrorOverlay = false
+                clearErrorState()
                 statusText = getString(R.string.voice_listening)
                 commandText = voiceRecognitionManager.listenOnce()
                 statusText = "已识别语音指令"
             } catch (e: Exception) {
                 Timber.e(e, "Voice capture failed")
-                lastError = getString(R.string.voice_not_supported)
-                statusText = lastError
-                showErrorOverlay = true
+                handleError(e, RecoveryAction.RETRY_VOICE)
             }
         }
     }
 
     private fun onCaptureButtonClicked() {
-        if (!permissionsGranted) {
-            statusText = getString(R.string.permissions_missing)
-            lastError = statusText
-            showErrorOverlay = true
+        if (!cameraPermissionGranted) {
+            showError(
+                message = getString(R.string.camera_permission_missing),
+                recoveryAction = RecoveryAction.REQUEST_PERMISSIONS
+            )
+            requestPermissions(requestCamera = true, requestAudio = false)
             return
         }
+        initializeAppIfNeeded()
         if (BuildConfig.VLM_API_KEY.isBlank()) {
-            statusText = getString(R.string.api_key_missing)
-            lastError = statusText
-            showErrorOverlay = true
+            showError(
+                message = getString(R.string.api_key_missing),
+                recoveryAction = RecoveryAction.NONE
+            )
             playTextToSpeech(statusText)
             return
         }
 
         isLoading = true
         loadingStage = 0
-        showErrorOverlay = false
+        resultText = ""
+        clearErrorState()
 
         lifecycleScope.launch {
             try {
@@ -200,10 +276,10 @@ class MainActivity : ComponentActivity() {
                 }
             } catch (e: Exception) {
                 Timber.e(e, "Error during capture flow")
-                lastError = e.message ?: getString(R.string.error_occurred)
-                statusText = lastError
-                showErrorOverlay = true
-                playFallbackMessage()
+                handleError(e, RecoveryAction.RETRY_CAPTURE)
+                if (lastError.isNotBlank()) {
+                    playTextToSpeech(lastError)
+                }
             } finally {
                 isLoading = false
                 loadingStage = 0
@@ -220,14 +296,13 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun buildResultCardText(response: VLMResponse, summary: String): String {
-        val parts = buildList {
-            add(summary)
-            response.title?.let { add("标题：$it") }
-            response.time?.let { add("时间：$it") }
-            response.location?.let { add("地点：$it") }
-            response.description?.let { add("描述：$it") }
-            response.answer?.let { add("回复：$it") }
-        }
+        val parts = linkedSetOf<String>()
+        parts.add(summary)
+        response.title?.let { parts.add("标题：$it") }
+        response.time?.let { parts.add("时间：$it") }
+        response.location?.let { parts.add("地点：$it") }
+        response.description?.let { parts.add("描述：$it") }
+        response.answer?.let { parts.add("回复：$it") }
         return parts.joinToString(separator = "\n")
     }
 
@@ -235,8 +310,100 @@ class MainActivity : ComponentActivity() {
         textToSpeechManager.speak(text)
     }
 
-    private fun playFallbackMessage() {
-        playTextToSpeech(getString(R.string.fallback_message))
+    private fun onRetryRequested() {
+        val recoveryAction = currentRecoveryAction
+        clearErrorState()
+        when (recoveryAction) {
+            RecoveryAction.REQUEST_PERMISSIONS -> requestPermissions(
+                requestCamera = !cameraPermissionGranted,
+                requestAudio = !audioPermissionGranted
+            )
+            RecoveryAction.RETRY_CAPTURE -> onCaptureButtonClicked()
+            RecoveryAction.RETRY_VOICE -> onVoiceButtonClicked()
+            RecoveryAction.NONE -> Unit
+        }
+    }
+
+    private fun handleError(
+        throwable: Throwable,
+        recoveryAction: RecoveryAction
+    ) {
+        showError(
+            message = resolveErrorMessage(throwable),
+            recoveryAction = recoveryAction
+        )
+    }
+
+    private fun showError(
+        message: String,
+        recoveryAction: RecoveryAction
+    ) {
+        statusText = message
+        lastError = message
+        currentRecoveryAction = recoveryAction
+        showErrorOverlay = true
+    }
+
+    private fun clearErrorState() {
+        lastError = ""
+        currentRecoveryAction = RecoveryAction.NONE
+        showErrorOverlay = false
+    }
+
+    private fun resolveErrorMessage(throwable: Throwable): String {
+        return when (throwable) {
+            is VLMNetworkException -> getString(R.string.network_error)
+            is VLMApiException -> getString(R.string.model_error)
+            is VLMResponseParseException -> getString(R.string.parse_error)
+            is ActivityNotFoundException -> mapActivityNotFoundMessage(throwable)
+            is VoiceRecognitionException -> getString(R.string.voice_capture_failed)
+            is IllegalStateException -> mapIllegalStateMessage(throwable)
+            else -> throwable.message ?: getString(R.string.error_occurred)
+        }
+    }
+
+    private fun mapIllegalStateMessage(throwable: IllegalStateException): String {
+        val message = throwable.message.orEmpty()
+        return when {
+            message.contains("Camera is not ready", ignoreCase = true) -> getString(R.string.camera_not_ready)
+            message.contains("Voice recognition unavailable", ignoreCase = true) -> getString(R.string.voice_not_supported)
+            message.contains("No speech recognized", ignoreCase = true) -> getString(R.string.voice_capture_failed)
+            message.contains("Missing location", ignoreCase = true) -> getString(R.string.location_missing)
+            message.contains("Missing phone number", ignoreCase = true) -> getString(R.string.phone_number_missing)
+            message.contains("Missing sms content", ignoreCase = true) -> getString(R.string.sms_content_missing)
+            else -> message.ifBlank { getString(R.string.error_occurred) }
+        }
+    }
+
+    private fun mapActivityNotFoundMessage(throwable: ActivityNotFoundException): String {
+        val message = throwable.message.orEmpty()
+        return when {
+            message.contains("Calendar", ignoreCase = true) -> getString(R.string.calendar_app_missing)
+            message.contains("Map", ignoreCase = true) -> getString(R.string.map_app_missing)
+            message.contains("SMS", ignoreCase = true) -> getString(R.string.sms_app_missing)
+            else -> getString(R.string.error_occurred)
+        }
+    }
+
+    private fun getRetryButtonText(): String {
+        return when (currentRecoveryAction) {
+            RecoveryAction.REQUEST_PERMISSIONS -> getString(R.string.retry_permission)
+            RecoveryAction.RETRY_CAPTURE,
+            RecoveryAction.RETRY_VOICE -> getString(R.string.retry)
+            RecoveryAction.NONE -> getString(R.string.retry)
+        }
+    }
+
+    private fun refreshPermissionState() {
+        cameraPermissionGranted = hasPermission(Manifest.permission.CAMERA)
+        audioPermissionGranted = hasPermission(Manifest.permission.RECORD_AUDIO)
+    }
+
+    private fun hasPermission(permission: String): Boolean {
+        return ContextCompat.checkSelfPermission(
+            this,
+            permission
+        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
     }
 }
 
@@ -255,6 +422,8 @@ fun MainScreen(
     resultText: String,
     showErrorOverlay: Boolean,
     errorText: String,
+    showRetry: Boolean,
+    retryText: String,
     onRetry: () -> Unit,
     onDismissError: () -> Unit
 ) {
@@ -284,6 +453,8 @@ fun MainScreen(
             ErrorOverlay(
                 isVisible = showErrorOverlay,
                 errorMessage = errorText,
+                showRetry = showRetry,
+                retryText = retryText,
                 onRetry = onRetry,
                 onDismiss = onDismissError
             )
