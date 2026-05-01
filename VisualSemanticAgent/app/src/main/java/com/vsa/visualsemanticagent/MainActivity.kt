@@ -47,6 +47,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private var isLoading by mutableStateOf(false)
+    private var isVoiceListening by mutableStateOf(false)
     private var loadingStage by mutableStateOf(0)
     private var commandText by mutableStateOf("")
     private var statusText by mutableStateOf("")
@@ -107,6 +108,7 @@ class MainActivity : ComponentActivity() {
                 bindPreview = { bindPreview(it) },
                 presets = presets,
                 isLoading = isLoading,
+                isVoiceListening = isVoiceListening,
                 loadingStage = loadingStage,
                 statusText = statusText,
                 resultText = resultText,
@@ -197,6 +199,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun onVoiceButtonClicked() {
+        if (isVoiceListening) return
         if (!cameraPermissionGranted) {
             showError(
                 message = getString(R.string.camera_permission_missing),
@@ -219,6 +222,7 @@ class MainActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             try {
+                isVoiceListening = true
                 clearErrorState()
                 statusText = getString(R.string.voice_listening)
                 commandText = voiceRecognitionManager.listenOnce()
@@ -226,6 +230,8 @@ class MainActivity : ComponentActivity() {
             } catch (e: Exception) {
                 Timber.e(e, "Voice capture failed")
                 handleError(e, RecoveryAction.RETRY_VOICE)
+            } finally {
+                isVoiceListening = false
             }
         }
     }
@@ -417,6 +423,7 @@ fun MainScreen(
     bindPreview: (PreviewView) -> Unit,
     presets: List<PromptPreset>,
     isLoading: Boolean,
+    isVoiceListening: Boolean,
     loadingStage: Int,
     statusText: String,
     resultText: String,
@@ -441,6 +448,7 @@ fun MainScreen(
                 bindPreview = bindPreview,
                 presets = presets,
                 isLoading = isLoading,
+                isVoiceListening = isVoiceListening,
                 statusText = statusText,
                 resultText = resultText
             )

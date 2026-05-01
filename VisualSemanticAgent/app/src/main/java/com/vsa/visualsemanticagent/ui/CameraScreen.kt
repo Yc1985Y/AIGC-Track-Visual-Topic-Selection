@@ -50,6 +50,7 @@ fun CameraPreviewScreen(
     bindPreview: (PreviewView) -> Unit,
     presets: List<PromptPreset>,
     isLoading: Boolean = false,
+    isVoiceListening: Boolean = false,
     statusText: String? = null,
     resultText: String? = null
 ) {
@@ -94,6 +95,7 @@ fun CameraPreviewScreen(
                 presets.forEach { preset ->
                     AssistChip(
                         onClick = { onPresetClick(preset) },
+                        enabled = !isLoading && !isVoiceListening,
                         label = { Text(preset.label) },
                         colors = AssistChipDefaults.assistChipColors(
                             containerColor = Color.White.copy(alpha = 0.18f),
@@ -118,7 +120,7 @@ fun CameraPreviewScreen(
             ) {
                 FloatingActionButton(
                     onClick = {
-                        if (!isLoading) {
+                        if (!isLoading && !isVoiceListening) {
                             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                             onVoiceClick()
                         }
@@ -132,7 +134,7 @@ fun CameraPreviewScreen(
 
                 FloatingActionButton(
                     onClick = {
-                        if (!isLoading) {
+                        if (!isLoading && !isVoiceListening) {
                             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                             onCaptureClick()
                         }
