@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Visual Semantic Agent</string>
+    <string name="camera_capture">拍照执行</string>
+    <string name="voice_input">语音输入</string>
+    <string name="command_hint">输入或语音说出指令，例如：帮我把这个活动加入日历</string>
+    <string name="loading_text">处理中…</string>
+    <string name="error_occurred">出现错误</string>
+    <string name="retry">重试</string>
+    <string name="result_title">执行结果</string>
+    <string name="permissions_missing">请先授予相机和麦克风权限。</string>
+    <string name="camera_preview_placeholder">相机预览不可用</string>
+    <string name="default_command">请识别图像内容并给出最合适的反馈或动作。</string>
+    <string name="api_key_missing">尚未配置 VLM API Key，请在 BuildConfig 中填写后重试。</string>
+    <string name="voice_listening">正在听你说话…</string>
+    <string name="voice_not_supported">当前设备不支持语音识别。</string>
+    <string name="scanning_features">正在扫描物理空间特征…</string>
+    <string name="cloud_analysis">云端语义深度解析中…</string>
+    <string name="generating_strategy">正在生成执行策略…</string>
+    <string name="network_error">网络连接失败，请检查网络后重试。</string>
+    <string name="model_error">视觉语义处理失败，请稍后重试。</string>
+    <string name="parse_error">模型响应解析失败，请重试。</string>
+    <string name="fallback_message">抱歉，当前的物理环境特征过于复杂，我未能完全看清，能请您稍微靠近一点或者调整一下光线再试一次吗？</string>
+</resources>
