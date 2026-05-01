@@ -16,22 +16,35 @@ import timber.log.Timber
  * 并将其转化为具体的系统动作，分发至Android操作系统的各项内置应用程序。
  */
 class IntentDispatcher(private val context: Context) {
+
+    data class DispatchResult(
+        val launchedIntent: Boolean,
+        val summary: String
+    )
     
     /**
      * 根据VLMResponse分发意图
      * @param response 解析好的VLM响应
      */
-    fun dispatchIntent(response: VLMResponse) {
+    fun dispatchIntent(response: VLMResponse): DispatchResult {
         try {
-            when (response.action) {
+            return when (response.action) {
                 ModelConstants.ACTION_CREATE_EVENT -> createCalendarEvent(response)
                 ModelConstants.ACTION_NAVIGATE -> navigateToLocation(response)
                 ModelConstants.ACTION_TTS_FEEDBACK -> {
                     Timber.d("TTS feedback action: ${response.answer}")
+                    DispatchResult(
+                        launchedIntent = false,
+                        summary = response.answer ?: response.description ?: "已生成语义反馈。"
+                    )
                 }
                 ModelConstants.ACTION_SEND_SMS -> sendSMS(response)
                 else -> {
                     Timber.w("Unknown action: ${response.action}")
+                    DispatchResult(
+                        launchedIntent = false,
+                        summary = response.answer ?: response.description ?: "模型未返回明确动作。"
+                    )
                 }
             }
         } catch (e: Exception) {
@@ -43,7 +56,7 @@ class IntentDispatcher(private val context: Context) {
     /**
      * 创建日历事件
      */
-    private fun createCalendarEvent(response: VLMResponse) {
+    private fun createCalendarEvent(response: VLMResponse): DispatchResult {
         val intent = Intent(Intent.ACTION_INSERT).apply {
             data = Events.CONTENT_URI
             
@@ -70,6 +83,10 @@ class IntentDispatcher(private val context: Context) {
         if (intent.resolveActivity(context.packageManager) != null) {
             context.startActivity(intent)
             Timber.d("Calendar event created: ${response.title}")
+            return DispatchResult(
+                launchedIntent = true,
+                summary = response.title?.let { "已识别活动：$it，正在打开日历。" } ?: "正在打开日历。"
+            )
         } else {
             Timber.e("No calendar app found to handle intent")
             throw ActivityNotFoundException("Calendar app not found")
@@ -79,7 +96,7 @@ class IntentDispatcher(private val context: Context) {
     /**
      * 导航到指定位置
      */
-    private fun navigateToLocation(response: VLMResponse) {
+    private fun navigateToLocation(response: VLMResponse): DispatchResult {
         val location = response.location ?: throw IllegalArgumentException("Missing location")
         
         val intent = Intent(Intent.ACTION_VIEW).apply {
@@ -100,6 +117,10 @@ class IntentDispatcher(private val context: Context) {
         if (finalIntent.resolveActivity(context.packageManager) != null) {
             context.startActivity(finalIntent)
             Timber.d("Navigation intent sent for: $location")
+            return DispatchResult(
+                launchedIntent = true,
+                summary = "已识别地点：$location，正在打开地图导航。"
+            )
         } else {
             Timber.e("No map app found to handle navigation")
             throw ActivityNotFoundException("Map app not found")
@@ -109,9 +130,9 @@ class IntentDispatcher(private val context: Context) {
     /**
      * 发送短信
      */
-    private fun sendSMS(response: VLMResponse) {
+    private fun sendSMS(response: VLMResponse): DispatchResult {
         val phoneNumber = response.phoneNumber ?: throw IllegalArgumentException("Missing phone number")
-        val message = response.answer ?: return
+        val message = response.answer ?: throw IllegalArgumentException("Missing sms content")
         
         val intent = Intent(Intent.ACTION_SENDTO).apply {
             data = Uri.parse("smsto:$phoneNumber")
@@ -121,6 +142,10 @@ class IntentDispatcher(private val context: Context) {
         if (intent.resolveActivity(context.packageManager) != null) {
             context.startActivity(intent)
             Timber.d("SMS sent to: $phoneNumber")
+            return DispatchResult(
+                launchedIntent = true,
+                summary = "已准备给 $phoneNumber 的短信。"
+            )
         } else {
             Timber.e("No SMS app found")
             throw ActivityNotFoundException("SMS app not found")

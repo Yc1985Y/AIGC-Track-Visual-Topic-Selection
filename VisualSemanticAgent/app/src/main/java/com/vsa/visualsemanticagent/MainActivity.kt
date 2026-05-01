@@ -18,12 +18,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.lifecycleScope
 import com.vsa.visualsemanticagent.camera.CameraManager
 import com.vsa.visualsemanticagent.intent.IntentDispatcher
-import com.vsa.visualsemanticagent.model.ModelConstants
 import com.vsa.visualsemanticagent.model.VLMResponse
 import com.vsa.visualsemanticagent.network.VLMNetworkClient
 import com.vsa.visualsemanticagent.tts.TextToSpeechManager
 import com.vsa.visualsemanticagent.ui.CameraPreviewScreen
+import com.vsa.visualsemanticagent.ui.ErrorOverlay
 import com.vsa.visualsemanticagent.ui.LoadingOverlay
+import com.vsa.visualsemanticagent.utils.PromptPreset
+import com.vsa.visualsemanticagent.utils.PromptPresets
+import com.vsa.visualsemanticagent.utils.ResponseInterpreter
 import com.vsa.visualsemanticagent.voice.VoiceRecognitionManager
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -34,12 +37,17 @@ class MainActivity : ComponentActivity() {
     private var loadingStage by mutableStateOf(0)
     private var commandText by mutableStateOf("")
     private var statusText by mutableStateOf("")
+    private var resultText by mutableStateOf("")
     private var permissionsGranted by mutableStateOf(false)
+    private var lastError by mutableStateOf("")
+    private var showErrorOverlay by mutableStateOf(false)
 
     private lateinit var intentDispatcher: IntentDispatcher
     private lateinit var voiceRecognitionManager: VoiceRecognitionManager
     private lateinit var textToSpeechManager: TextToSpeechManager
     private lateinit var vlmNetworkClient: VLMNetworkClient
+
+    private val presets = PromptPresets.defaults
 
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -51,6 +59,8 @@ class MainActivity : ComponentActivity() {
             initializeApp()
         } else {
             statusText = getString(R.string.permissions_missing)
+            lastError = statusText
+            showErrorOverlay = true
         }
     }
 
@@ -69,10 +79,20 @@ class MainActivity : ComponentActivity() {
                 onCommandChanged = { commandText = it },
                 onCapture = { onCaptureButtonClicked() },
                 onVoice = { onVoiceButtonClicked() },
+                onPreset = { onPresetSelected(it) },
                 bindPreview = { bindPreview(it) },
+                presets = presets,
                 isLoading = isLoading,
                 loadingStage = loadingStage,
-                statusText = statusText
+                statusText = statusText,
+                resultText = resultText,
+                showErrorOverlay = showErrorOverlay,
+                errorText = lastError,
+                onRetry = {
+                    showErrorOverlay = false
+                    onCaptureButtonClicked()
+                },
+                onDismissError = { showErrorOverlay = false }
             )
         }
     }
@@ -108,6 +128,7 @@ class MainActivity : ComponentActivity() {
         )
         voiceRecognitionManager.initialize()
         statusText = ""
+        resultText = ""
     }
 
     private fun bindPreview(previewView: PreviewView) {
@@ -115,17 +136,25 @@ class MainActivity : ComponentActivity() {
         CameraManager.bindCamera(this, this, previewView)
     }
 
+    private fun onPresetSelected(preset: PromptPreset) {
+        commandText = preset.prompt
+        statusText = "已选择场景：${preset.label}"
+    }
+
     private fun onVoiceButtonClicked() {
         if (!permissionsGranted || !::voiceRecognitionManager.isInitialized) return
 
         lifecycleScope.launch {
             try {
+                showErrorOverlay = false
                 statusText = getString(R.string.voice_listening)
                 commandText = voiceRecognitionManager.listenOnce()
-                statusText = commandText
+                statusText = "已识别语音指令"
             } catch (e: Exception) {
                 Timber.e(e, "Voice capture failed")
-                statusText = getString(R.string.voice_not_supported)
+                lastError = getString(R.string.voice_not_supported)
+                statusText = lastError
+                showErrorOverlay = true
             }
         }
     }
@@ -133,16 +162,21 @@ class MainActivity : ComponentActivity() {
     private fun onCaptureButtonClicked() {
         if (!permissionsGranted) {
             statusText = getString(R.string.permissions_missing)
+            lastError = statusText
+            showErrorOverlay = true
             return
         }
         if (BuildConfig.VLM_API_KEY.isBlank()) {
             statusText = getString(R.string.api_key_missing)
+            lastError = statusText
+            showErrorOverlay = true
             playTextToSpeech(statusText)
             return
         }
 
         isLoading = true
         loadingStage = 0
+        showErrorOverlay = false
 
         lifecycleScope.launch {
             try {
@@ -151,14 +185,24 @@ class MainActivity : ComponentActivity() {
                 val finalCommand = commandText.ifBlank { getString(R.string.default_command) }
 
                 loadingStage = 1
-                val response = sendToVLM(base64Image, finalCommand)
+                val rawResponse = sendToVLM(base64Image, finalCommand)
+                val response = ResponseInterpreter.normalize(rawResponse)
 
                 loadingStage = 2
-                dispatchAction(response)
-                handleResponseFeedback(response)
+                val dispatchResult = dispatchAction(response)
+                val status = ResponseInterpreter.buildStatusMessage(response, dispatchResult.summary)
+                val speechText = ResponseInterpreter.buildSpeechText(response, dispatchResult.summary)
+
+                statusText = status
+                resultText = buildResultCardText(response, dispatchResult.summary)
+                if (!speechText.isNullOrBlank()) {
+                    playTextToSpeech(speechText)
+                }
             } catch (e: Exception) {
                 Timber.e(e, "Error during capture flow")
-                statusText = e.message ?: getString(R.string.error_occurred)
+                lastError = e.message ?: getString(R.string.error_occurred)
+                statusText = lastError
+                showErrorOverlay = true
                 playFallbackMessage()
             } finally {
                 isLoading = false
@@ -171,25 +215,20 @@ class MainActivity : ComponentActivity() {
         return vlmNetworkClient.sendMultimodalRequest(base64Image, userText)
     }
 
-    private fun dispatchAction(response: VLMResponse) {
-        intentDispatcher.dispatchIntent(response)
+    private fun dispatchAction(response: VLMResponse): IntentDispatcher.DispatchResult {
+        return intentDispatcher.dispatchIntent(response)
     }
 
-    private fun handleResponseFeedback(response: VLMResponse) {
-        statusText = buildStatusMessage(response)
-        if (response.action == ModelConstants.ACTION_TTS_FEEDBACK || !response.answer.isNullOrBlank()) {
-            playTextToSpeech(response.answer ?: response.description ?: statusText)
+    private fun buildResultCardText(response: VLMResponse, summary: String): String {
+        val parts = buildList {
+            add(summary)
+            response.title?.let { add("标题：$it") }
+            response.time?.let { add("时间：$it") }
+            response.location?.let { add("地点：$it") }
+            response.description?.let { add("描述：$it") }
+            response.answer?.let { add("回复：$it") }
         }
-    }
-
-    private fun buildStatusMessage(response: VLMResponse): String {
-        return when (response.action) {
-            ModelConstants.ACTION_CREATE_EVENT -> "已识别活动信息，正在打开日历。"
-            ModelConstants.ACTION_NAVIGATE -> "已识别地点，正在打开地图导航。"
-            ModelConstants.ACTION_SEND_SMS -> "已准备短信内容。"
-            ModelConstants.ACTION_TTS_FEEDBACK -> response.answer ?: response.description ?: "已完成语义反馈。"
-            else -> response.answer ?: response.description ?: "无法确定动作，已返回说明。"
-        }
+        return parts.joinToString(separator = "\n")
     }
 
     private fun playTextToSpeech(text: String) {
@@ -207,10 +246,17 @@ fun MainScreen(
     onCommandChanged: (String) -> Unit,
     onCapture: () -> Unit,
     onVoice: () -> Unit,
+    onPreset: (PromptPreset) -> Unit,
     bindPreview: (PreviewView) -> Unit,
+    presets: List<PromptPreset>,
     isLoading: Boolean,
     loadingStage: Int,
-    statusText: String
+    statusText: String,
+    resultText: String,
+    showErrorOverlay: Boolean,
+    errorText: String,
+    onRetry: () -> Unit,
+    onDismissError: () -> Unit
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -222,14 +268,24 @@ fun MainScreen(
                 onCommandChanged = onCommandChanged,
                 onCaptureClick = onCapture,
                 onVoiceClick = onVoice,
+                onPresetClick = onPreset,
                 bindPreview = bindPreview,
+                presets = presets,
                 isLoading = isLoading,
-                statusText = statusText
+                statusText = statusText,
+                resultText = resultText
             )
 
             LoadingOverlay(
                 isVisible = isLoading,
                 currentStage = loadingStage
+            )
+
+            ErrorOverlay(
+                isVisible = showErrorOverlay,
+                errorMessage = errorText,
+                onRetry = onRetry,
+                onDismiss = onDismissError
             )
         }
     }

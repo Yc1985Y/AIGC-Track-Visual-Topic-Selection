@@ -5,6 +5,7 @@ import com.google.gson.JsonObject
 import com.vsa.visualsemanticagent.model.VLMResponse
 import com.vsa.visualsemanticagent.utils.JsonCleansingUtils
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaType
@@ -33,29 +34,43 @@ class VLMNetworkClient(
         base64Image: String,
         userText: String
     ): VLMResponse = withContext(Dispatchers.IO) {
-        val requestId = UUID.randomUUID().toString()
-        val requestBody = buildRequestPayload(base64Image, userText)
-        val request = Request.Builder()
-            .url(
-                apiEndpoint.toHttpUrl().newBuilder()
-                    .addQueryParameter("request_id", requestId)
-                    .build()
-            )
-            .header("Authorization", "Bearer $apiKey")
-            .header("Content-Type", "application/json")
-            .post(requestBody)
-            .build()
+        var lastError: Exception? = null
 
-        val response = httpClient.newCall(request).execute()
-        if (!response.isSuccessful) {
-            val errorBody = response.body?.string().orEmpty()
-            throw IllegalStateException(
-                "API request failed with code: ${response.code}, request_id=$requestId, body=$errorBody"
-            )
+        repeat(2) { attempt ->
+            val requestId = UUID.randomUUID().toString()
+            try {
+                val requestBody = buildRequestPayload(base64Image, userText)
+                val request = Request.Builder()
+                    .url(
+                        apiEndpoint.toHttpUrl().newBuilder()
+                            .addQueryParameter("request_id", requestId)
+                            .build()
+                    )
+                    .header("Authorization", "Bearer $apiKey")
+                    .header("Content-Type", "application/json")
+                    .post(requestBody)
+                    .build()
+
+                val response = httpClient.newCall(request).execute()
+                if (!response.isSuccessful) {
+                    val errorBody = response.body?.string().orEmpty()
+                    throw IllegalStateException(
+                        "API request failed with code: ${response.code}, request_id=$requestId, body=$errorBody"
+                    )
+                }
+
+                val responseBody = response.body?.string().orEmpty()
+                return@withContext parseOpenAIResponse(responseBody)
+            } catch (e: Exception) {
+                lastError = e
+                Timber.w(e, "VLM request failed on attempt ${attempt + 1}")
+                if (attempt == 0) {
+                    delay(1200)
+                }
+            }
         }
 
-        val responseBody = response.body?.string().orEmpty()
-        parseOpenAIResponse(responseBody)
+        throw IllegalStateException("VLM request failed after retry", lastError)
     }
 
     private fun buildRequestPayload(
