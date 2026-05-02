@@ -39,26 +39,32 @@ object CameraManager {
 
         val providerFuture = ProcessCameraProvider.getInstance(context)
         providerFuture.addListener({
-            val provider = providerFuture.get()
-            cameraProvider = provider
-            boundPreviewView = previewView
+            try {
+                val provider = providerFuture.get()
+                cameraProvider = provider
+                boundPreviewView = previewView
 
-            val preview = Preview.Builder().build().apply {
-                surfaceProvider = previewView.surfaceProvider
+                val preview = Preview.Builder().build().apply {
+                    surfaceProvider = previewView.surfaceProvider
+                }
+
+                imageCapture = ImageCapture.Builder()
+                    .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                    .setTargetRotation(previewView.display?.rotation ?: Surface.ROTATION_0)
+                    .build()
+
+                provider.unbindAll()
+                provider.bindToLifecycle(
+                    lifecycleOwner,
+                    CameraSelector.DEFAULT_BACK_CAMERA,
+                    preview,
+                    imageCapture
+                )
+            } catch (e: Exception) {
+                imageCapture = null
+                boundPreviewView = null
+                Timber.e(e, "Failed to bind camera preview")
             }
-
-            imageCapture = ImageCapture.Builder()
-                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-                .setTargetRotation(previewView.display?.rotation ?: Surface.ROTATION_0)
-                .build()
-
-            provider.unbindAll()
-            provider.bindToLifecycle(
-                lifecycleOwner,
-                CameraSelector.DEFAULT_BACK_CAMERA,
-                preview,
-                imageCapture
-            )
         }, ContextCompat.getMainExecutor(context))
     }
 

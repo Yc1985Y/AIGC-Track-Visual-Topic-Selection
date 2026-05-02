@@ -408,7 +408,7 @@ class MainActivity : ComponentActivity() {
 
     private fun mapVoiceRecognitionMessage(throwable: VoiceRecognitionException): String {
         val message = throwable.message.orEmpty()
-        val errorCode = message.substringAfterLast(": ", "").toIntOrNull()
+        val errorCode = throwable.errorCode ?: message.substringAfterLast(": ", "").toIntOrNull()
         return when {
             message.contains("unavailable", ignoreCase = true) -> getString(R.string.voice_not_supported)
             message.contains("no speech recognized", ignoreCase = true) -> getString(R.string.voice_capture_failed)

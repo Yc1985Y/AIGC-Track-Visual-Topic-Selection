@@ -50,7 +50,12 @@ class VoiceRecognitionManager(private val context: Context) {
 
                 override fun onError(error: Int) {
                     if (continuation.isActive) {
-                        continuation.resumeWithException(VoiceRecognitionException("Speech recognition failed: $error"))
+                        continuation.resumeWithException(
+                            VoiceRecognitionException(
+                                message = "Speech recognition failed",
+                                errorCode = error
+                            )
+                        )
                     }
                 }
 
@@ -90,4 +95,9 @@ class VoiceRecognitionManager(private val context: Context) {
     }
 }
 
-class VoiceRecognitionException(message: String) : IllegalStateException(message)
+class VoiceRecognitionException(
+    message: String,
+    val errorCode: Int? = null
+) : IllegalStateException(
+    if (errorCode == null) message else "$message: $errorCode"
+)

@@ -115,4 +115,16 @@ class JsonCleansingUtilsTest {
         assertEquals("第一教学楼 A 座", normalized.location)
         assertEquals("活动在一层大厅", normalized.description)
     }
+
+    @Test
+    fun buildStatusMessage_usesDescriptionForSmsFallback() {
+        val response = VLMResponse(
+            action = ModelConstants.ACTION_SEND_SMS,
+            description = "给小王发一条提醒短信"
+        )
+
+        val message = ResponseInterpreter.buildStatusMessage(response)
+
+        assertEquals("已准备短信内容。", message)
+    }
 }

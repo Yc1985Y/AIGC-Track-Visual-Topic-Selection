@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.consume
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -48,8 +49,8 @@ fun LoadingOverlay(
             .pointerInput(Unit) {
                 awaitPointerEventScope {
                     while (true) {
-                        awaitPointerEvent(PointerEventPass.Initial)
-                        // 消费事件，防止传递到底层
+                        val event = awaitPointerEvent(PointerEventPass.Initial)
+                        event.changes.forEach { it.consume() }
                     }
                 }
             },
@@ -104,7 +105,8 @@ fun ErrorOverlay(
             .pointerInput(Unit) {
                 awaitPointerEventScope {
                     while (true) {
-                        awaitPointerEvent(PointerEventPass.Initial)
+                        val event = awaitPointerEvent(PointerEventPass.Initial)
+                        event.changes.forEach { it.consume() }
                     }
                 }
             },

@@ -109,6 +109,7 @@ fun CameraPreviewScreen(
                 value = commandText,
                 onValueChange = onCommandChanged,
                 modifier = Modifier.fillMaxWidth(),
+                enabled = !isLoading && !isVoiceListening,
                 label = { Text(stringResource(R.string.voice_input)) },
                 placeholder = { Text(stringResource(R.string.command_hint)) }
             )

@@ -10,6 +10,7 @@ import com.vsa.visualsemanticagent.model.VLMResponse
 import timber.log.Timber
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
+import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
@@ -178,7 +179,11 @@ class IntentDispatcher(private val context: Context) {
             "yyyy.MM.dd HH:mm",
             "yyyy年M月d日 HH:mm",
             "yyyy年M月d日 H:mm",
+            "M月d日 H:mm",
             "M月d日 HH:mm",
+            "yyyy/MM/dd",
+            "yyyy.MM.dd",
+            "yyyy年M月d日",
             "yyyy-MM-dd"
         )
 
@@ -188,15 +193,22 @@ class IntentDispatcher(private val context: Context) {
                 val localDateTime = if (pattern.contains("HH") || pattern.contains("H:mm")) {
                     if (pattern.startsWith("M月")) {
                         val currentYear = LocalDateTime.now().year
-                        LocalDateTime.parse("$currentYear年$trimmed", DateTimeFormatter.ofPattern("yyyy年M月d日 HH:mm", Locale.CHINA))
+                        val normalizedTime = if (pattern == "M月d日 H:mm") {
+                            "$currentYear年$trimmed"
+                        } else {
+                            "$currentYear年$trimmed"
+                        }
+                        val normalizedPattern = if (pattern == "M月d日 H:mm") {
+                            "yyyy年M月d日 H:mm"
+                        } else {
+                            "yyyy年M月d日 HH:mm"
+                        }
+                        LocalDateTime.parse(normalizedTime, DateTimeFormatter.ofPattern(normalizedPattern, Locale.CHINA))
                     } else {
                         LocalDateTime.parse(trimmed, formatter)
                     }
                 } else {
-                    return LocalDateTime.parse("$trimmed 09:00", DateTimeFormatter.ofPattern("$pattern HH:mm", Locale.CHINA))
-                        .atZone(ZoneId.systemDefault())
-                        .toInstant()
-                        .toEpochMilli()
+                    return parseDateOnly(trimmed, pattern)
                 }
                 return localDateTime
                     .atZone(ZoneId.systemDefault())
@@ -209,6 +221,15 @@ class IntentDispatcher(private val context: Context) {
 
         Timber.w("Invalid time format: $timeStr")
         return null
+    }
+
+    private fun parseDateOnly(value: String, pattern: String): Long {
+        val localDate = LocalDate.parse(value, DateTimeFormatter.ofPattern(pattern, Locale.CHINA))
+        return localDate
+            .atTime(9, 0)
+            .atZone(ZoneId.systemDefault())
+            .toInstant()
+            .toEpochMilli()
     }
 
     private fun parseIsoDateTime(value: String): Long? {
