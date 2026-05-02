@@ -29,8 +29,7 @@ import com.vsa.visualsemanticagent.R
 @Composable
 fun LoadingOverlay(
     isVisible: Boolean,
-    currentStage: Int = 0, // 0: 扫描, 1: 分析, 2: 生成
-    onStageChange: (Int) -> Unit = {}
+    currentStage: Int = 0 // 0: 扫描, 1: 分析, 2: 生成
 ) {
     if (!isVisible) return
     
@@ -136,7 +135,7 @@ fun ErrorOverlay(
                     }
                 }
                 Button(onClick = onDismiss) {
-                    Text("关闭")
+                    Text(stringResource(R.string.close))
                 }
             }
         }

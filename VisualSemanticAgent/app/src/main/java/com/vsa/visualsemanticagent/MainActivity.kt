@@ -21,6 +21,7 @@ import com.vsa.visualsemanticagent.camera.CameraManager
 import com.vsa.visualsemanticagent.intent.ActivityNotFoundException
 import com.vsa.visualsemanticagent.intent.IntentDispatcher
 import com.vsa.visualsemanticagent.model.VLMResponse
+import androidx.camera.core.ImageCaptureException
 import com.vsa.visualsemanticagent.network.VLMApiException
 import com.vsa.visualsemanticagent.network.VLMNetworkClient
 import com.vsa.visualsemanticagent.network.VLMNetworkException
@@ -371,6 +372,7 @@ class MainActivity : ComponentActivity() {
             is VLMApiException -> mapApiErrorMessage(throwable)
             is VLMResponseParseException -> getString(R.string.parse_error)
             is ActivityNotFoundException -> mapActivityNotFoundMessage(throwable)
+            is ImageCaptureException -> getString(R.string.camera_capture_failed)
             is VoiceRecognitionException -> mapVoiceRecognitionMessage(throwable)
             is IllegalStateException -> mapIllegalStateMessage(throwable)
             is IllegalArgumentException -> mapIllegalArgumentMessage(throwable)
