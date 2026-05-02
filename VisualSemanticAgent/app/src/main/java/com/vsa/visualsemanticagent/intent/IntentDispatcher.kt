@@ -81,6 +81,10 @@ class IntentDispatcher(private val context: Context) {
             response.location?.let {
                 putExtra(Events.EVENT_LOCATION, it)
             }
+
+            response.description?.let {
+                putExtra(Events.DESCRIPTION, it)
+            }
         }
         
         // 安全检查：验证意图的可解析性
@@ -137,7 +141,8 @@ class IntentDispatcher(private val context: Context) {
      */
     private fun sendSMS(response: VLMResponse): DispatchResult {
         val phoneNumber = response.phoneNumber ?: throw IllegalArgumentException("Missing phone number")
-        val message = response.answer ?: throw IllegalArgumentException("Missing sms content")
+        val message = (response.answer ?: response.description)
+            ?: throw IllegalArgumentException("Missing sms content")
         
         val intent = Intent(Intent.ACTION_SENDTO).apply {
             data = Uri.parse("smsto:$phoneNumber")

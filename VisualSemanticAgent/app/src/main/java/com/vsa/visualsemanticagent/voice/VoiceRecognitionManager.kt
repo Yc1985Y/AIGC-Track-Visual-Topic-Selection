@@ -14,6 +14,16 @@ class VoiceRecognitionManager(private val context: Context) {
 
     private var speechRecognizer: SpeechRecognizer? = null
 
+    companion object {
+        const val ERROR_NO_MATCH = SpeechRecognizer.ERROR_NO_MATCH
+        const val ERROR_SPEECH_TIMEOUT = SpeechRecognizer.ERROR_SPEECH_TIMEOUT
+        const val ERROR_RECOGNIZER_BUSY = SpeechRecognizer.ERROR_RECOGNIZER_BUSY
+        const val ERROR_AUDIO = SpeechRecognizer.ERROR_AUDIO
+        const val ERROR_NETWORK = SpeechRecognizer.ERROR_NETWORK
+        const val ERROR_NETWORK_TIMEOUT = SpeechRecognizer.ERROR_NETWORK_TIMEOUT
+        const val ERROR_SERVER = SpeechRecognizer.ERROR_SERVER
+    }
+
     fun initialize() {
         if (speechRecognizer == null && SpeechRecognizer.isRecognitionAvailable(context)) {
             speechRecognizer = SpeechRecognizer.createSpeechRecognizer(context)

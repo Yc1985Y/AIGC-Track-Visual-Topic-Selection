@@ -13,12 +13,15 @@
     <string name="camera_permission_missing">需要相机权限才能拍照识别，请先授权。</string>
     <string name="microphone_permission_missing">语音输入需要麦克风权限，请先授权。</string>
     <string name="microphone_permission_optional">麦克风权限未开启，当前可继续使用拍照和文字输入。</string>
+    <string name="voice_permission_tip">如需语音输入，可稍后再授权麦克风权限。</string>
     <string name="camera_preview_placeholder">相机预览不可用</string>
     <string name="default_command">请识别图像内容并给出最合适的反馈或动作。</string>
     <string name="api_key_missing">尚未配置 VLM API Key，请在 BuildConfig 中填写后重试。</string>
     <string name="voice_listening">正在听你说话…</string>
     <string name="voice_not_supported">当前设备不支持语音识别。</string>
     <string name="voice_capture_failed">没有清晰识别到语音内容，请重试一次。</string>
+    <string name="voice_busy">语音识别正在忙，请稍等一秒后再试。</string>
+    <string name="voice_service_error">语音识别服务暂时不可用，请稍后再试。</string>
     <string name="camera_not_ready">相机尚未准备完成，请稍等一秒后重试。</string>
     <string name="camera_capture_failed">拍照失败，请重新对准目标后再试一次。</string>
     <string name="preset_event">活动入日历</string>

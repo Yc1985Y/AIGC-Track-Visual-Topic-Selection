@@ -77,7 +77,7 @@ class MainActivity : ComponentActivity() {
         if (cameraPermissionGranted) {
             initializeAppIfNeeded()
             if (!audioPermissionGranted) {
-                statusText = getString(R.string.microphone_permission_optional)
+                statusText = getString(R.string.voice_permission_tip)
             } else if (statusText == getString(R.string.permissions_missing)) {
                 statusText = ""
             }
@@ -98,7 +98,7 @@ class MainActivity : ComponentActivity() {
         }
 
         refreshPermissionState()
-        requestPermissions()
+        requestPermissions(requestCamera = true, requestAudio = false)
 
         setContent {
             MainScreen(
@@ -408,9 +408,17 @@ class MainActivity : ComponentActivity() {
 
     private fun mapVoiceRecognitionMessage(throwable: VoiceRecognitionException): String {
         val message = throwable.message.orEmpty()
+        val errorCode = message.substringAfterLast(": ", "").toIntOrNull()
         return when {
             message.contains("unavailable", ignoreCase = true) -> getString(R.string.voice_not_supported)
             message.contains("no speech recognized", ignoreCase = true) -> getString(R.string.voice_capture_failed)
+            errorCode == VoiceRecognitionManager.ERROR_RECOGNIZER_BUSY -> getString(R.string.voice_busy)
+            errorCode == VoiceRecognitionManager.ERROR_AUDIO ||
+                errorCode == VoiceRecognitionManager.ERROR_SERVER ||
+                errorCode == VoiceRecognitionManager.ERROR_NETWORK ||
+                errorCode == VoiceRecognitionManager.ERROR_NETWORK_TIMEOUT -> getString(R.string.voice_service_error)
+            errorCode == VoiceRecognitionManager.ERROR_NO_MATCH ||
+                errorCode == VoiceRecognitionManager.ERROR_SPEECH_TIMEOUT -> getString(R.string.voice_capture_failed)
             else -> getString(R.string.voice_capture_failed)
         }
     }

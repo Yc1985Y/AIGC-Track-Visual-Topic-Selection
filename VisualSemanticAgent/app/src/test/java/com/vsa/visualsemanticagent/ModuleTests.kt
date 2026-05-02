@@ -89,4 +89,30 @@ class JsonCleansingUtilsTest {
         assertEquals(ModelConstants.ACTION_UNKNOWN, normalized.action)
         assertEquals("测试描述", normalized.description)
     }
+
+    @Test
+    fun buildSpeechText_fallsBackToDescription() {
+        val response = VLMResponse(
+            action = ModelConstants.ACTION_TTS_FEEDBACK,
+            description = "这里是一间教室"
+        )
+
+        val speech = ResponseInterpreter.buildSpeechText(response)
+
+        assertEquals("这里是一间教室", speech)
+    }
+
+    @Test
+    fun normalizeResponse_trimsLocationAndDescription() {
+        val raw = VLMResponse(
+            action = ModelConstants.ACTION_NAVIGATE,
+            location = "  第一教学楼 A 座  ",
+            description = "  活动在一层大厅  "
+        )
+
+        val normalized = ResponseInterpreter.normalize(raw)
+
+        assertEquals("第一教学楼 A 座", normalized.location)
+        assertEquals("活动在一层大厅", normalized.description)
+    }
 }
