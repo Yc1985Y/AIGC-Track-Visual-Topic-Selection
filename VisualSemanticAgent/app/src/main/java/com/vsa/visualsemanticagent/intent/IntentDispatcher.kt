@@ -146,7 +146,7 @@ class IntentDispatcher(private val context: Context) {
             ?: throw IllegalArgumentException("Missing sms content")
         
         val intent = Intent(Intent.ACTION_SENDTO).apply {
-            data = Uri.parse("smsto:$phoneNumber")
+            data = Uri.parse("smsto:${Uri.encode(phoneNumber)}")
             putExtra("sms_body", message)
         }
         

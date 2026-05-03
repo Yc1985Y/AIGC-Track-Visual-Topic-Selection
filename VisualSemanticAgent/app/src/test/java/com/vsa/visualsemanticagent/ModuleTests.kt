@@ -40,6 +40,14 @@ class JsonCleansingUtilsTest {
     }
 
     @Test
+    fun extractJsonFromDirtyText_stopsAtBalancedClosingBrace() {
+        val dirty = "{\"action\":\"tts_feedback\",\"answer\":\"这里有 {花括号}\"} trailing text"
+        val json = JsonCleansingUtils.extractJsonFromDirtyText(dirty)
+
+        assertEquals("{\"action\":\"tts_feedback\",\"answer\":\"这里有 {花括号}\"}", json)
+    }
+
+    @Test
     fun normalizeResponse_mapsUnknownActionToUnknown() {
         val raw = VLMResponse(
             action = "CREATE_MEETING",
@@ -53,6 +61,30 @@ class JsonCleansingUtilsTest {
         assertEquals(ModelConstants.ACTION_UNKNOWN, normalized.action)
         assertEquals("测试活动", normalized.title)
         assertEquals("好的", normalized.answer)
+        assertEquals("13800138000", normalized.phoneNumber)
+    }
+
+    @Test
+    fun normalizeResponse_normalizesInternationalPhoneNumber() {
+        val raw = VLMResponse(
+            action = ModelConstants.ACTION_SEND_SMS,
+            phoneNumber = " +86 138-0013-8000 "
+        )
+
+        val normalized = ResponseInterpreter.normalize(raw)
+
+        assertEquals("+8613800138000", normalized.phoneNumber)
+    }
+
+    @Test
+    fun normalizeResponse_stripsDomesticCountryCodeWithoutPlus() {
+        val raw = VLMResponse(
+            action = ModelConstants.ACTION_SEND_SMS,
+            phoneNumber = "86 138 0013 8000"
+        )
+
+        val normalized = ResponseInterpreter.normalize(raw)
+
         assertEquals("13800138000", normalized.phoneNumber)
     }
 

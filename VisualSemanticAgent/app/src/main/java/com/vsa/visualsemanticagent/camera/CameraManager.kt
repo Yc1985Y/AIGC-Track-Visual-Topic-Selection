@@ -81,19 +81,35 @@ object CameraManager {
                             val bitmap = ImageEncodingUtils.imageProxyToBitmap(image)
                             val rotated = bitmap.rotate(image.imageInfo.rotationDegrees.toFloat())
                             val encoded = ImageEncodingUtils.bitmapToBase64(rotated)
-                            image.close()
-                            continuation.resume(encoded)
+                            if (continuation.isActive) {
+                                continuation.resume(encoded)
+                            } else {
+                                Timber.d("Capture result dropped because coroutine was cancelled")
+                            }
                         } catch (e: Exception) {
+                            if (continuation.isActive) {
+                                continuation.resumeWithException(e)
+                            } else {
+                                Timber.w(e, "Capture failed after coroutine cancellation")
+                            }
+                        } finally {
                             image.close()
-                            continuation.resumeWithException(e)
                         }
                     }
 
                     override fun onError(exception: ImageCaptureException) {
-                        continuation.resumeWithException(exception)
+                        if (continuation.isActive) {
+                            continuation.resumeWithException(exception)
+                        } else {
+                            Timber.w(exception, "Capture callback received after cancellation")
+                        }
                     }
                 }
             )
+
+            continuation.invokeOnCancellation {
+                Timber.d("Capture coroutine cancelled before camera callback completed")
+            }
         }
     }
 

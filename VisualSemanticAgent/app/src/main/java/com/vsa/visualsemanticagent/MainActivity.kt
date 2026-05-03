@@ -203,7 +203,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun onVoiceButtonClicked() {
-        if (isVoiceListening) return
+        if (isLoading || isVoiceListening) return
         if (!cameraPermissionGranted) {
             showError(
                 message = getString(R.string.camera_permission_missing),
@@ -244,6 +244,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun onCaptureButtonClicked() {
+        if (isLoading || isVoiceListening) return
         if (!cameraPermissionGranted) {
             showError(
                 message = getString(R.string.camera_permission_missing),

@@ -127,12 +127,39 @@ object ImageEncodingUtils {
 object JsonCleansingUtils {
 
     fun extractJsonFromDirtyText(dirtyText: String): String {
-        val firstBrace = dirtyText.indexOf('{')
-        val lastBrace = dirtyText.lastIndexOf('}')
-        if (firstBrace == -1 || lastBrace == -1 || firstBrace >= lastBrace) {
+        val startIndex = dirtyText.indexOf('{')
+        if (startIndex == -1) {
             throw IllegalArgumentException("No valid JSON structure found in text")
         }
-        return dirtyText.substring(firstBrace, lastBrace + 1)
+
+        var depth = 0
+        var inString = false
+        var escaped = false
+
+        for (index in startIndex until dirtyText.length) {
+            val char = dirtyText[index]
+            if (inString) {
+                when {
+                    escaped -> escaped = false
+                    char == '\\' -> escaped = true
+                    char == '"' -> inString = false
+                }
+                continue
+            }
+
+            when (char) {
+                '"' -> inString = true
+                '{' -> depth++
+                '}' -> {
+                    depth--
+                    if (depth == 0) {
+                        return dirtyText.substring(startIndex, index + 1)
+                    }
+                }
+            }
+        }
+
+        throw IllegalArgumentException("No complete JSON object found in text")
     }
 
     fun removeMarkdownWrappers(jsonString: String): String {

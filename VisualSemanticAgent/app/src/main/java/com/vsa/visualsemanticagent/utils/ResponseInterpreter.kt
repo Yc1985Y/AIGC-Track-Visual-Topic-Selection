@@ -70,7 +70,25 @@ object ResponseInterpreter {
 
     private fun String?.normalizePhoneNumber(): String? {
         val cleaned = this.cleanValue() ?: return null
-        val normalized = cleaned.replace(" ", "").replace("-", "")
-        return normalized.takeIf { it.isNotBlank() }
+        val candidate = Regex("""\+?\d[\d\s\-()（）]{4,}\d""")
+            .find(cleaned)
+            ?.value
+            ?: cleaned
+        val hasLeadingPlus = candidate.trim().startsWith("+")
+        val digitsOnly = candidate.filter(Char::isDigit)
+        if (digitsOnly.length < 5) return null
+
+        val normalizedDigits = when {
+            !hasLeadingPlus && digitsOnly.startsWith("0086") && digitsOnly.length > 11 -> {
+                digitsOnly.removePrefix("0086")
+            }
+            !hasLeadingPlus && digitsOnly.startsWith("86") && digitsOnly.length > 11 -> {
+                digitsOnly.removePrefix("86")
+            }
+            else -> digitsOnly
+        }
+
+        val normalized = if (hasLeadingPlus) "+$normalizedDigits" else normalizedDigits
+        return normalized.takeIf { it.any(Char::isDigit) }
     }
 }
