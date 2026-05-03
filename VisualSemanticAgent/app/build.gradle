@@ -19,10 +19,16 @@ android {
         buildConfigField "String", "VLM_API_KEY", "\"\""
         buildConfigField "String", "VLM_MODEL_NAME", "\"Volc-DeepSeek-V3.2\""
         buildConfigField "String", "VLM_API_ENDPOINT", "\"https://api-ai.vivo.com.cn/v1/chat/completions\""
+        buildConfigField "boolean", "VLM_USE_MOCK", "false"
     }
 
     buildTypes {
+        debug {
+            buildConfigField "boolean", "VLM_USE_MOCK", "true"
+        }
+
         release {
+            buildConfigField "boolean", "VLM_USE_MOCK", "false"
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }

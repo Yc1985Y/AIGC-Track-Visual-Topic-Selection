@@ -182,12 +182,17 @@ class MainActivity : ComponentActivity() {
         vlmNetworkClient = VLMNetworkClient(
             apiKey = BuildConfig.VLM_API_KEY,
             modelName = BuildConfig.VLM_MODEL_NAME,
-            apiEndpoint = BuildConfig.VLM_API_ENDPOINT
+            apiEndpoint = BuildConfig.VLM_API_ENDPOINT,
+            useMockMode = BuildConfig.VLM_USE_MOCK
         )
         if (audioPermissionGranted) {
             voiceRecognitionManager.initialize()
         }
-        statusText = ""
+        statusText = if (BuildConfig.VLM_USE_MOCK) {
+            getString(R.string.mock_mode_ready)
+        } else {
+            ""
+        }
         resultText = ""
         appInitialized = true
     }
@@ -254,7 +259,7 @@ class MainActivity : ComponentActivity() {
             return
         }
         initializeAppIfNeeded()
-        if (BuildConfig.VLM_API_KEY.isBlank()) {
+        if (!BuildConfig.VLM_USE_MOCK && BuildConfig.VLM_API_KEY.isBlank()) {
             showError(
                 message = getString(R.string.api_key_missing),
                 recoveryAction = RecoveryAction.NONE
@@ -314,6 +319,9 @@ class MainActivity : ComponentActivity() {
 
     private fun buildResultCardText(response: VLMResponse, summary: String): String {
         val parts = linkedSetOf<String>()
+        if (BuildConfig.VLM_USE_MOCK) {
+            parts.add(getString(R.string.mock_mode_result_tag))
+        }
         parts.add(summary)
         response.title?.let { parts.add("标题：$it") }
         response.time?.let { parts.add("时间：$it") }

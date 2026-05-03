@@ -36,6 +36,31 @@
 
 相比之下，BlueLM-7B 更适合作为后续离线化或自部署扩展，不适合当前先把 demo 跑通的阶段。
 
+## Mock 模式
+
+为了方便 Android Studio 本地验证，工程当前已内置 `Mock` 演示模式：
+
+- `debug` 构建默认开启 `VLM_USE_MOCK = true`
+- `release` 构建默认关闭 `VLM_USE_MOCK = false`
+- Mock 模式下不会访问真实 vivo 接口，也不依赖 `VLM_API_KEY`
+
+Mock 模式可直接验证：
+
+- CameraX 拍照链路
+- 加载态与结果卡片
+- 日历创建 Intent
+- 地图导航 Intent
+- TTS 播报
+- 错误弹层与重试
+
+可通过输入文字快速触发不同动作：
+
+- `活动` / `日历` / `讲座`：返回 `create_event`
+- `导航` / `地点` / `地图`：返回 `navigate`
+- `短信` / `通知`：返回 `send_sms`
+- 其他描述类输入：返回 `tts_feedback`
+- `mock_error`：主动模拟错误，用于验证错误弹层
+
 ## 项目结构
 
 ```text
@@ -141,9 +166,10 @@ buildConfigField "String", "VLM_API_ENDPOINT", "\"https://api-ai.vivo.com.cn/v1/
 当前最重要的不是继续扩功能，而是先做真实验证：
 
 1. 在 Android Studio 打开工程。
-2. 填入 `VLM_API_KEY`。
-3. 真机运行。
-4. 先验证两个主演示场景：
+2. 如果只是本地演示，可直接使用默认 `debug` Mock 模式。
+3. 如果要验证真实接口，再填入 `VLM_API_KEY` 并将 `VLM_USE_MOCK` 关闭。
+4. 真机运行。
+5. 先验证两个主演示场景：
    - 海报识别并拉起日历
    - 地点识别并拉起地图
 

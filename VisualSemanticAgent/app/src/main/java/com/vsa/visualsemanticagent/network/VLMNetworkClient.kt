@@ -23,7 +23,8 @@ import java.util.UUID
 class VLMNetworkClient(
     private val apiKey: String,
     private val modelName: String,
-    private val apiEndpoint: String
+    private val apiEndpoint: String,
+    private val useMockMode: Boolean = false
 ) {
 
     private val httpClient = OkHttpClient.Builder()
@@ -38,6 +39,11 @@ class VLMNetworkClient(
         base64Image: String,
         userText: String
     ): VLMResponse = withContext(Dispatchers.IO) {
+        if (useMockMode) {
+            Timber.d("Using mock VLM response for userText=%s", userText)
+            return@withContext MockVLMResponseFactory.createResponse(userText)
+        }
+
         var lastError: Exception? = null
 
         repeat(2) { attempt ->

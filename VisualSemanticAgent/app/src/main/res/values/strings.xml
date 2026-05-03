@@ -44,4 +44,6 @@
     <string name="map_app_missing">当前设备没有可用的地图应用。</string>
     <string name="sms_app_missing">当前设备没有可用的短信应用。</string>
     <string name="retry_permission">去授权</string>
+    <string name="mock_mode_ready">当前为 Mock 演示模式，可直接验证本地主流程。</string>
+    <string name="mock_mode_result_tag">模式：Mock 演示</string>
 </resources>

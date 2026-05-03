@@ -2,6 +2,7 @@ package com.vsa.visualsemanticagent
 
 import com.vsa.visualsemanticagent.model.ModelConstants
 import com.vsa.visualsemanticagent.model.VLMResponse
+import com.vsa.visualsemanticagent.network.MockVLMResponseFactory
 import com.vsa.visualsemanticagent.utils.JsonCleansingUtils
 import com.vsa.visualsemanticagent.utils.ResponseInterpreter
 import org.junit.Assert.assertEquals
@@ -158,5 +159,29 @@ class JsonCleansingUtilsTest {
         val message = ResponseInterpreter.buildStatusMessage(response)
 
         assertEquals("已准备短信内容。", message)
+    }
+
+    @Test
+    fun mockFactory_returnsCalendarActionForEventPrompt() {
+        val response = MockVLMResponseFactory.buildResponse("请识别活动并加入日历")
+
+        assertEquals(ModelConstants.ACTION_CREATE_EVENT, response.action)
+        assertEquals("中国高校计算机大赛 AIGC 赛道项目答辩", response.title)
+    }
+
+    @Test
+    fun mockFactory_returnsNavigateActionForNavigationPrompt() {
+        val response = MockVLMResponseFactory.buildResponse("帮我导航去这个地方")
+
+        assertEquals(ModelConstants.ACTION_NAVIGATE, response.action)
+        assertEquals("深圳市南山区科技园科苑路 15 号", response.location)
+    }
+
+    @Test
+    fun mockFactory_returnsSmsActionForSmsPrompt() {
+        val response = MockVLMResponseFactory.buildResponse("请帮我发短信通知老师")
+
+        assertEquals(ModelConstants.ACTION_SEND_SMS, response.action)
+        assertEquals("+86 138-0013-8000", response.phoneNumber)
     }
 }
