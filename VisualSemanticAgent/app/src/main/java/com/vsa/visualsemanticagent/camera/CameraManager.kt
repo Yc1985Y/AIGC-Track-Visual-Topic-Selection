@@ -45,7 +45,7 @@ object CameraManager {
                 boundPreviewView = previewView
 
                 val preview = Preview.Builder().build().apply {
-                    surfaceProvider = previewView.surfaceProvider
+                    setSurfaceProvider(previewView.surfaceProvider)
                 }
 
                 imageCapture = ImageCapture.Builder()

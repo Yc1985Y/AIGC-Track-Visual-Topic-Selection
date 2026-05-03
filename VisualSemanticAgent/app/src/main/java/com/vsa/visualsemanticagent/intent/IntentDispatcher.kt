@@ -193,11 +193,7 @@ class IntentDispatcher(private val context: Context) {
                 val localDateTime = if (pattern.contains("HH") || pattern.contains("H:mm")) {
                     if (pattern.startsWith("M月")) {
                         val currentYear = LocalDateTime.now().year
-                        val normalizedTime = if (pattern == "M月d日 H:mm") {
-                            "$currentYear年$trimmed"
-                        } else {
-                            "$currentYear年$trimmed"
-                        }
+                        val normalizedTime = "${currentYear}年$trimmed"
                         val normalizedPattern = if (pattern == "M月d日 H:mm") {
                             "yyyy年M月d日 H:mm"
                         } else {
