@@ -24,6 +24,8 @@ import androidx.compose.material.icons.rounded.Mic
 import androidx.compose.material.icons.rounded.PhotoCamera
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
@@ -162,6 +164,27 @@ fun CameraPreviewScreen(
                             unfocusedPlaceholderColor = Color(0xFFD7E3F0)
                         )
                     )
+
+                    Button(
+                        onClick = {
+                            if (!isLoading && !isVoiceListening) {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                onCaptureClick()
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !isLoading && !isVoiceListening,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF4DA3FF),
+                            contentColor = Color(0xFF0E223D)
+                        ),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.send_command),
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),

@@ -3,6 +3,7 @@
     <string name="app_name">Visual Semantic Agent</string>
     <string name="camera_capture">拍照执行</string>
     <string name="voice_input">语音输入</string>
+    <string name="send_command">发送指令</string>
     <string name="command_hint">输入或语音说出指令，例如：帮我把这个活动加入日历</string>
     <string name="loading_text">处理中…</string>
     <string name="error_occurred">出现错误</string>
