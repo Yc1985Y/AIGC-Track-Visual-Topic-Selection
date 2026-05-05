@@ -15,6 +15,7 @@
     <string name="microphone_permission_optional">麦克风权限未开启，当前可继续使用拍照和文字输入。</string>
     <string name="voice_permission_tip">如需语音输入，可稍后再授权麦克风权限。</string>
     <string name="camera_preview_placeholder">相机预览不可用</string>
+    <string name="camera_preview_unavailable_mock_hint">当前模拟器没有可用相机，所以看不到实时预览。你仍然可以直接点击下方“拍照执行”，在 Mock 模式下继续验证日历、导航、短信和播报主链路。</string>
     <string name="default_command">请识别图像内容并给出最合适的反馈或动作。</string>
     <string name="api_key_missing">尚未配置 VLM API Key，请在 BuildConfig 中填写后重试。</string>
     <string name="voice_listening">正在听你说话…</string>
@@ -46,4 +47,18 @@
     <string name="retry_permission">去授权</string>
     <string name="mock_mode_ready">当前为 Mock 演示模式，可直接验证本地主流程。</string>
     <string name="mock_mode_result_tag">模式：Mock 演示</string>
+    <string name="mock_mode_badge">Mock 演示模式</string>
+    <string name="mock_mode_showcase_title">视觉语义代理已就绪</string>
+    <string name="mock_mode_showcase_subtitle">当前页面不调用真实模型接口，适合先验证交互、动作分发和播报链路。</string>
+    <string name="mock_mode_steps_title">快速体验路径</string>
+    <string name="mock_mode_step_pick_title">选择场景</string>
+    <string name="mock_mode_step_pick_summary">先点下方快捷场景，快速切换到日历、导航、场景描述等演示意图。</string>
+    <string name="mock_mode_step_prompt_title">输入或说出指令</string>
+    <string name="mock_mode_step_prompt_summary">你可以直接输入一句中文，也可以点击麦克风按钮验证语音输入。</string>
+    <string name="mock_mode_step_run_title">执行并查看反馈</string>
+    <string name="mock_mode_step_run_summary">点击拍照执行后，会返回 Mock 结果，并触发对应的系统动作或播报反馈。</string>
+    <string name="mock_mode_highlight_offline_title">无需 API Key</string>
+    <string name="mock_mode_highlight_offline_summary">Debug 构建默认使用本地 Mock 数据，方便先跑通界面与流程。</string>
+    <string name="mock_mode_highlight_actions_title">可测主链路</string>
+    <string name="mock_mode_highlight_actions_summary">重点验证日历、导航、短信、TTS 和错误弹层这些关键模块。</string>
 </resources>

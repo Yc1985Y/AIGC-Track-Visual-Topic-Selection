@@ -1,7 +1,9 @@
 package com.vsa.visualsemanticagent
 
 import android.Manifest
+import android.graphics.Bitmap
 import android.os.Bundle
+import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -16,6 +18,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.core.content.ContextCompat
+import androidx.core.view.doOnLayout
+import androidx.core.view.drawToBitmap
 import androidx.lifecycle.lifecycleScope
 import com.vsa.visualsemanticagent.camera.CameraManager
 import com.vsa.visualsemanticagent.intent.ActivityNotFoundException
@@ -35,6 +39,8 @@ import com.vsa.visualsemanticagent.utils.PromptPresets
 import com.vsa.visualsemanticagent.utils.ResponseInterpreter
 import com.vsa.visualsemanticagent.voice.VoiceRecognitionException
 import com.vsa.visualsemanticagent.voice.VoiceRecognitionManager
+import java.io.File
+import java.io.FileOutputStream
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -56,6 +62,7 @@ class MainActivity : ComponentActivity() {
     private var resultText by mutableStateOf("")
     private var cameraPermissionGranted by mutableStateOf(false)
     private var audioPermissionGranted by mutableStateOf(false)
+    private var cameraAvailable by mutableStateOf(true)
     private var lastError by mutableStateOf("")
     private var showErrorOverlay by mutableStateOf(false)
     private var currentRecoveryAction by mutableStateOf(RecoveryAction.NONE)
@@ -74,7 +81,7 @@ class MainActivity : ComponentActivity() {
         cameraPermissionGranted = permissions[Manifest.permission.CAMERA] == true || hasPermission(Manifest.permission.CAMERA)
         audioPermissionGranted = permissions[Manifest.permission.RECORD_AUDIO] == true || hasPermission(Manifest.permission.RECORD_AUDIO)
 
-        if (cameraPermissionGranted) {
+        if (hasCaptureAccess()) {
             initializeAppIfNeeded()
             if (!audioPermissionGranted) {
                 statusText = getString(R.string.voice_permission_tip)
@@ -98,7 +105,11 @@ class MainActivity : ComponentActivity() {
         }
 
         refreshPermissionState()
-        requestPermissions(requestCamera = true, requestAudio = false)
+        if (BuildConfig.VLM_USE_MOCK) {
+            initializeAppIfNeeded()
+        } else {
+            requestPermissions(requestCamera = true, requestAudio = false)
+        }
 
         setContent {
             MainScreen(
@@ -109,8 +120,10 @@ class MainActivity : ComponentActivity() {
                 onPreset = { onPresetSelected(it) },
                 bindPreview = { bindPreview(it) },
                 presets = presets,
+                showLivePreview = !BuildConfig.VLM_USE_MOCK,
                 isLoading = isLoading,
                 isVoiceListening = isVoiceListening,
+                isCameraAvailable = cameraAvailable,
                 loadingStage = loadingStage,
                 statusText = statusText,
                 resultText = resultText,
@@ -122,12 +135,17 @@ class MainActivity : ComponentActivity() {
                 onDismissError = { clearErrorState() }
             )
         }
+
+        if (BuildConfig.VLM_USE_MOCK) {
+            window.decorView.setLayerType(View.LAYER_TYPE_SOFTWARE, null)
+            scheduleDebugSnapshot("mock-home")
+        }
     }
 
     override fun onResume() {
         super.onResume()
         refreshPermissionState()
-        if (cameraPermissionGranted) {
+        if (hasCaptureAccess()) {
             initializeAppIfNeeded()
         }
     }
@@ -150,7 +168,7 @@ class MainActivity : ComponentActivity() {
         refreshPermissionState()
 
         val permissions = buildList {
-            if (requestCamera && !cameraPermissionGranted) {
+            if (requestCamera && !BuildConfig.VLM_USE_MOCK && !cameraPermissionGranted) {
                 add(Manifest.permission.CAMERA)
             }
             if (requestAudio && !audioPermissionGranted) {
@@ -159,7 +177,7 @@ class MainActivity : ComponentActivity() {
         }
 
         if (permissions.isEmpty()) {
-            if (cameraPermissionGranted) {
+            if (hasCaptureAccess()) {
                 initializeAppIfNeeded()
             }
             return
@@ -198,8 +216,13 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun bindPreview(previewView: PreviewView) {
-        if (!cameraPermissionGranted) return
-        CameraManager.bindCamera(this, this, previewView)
+        if (BuildConfig.VLM_USE_MOCK || !cameraPermissionGranted) return
+        CameraManager.bindCamera(this, this, previewView) { available ->
+            cameraAvailable = available
+            if (!available && BuildConfig.VLM_USE_MOCK) {
+                statusText = getString(R.string.camera_preview_unavailable_mock_hint)
+            }
+        }
     }
 
     private fun onPresetSelected(preset: PromptPreset) {
@@ -209,7 +232,7 @@ class MainActivity : ComponentActivity() {
 
     private fun onVoiceButtonClicked() {
         if (isLoading || isVoiceListening) return
-        if (!cameraPermissionGranted) {
+        if (!hasCaptureAccess()) {
             showError(
                 message = getString(R.string.camera_permission_missing),
                 recoveryAction = RecoveryAction.REQUEST_PERMISSIONS
@@ -250,7 +273,7 @@ class MainActivity : ComponentActivity() {
 
     private fun onCaptureButtonClicked() {
         if (isLoading || isVoiceListening) return
-        if (!cameraPermissionGranted) {
+        if (!hasCaptureAccess()) {
             showError(
                 message = getString(R.string.camera_permission_missing),
                 recoveryAction = RecoveryAction.REQUEST_PERMISSIONS
@@ -276,8 +299,12 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             try {
                 loadingStage = 0
-                val base64Image = CameraManager.captureBase64Image()
                 val finalCommand = commandText.ifBlank { getString(R.string.default_command) }
+                val base64Image = if (BuildConfig.VLM_USE_MOCK && !CameraManager.isCaptureReady()) {
+                    ""
+                } else {
+                    CameraManager.captureBase64Image()
+                }
 
                 loadingStage = 1
                 val rawResponse = sendToVLM(base64Image, finalCommand)
@@ -293,6 +320,7 @@ class MainActivity : ComponentActivity() {
                 if (!speechText.isNullOrBlank()) {
                     playTextToSpeech(speechText)
                 }
+                scheduleDebugSnapshot("mock-result")
             } catch (e: Exception) {
                 if (e is CancellationException) {
                     throw e
@@ -436,6 +464,8 @@ class MainActivity : ComponentActivity() {
         val message = throwable.message.orEmpty()
         return when {
             message.contains("Camera is not ready", ignoreCase = true) -> getString(R.string.camera_not_ready)
+            message.contains("No available camera can be found", ignoreCase = true) ->
+                getString(R.string.camera_preview_unavailable_mock_hint)
             message.contains("Voice recognition unavailable", ignoreCase = true) -> getString(R.string.voice_not_supported)
             message.contains("No speech recognized", ignoreCase = true) -> getString(R.string.voice_capture_failed)
             message.contains("Missing location", ignoreCase = true) -> getString(R.string.location_missing)
@@ -469,6 +499,34 @@ class MainActivity : ComponentActivity() {
         audioPermissionGranted = hasPermission(Manifest.permission.RECORD_AUDIO)
     }
 
+    private fun hasCaptureAccess(): Boolean {
+        return BuildConfig.VLM_USE_MOCK || cameraPermissionGranted
+    }
+
+    private fun scheduleDebugSnapshot(name: String) {
+        if (!BuildConfig.DEBUG) return
+        window.decorView.rootView.doOnLayout { root ->
+            root.postDelayed(
+                { captureDebugSnapshot(name) },
+                1800L
+            )
+        }
+    }
+
+    private fun captureDebugSnapshot(name: String) {
+        if (!BuildConfig.DEBUG) return
+        runCatching {
+            val bitmap = window.decorView.rootView.drawToBitmap(Bitmap.Config.ARGB_8888)
+            val directory = File(filesDir, "debug_snapshots").apply { mkdirs() }
+            FileOutputStream(File(directory, "$name.png")).use { output ->
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, output)
+            }
+            bitmap.recycle()
+        }.onFailure { error ->
+            Timber.w(error, "Failed to capture debug snapshot: %s", name)
+        }
+    }
+
     private fun hasPermission(permission: String): Boolean {
         return ContextCompat.checkSelfPermission(
             this,
@@ -486,8 +544,10 @@ fun MainScreen(
     onPreset: (PromptPreset) -> Unit,
     bindPreview: (PreviewView) -> Unit,
     presets: List<PromptPreset>,
+    showLivePreview: Boolean,
     isLoading: Boolean,
     isVoiceListening: Boolean,
+    isCameraAvailable: Boolean,
     loadingStage: Int,
     statusText: String,
     resultText: String,
@@ -498,9 +558,15 @@ fun MainScreen(
     onRetry: () -> Unit,
     onDismissError: () -> Unit
 ) {
+    val surfaceColor = if (showLivePreview) {
+        Color.Black
+    } else {
+        Color(0xFFEEF4FF)
+    }
+
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color.Black
+        color = surfaceColor
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             CameraPreviewScreen(
@@ -511,8 +577,10 @@ fun MainScreen(
                 onPresetClick = onPreset,
                 bindPreview = bindPreview,
                 presets = presets,
+                showLivePreview = showLivePreview,
                 isLoading = isLoading,
                 isVoiceListening = isVoiceListening,
+                isCameraAvailable = isCameraAvailable,
                 statusText = statusText,
                 resultText = resultText
             )

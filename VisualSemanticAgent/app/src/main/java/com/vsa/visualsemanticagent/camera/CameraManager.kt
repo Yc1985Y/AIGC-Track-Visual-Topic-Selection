@@ -27,13 +27,16 @@ object CameraManager {
     private var cameraProvider: ProcessCameraProvider? = null
     private var cameraExecutor: ExecutorService? = null
     private var boundPreviewView: PreviewView? = null
+    private var cameraReady: Boolean = false
 
     fun bindCamera(
         context: Context,
         lifecycleOwner: LifecycleOwner,
-        previewView: PreviewView
+        previewView: PreviewView,
+        onCameraAvailabilityChanged: ((Boolean) -> Unit)? = null
     ) {
-        if (boundPreviewView === previewView && imageCapture != null && cameraProvider != null) {
+        if (boundPreviewView === previewView && imageCapture != null && cameraProvider != null && cameraReady) {
+            onCameraAvailabilityChanged?.invoke(true)
             return
         }
 
@@ -41,6 +44,9 @@ object CameraManager {
         providerFuture.addListener({
             try {
                 val provider = providerFuture.get()
+                if (!provider.hasCamera(CameraSelector.DEFAULT_BACK_CAMERA)) {
+                    throw IllegalStateException("No available camera can be found")
+                }
                 cameraProvider = provider
                 boundPreviewView = previewView
 
@@ -60,10 +66,14 @@ object CameraManager {
                     preview,
                     imageCapture
                 )
+                cameraReady = true
+                onCameraAvailabilityChanged?.invoke(true)
             } catch (e: Exception) {
+                cameraReady = false
                 imageCapture = null
                 boundPreviewView = null
                 Timber.e(e, "Failed to bind camera preview")
+                onCameraAvailabilityChanged?.invoke(false)
             }
         }, ContextCompat.getMainExecutor(context))
     }
@@ -119,12 +129,15 @@ object CameraManager {
         } catch (e: Exception) {
             Timber.w(e, "Failed to unbind camera")
         }
+        cameraReady = false
         cameraExecutor?.shutdown()
         cameraExecutor = null
         cameraProvider = null
         imageCapture = null
         boundPreviewView = null
     }
+
+    fun isCaptureReady(): Boolean = cameraReady && imageCapture != null
 
     private fun getCameraExecutor(): ExecutorService {
         if (cameraExecutor == null) {

@@ -61,6 +61,40 @@ Mock 模式可直接验证：
 - 其他描述类输入：返回 `tts_feedback`
 - `mock_error`：主动模拟错误，用于验证错误弹层
 
+### 已验证的本地调试路径
+
+当前这套工程在 Windows + Android Studio 环境下，已验证通过的本地调试方式如下：
+
+- 活跃构建目录：`E:\AIGC\VisualSemanticAgent`
+- 推荐模拟器：`VSA_API34_GOOGLE`
+- 对应 ADB 设备名可能显示为：`emulator-5554` 或 `emulator-5556`
+- 命令行构建推荐使用 JDK 17：`E:\AIGC\tools\jdk17\jdk-17.0.19+10`
+
+如果直接在命令行运行 `gradlew`，请先临时切换到 JDK 17：
+
+```powershell
+$env:JAVA_HOME='E:\AIGC\tools\jdk17\jdk-17.0.19+10'
+$env:Path="$env:JAVA_HOME\bin;$env:Path"
+.\gradlew.bat :app:assembleDebug
+```
+
+说明：
+
+- Android Studio 自带的 JBR 21 在当前机器上会触发 `androidJdkImage` / `jlink` 相关构建错误
+- 使用上面的 JDK 17 可以稳定完成 `assembleDebug`
+- 模拟器验证时，不建议再使用早前的 `VSA_API34_ATD`
+
+### Mock 首页验收方式
+
+这次已经确认，单看桌面窗口很容易把 mock 首页误判成“白屏”，因此后续建议统一用下面两种方式验收：
+
+1. 用 `adb shell screencap` 抓设备内真实截图。
+2. 对照应用自动写出的调试快照：
+   - `files/debug_snapshots/mock-home.png`
+   - `files/debug_snapshots/mock-result.png`
+
+当前 mock 首屏已经调整为更明显的“欢迎页 + 使用步骤 + 主能力区”布局，避免因为上半部分留白被误判为空白页。
+
 ## 项目结构
 
 ```text
@@ -165,11 +199,12 @@ buildConfigField "String", "VLM_API_ENDPOINT", "\"https://api-ai.vivo.com.cn/v1/
 
 当前最重要的不是继续扩功能，而是先做真实验证：
 
-1. 在 Android Studio 打开工程。
-2. 如果只是本地演示，可直接使用默认 `debug` Mock 模式。
-3. 如果要验证真实接口，再填入 `VLM_API_KEY` 并将 `VLM_USE_MOCK` 关闭。
-4. 真机运行。
-5. 先验证两个主演示场景：
+1. 在 Android Studio 打开工程，优先使用 `E:\AIGC\VisualSemanticAgent` 作为构建副本。
+2. 确认 Gradle JDK 指向 JDK 17，而不是失效的 `JAVA_HOME` 或不兼容的 JBR 21。
+3. 如果只是本地演示，可直接使用默认 `debug` Mock 模式。
+4. 启动 `VSA_API34_GOOGLE` 模拟器，或连接真机。
+5. 如果要验证真实接口，再填入 `VLM_API_KEY` 并将 `VLM_USE_MOCK` 关闭。
+6. 先验证两个主演示场景：
    - 海报识别并拉起日历
    - 地点识别并拉起地图
 
@@ -194,6 +229,8 @@ buildConfigField "String", "VLM_API_ENDPOINT", "\"https://api-ai.vivo.com.cn/v1/
 - 增强短信号码清洗与 `smsto:` 编码，提升 `+86`、空格、短横线号码的兼容性
 - 补上 TTS 初始化失败后的兜底策略，避免待播报内容持续堆积
 - 收紧 JSON 脏文本提取逻辑，降低尾随说明文本干扰结构化解析的风险
+- 重做 Mock 首屏视觉层次，增加欢迎信息、体验路径和能力提示，减少“看起来像白屏”的误判
+- 确认 `adb` 设备内截图和应用内部调试快照都能正确显示新的 Mock 首屏
 
 ## 后续建议
 
