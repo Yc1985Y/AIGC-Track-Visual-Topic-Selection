@@ -131,8 +131,8 @@ fun CameraPreviewScreen(
                 .fillMaxSize()
                 .windowInsetsPadding(WindowInsets.statusBars)
                 .windowInsetsPadding(WindowInsets.navigationBars),
-            contentPadding = PaddingValues(horizontal = 18.dp, vertical = 18.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            contentPadding = PaddingValues(horizontal = 18.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item {
                 HeroCard(
@@ -303,7 +303,7 @@ private fun HeroCard(
                         )
                     )
                 )
-                .padding(22.dp)
+                .padding(18.dp)
         ) {
             Box(
                 modifier = Modifier
@@ -318,12 +318,12 @@ private fun HeroCard(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(18.dp),
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(
                     modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
                         text = badge.uppercase(),
@@ -334,20 +334,20 @@ private fun HeroCard(
                     Text(
                         text = "看见现实世界，理解并替你执行动作。",
                         color = VsaWhite,
-                        fontSize = 30.sp,
-                        lineHeight = 36.sp,
+                        fontSize = 24.sp,
+                        lineHeight = 30.sp,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
                         text = "把识别、理解、执行和播报组织成一条适合比赛演示的产品主链路。",
                         color = Color(0xFFD5DEEA),
-                        fontSize = 15.sp,
-                        lineHeight = 22.sp
+                        fontSize = 13.sp,
+                        lineHeight = 19.sp
                     )
                 }
 
                 Surface(
-                    modifier = Modifier.size(104.dp),
+                    modifier = Modifier.size(84.dp),
                     shape = RoundedCornerShape(28.dp),
                     color = VsaWhite
                 ) {
@@ -356,7 +356,7 @@ private fun HeroCard(
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(62.dp)
+                                .size(50.dp)
                                 .clip(RoundedCornerShape(20.dp))
                                 .background(VsaSand),
                             contentAlignment = Alignment.Center
@@ -365,7 +365,7 @@ private fun HeroCard(
                                 imageVector = Icons.Rounded.Visibility,
                                 contentDescription = null,
                                 tint = VsaNavy,
-                                modifier = Modifier.size(34.dp)
+                                modifier = Modifier.size(28.dp)
                             )
                         }
                     }
@@ -382,12 +382,12 @@ private fun ScenarioRow(
     onPresetClick: (PromptPreset) -> Unit
 ) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
             text = "核心场景",
             color = VsaWhite,
-            fontSize = 17.sp,
+            fontSize = 15.sp,
             fontWeight = FontWeight.SemiBold
         )
         Row(
@@ -417,13 +417,13 @@ private fun ScenarioCard(
     onClick: () -> Unit
 ) {
     Card(
-        modifier = Modifier.width(176.dp),
+        modifier = Modifier.width(160.dp),
         colors = CardDefaults.cardColors(containerColor = style.background),
         shape = RoundedCornerShape(24.dp)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            modifier = Modifier.padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Icon(
                 imageVector = style.icon,
@@ -434,14 +434,15 @@ private fun ScenarioCard(
             Text(
                 text = preset.label,
                 color = style.contentColor,
-                fontSize = 20.sp,
+                fontSize = 17.sp,
                 fontWeight = FontWeight.SemiBold
             )
             Text(
                 text = summarizePreset(preset.id),
                 color = style.secondaryColor,
-                fontSize = 13.sp,
-                lineHeight = 18.sp
+                fontSize = 12.sp,
+                lineHeight = 16.sp,
+                maxLines = 3
             )
             Button(
                 onClick = onClick,
@@ -451,11 +452,12 @@ private fun ScenarioCard(
                     contentColor = style.buttonContent
                 ),
                 shape = RoundedCornerShape(18.dp),
-                contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp)
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
             ) {
                 Text(
                     text = actionLabelForPreset(preset.id),
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 12.sp
                 )
             }
         }
@@ -474,22 +476,22 @@ private fun CommandConsoleCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = VsaNavy),
-        shape = RoundedCornerShape(30.dp)
+        shape = RoundedCornerShape(28.dp)
     ) {
         Column(
-            modifier = Modifier.padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
+            modifier = Modifier.padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(
                 text = "演示入口",
                 color = VsaWhite,
-                fontSize = 28.sp,
+                fontSize = 24.sp,
                 fontWeight = FontWeight.Bold
             )
             Text(
                 text = "给评委一个直观、可信、可操作的第一印象。",
                 color = Color(0xFFB9C7D8),
-                fontSize = 15.sp
+                fontSize = 13.sp
             )
 
             OutlinedTextField(
@@ -531,14 +533,14 @@ private fun CommandConsoleCard(
             ) {
                 Text(
                     text = "进入视觉语义助手",
-                    fontSize = 18.sp,
+                    fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 QuickActionButton(
                     modifier = Modifier.weight(1f),
@@ -571,7 +573,7 @@ private fun CommandConsoleCard(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(18.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 CircleAction(
@@ -606,7 +608,7 @@ private fun QuickActionButton(
     enabled: Boolean
 ) {
     Button(
-        modifier = modifier.height(54.dp),
+        modifier = modifier.height(48.dp),
         onClick = onClick,
         enabled = enabled,
         colors = ButtonDefaults.buttonColors(
@@ -614,16 +616,17 @@ private fun QuickActionButton(
             contentColor = contentColor
         ),
         shape = RoundedCornerShape(18.dp)
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            modifier = Modifier.size(18.dp)
-        )
-        Spacer(modifier = Modifier.width(6.dp))
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(16.dp)
+            )
+        Spacer(modifier = Modifier.width(4.dp))
         Text(
             text = label,
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 12.sp
         )
     }
 }
@@ -646,7 +649,7 @@ private fun CircleAction(
             enabled = enabled,
             shape = CircleShape,
             contentPadding = PaddingValues(0.dp),
-            modifier = Modifier.size(88.dp),
+            modifier = Modifier.size(76.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = containerColor,
                 contentColor = contentColor
@@ -655,13 +658,13 @@ private fun CircleAction(
             Icon(
                 imageVector = icon,
                 contentDescription = label,
-                modifier = Modifier.size(32.dp)
+                modifier = Modifier.size(28.dp)
             )
         }
         Text(
             text = label,
             color = Color(0xFFD4DFEC),
-            fontSize = 14.sp
+            fontSize = 12.sp
         )
     }
 }
