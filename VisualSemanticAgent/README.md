@@ -1,20 +1,22 @@
 # Visual Semantic Action Agent
 
-> Recommended current design references: `HOSPITAL_ASSIST_DESIGN.md` and `REFERENCE_MATERIALS.md`
+> Recommended current design references: `HOSPITAL_ASSIST_DESIGN.md`, `REFERENCE_MATERIALS.md`, and `INITIAL_PRESENTATION_BRIEF.md`
 
 一个面向比赛演示场景的 Android 视觉语义执行代理原型。  
-项目目标是把“拍照 / 语音 / 文字输入”转成“结构化语义理解 + Android 系统动作执行”，优先服务活动海报识别、地点导航、语音播报和结果展示等场景。
+当前版本已收口到“医院就诊辅助”主场景，目标是把“拍照 / 语音 / 文字输入”转成“结构化语义理解 + 风控判定 + Android 系统动作执行”，重点支持通知识别、提醒创建、科室导航、语音播报和确认执行。
 
 ## 当前状态
 
 - 已具备主流程：相机预览、拍照采集、语音输入、云端多模态请求、结果解析、系统动作分发、TTS 播报。
+- 已具备中间件执行链：`Extract -> Suggest -> Confirm -> Execute`
 - `debug` 构建默认启用 `Mock` 模式，方便在没有正式模型额度时先验证界面和交互。
 - 主界面已重构为更适合比赛展示的产品化布局：
   - 首屏英雄区
-  - 快捷场景入口
+  - 医院场景快捷入口
   - 主命令输入与发送区
   - 视觉输入区与结果面板
   - 演示图表与演示清单
+  - 确认执行卡片
 
 ## 模型接口
 
@@ -99,6 +101,7 @@ $env:Path="$env:JAVA_HOME\bin;$env:Path"
 - `navigate`
 - `tts_feedback`
 - `send_sms`
+- `clarification`
 - `unknown`
 
 ## 验证建议
