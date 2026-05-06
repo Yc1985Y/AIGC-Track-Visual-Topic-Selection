@@ -1,6 +1,7 @@
 package com.vsa.visualsemanticagent.utils
 
 import com.vsa.visualsemanticagent.model.ModelConstants
+import com.vsa.visualsemanticagent.model.VLMPayload
 import com.vsa.visualsemanticagent.model.VLMResponse
 
 object ResponseInterpreter {
@@ -10,21 +11,26 @@ object ResponseInterpreter {
         ModelConstants.ACTION_NAVIGATE,
         ModelConstants.ACTION_TTS_FEEDBACK,
         ModelConstants.ACTION_SEND_SMS,
+        ModelConstants.ACTION_CLARIFICATION,
         ModelConstants.ACTION_UNKNOWN
     )
 
     fun normalize(response: VLMResponse): VLMResponse {
         val normalizedAction = response.action.cleanValue()?.lowercase().orEmpty()
         val safeAction = normalizedAction.takeIf { it in supportedActions } ?: ModelConstants.ACTION_UNKNOWN
+        val payload = response.payload.normalizePayload()
 
         return response.copy(
             action = safeAction,
-            title = response.title.cleanValue(),
-            time = response.time.cleanValue(),
-            location = response.location.cleanValue(),
-            answer = response.answer.cleanValue(),
-            description = response.description.cleanValue(),
-            phoneNumber = response.phoneNumber.normalizePhoneNumber()
+            confidence = response.confidence?.coerceIn(0.0, 1.0),
+            payload = payload,
+            fallbackQuery = response.fallbackQuery.cleanValue(),
+            title = payload.title,
+            time = payload.time,
+            location = payload.location,
+            answer = payload.answer,
+            description = payload.description,
+            phoneNumber = payload.phoneNumber
         )
     }
 
@@ -35,32 +41,45 @@ object ResponseInterpreter {
 
         return when (response.action) {
             ModelConstants.ACTION_CREATE_EVENT -> {
-                when {
-                    !response.title.isNullOrBlank() -> "已识别活动：${response.title}"
-                    else -> "已识别活动信息。"
-                }
+                response.title?.let { "已识别到可创建日程：$it" } ?: "已识别到日程信息"
             }
+
             ModelConstants.ACTION_NAVIGATE -> {
-                when {
-                    !response.location.isNullOrBlank() -> "已识别地点：${response.location}"
-                    else -> "已识别导航地点。"
-                }
+                response.location?.let { "已识别到地点：$it" } ?: "已识别到导航地点"
             }
-            ModelConstants.ACTION_SEND_SMS -> "已准备短信内容。"
+
+            ModelConstants.ACTION_SEND_SMS -> "已整理出短信草稿"
+            ModelConstants.ACTION_CLARIFICATION -> response.fallbackQuery
+                ?: response.answer
+                ?: "当前结果还不够确定，请补充一点信息。"
+
             ModelConstants.ACTION_TTS_FEEDBACK -> response.answer
                 ?: response.description
-                ?: "已生成语义反馈。"
+                ?: "已生成语义反馈"
+
             else -> response.answer
                 ?: response.description
-                ?: "暂时无法确定最合适的动作。"
+                ?: "暂时无法确定最合适的动作"
         }
     }
 
     fun buildSpeechText(response: VLMResponse, dispatchSummary: String? = null): String? {
         return response.answer
             ?: response.description
+            ?: response.fallbackQuery
             ?: dispatchSummary
             ?: buildStatusMessage(response, dispatchSummary)
+    }
+
+    private fun VLMPayload?.normalizePayload(): VLMPayload {
+        return VLMPayload(
+            title = this?.title.cleanValue(),
+            time = this?.time.normalizeIsoTime(),
+            location = this?.location.cleanValue(),
+            phoneNumber = this?.phoneNumber.normalizePhoneNumber(),
+            description = this?.description.cleanValue(),
+            answer = this?.answer.cleanValue()
+        )
     }
 
     private fun String?.cleanValue(): String? {
@@ -68,9 +87,14 @@ object ResponseInterpreter {
         return cleaned.takeIf { it.isNotBlank() }
     }
 
+    private fun String?.normalizeIsoTime(): String? {
+        val cleaned = this.cleanValue() ?: return null
+        return cleaned.replace(" ", "T")
+    }
+
     private fun String?.normalizePhoneNumber(): String? {
         val cleaned = this.cleanValue() ?: return null
-        val candidate = Regex("""\+?\d[\d\s\-()（）]{4,}\d""")
+        val candidate = Regex("""\+?\d[\d\s\-()]{4,}\d""")
             .find(cleaned)
             ?.value
             ?: cleaned
@@ -82,9 +106,11 @@ object ResponseInterpreter {
             !hasLeadingPlus && digitsOnly.startsWith("0086") && digitsOnly.length > 11 -> {
                 digitsOnly.removePrefix("0086")
             }
+
             !hasLeadingPlus && digitsOnly.startsWith("86") && digitsOnly.length > 11 -> {
                 digitsOnly.removePrefix("86")
             }
+
             else -> digitsOnly
         }
 

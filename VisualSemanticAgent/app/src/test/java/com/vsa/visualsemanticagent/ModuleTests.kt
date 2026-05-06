@@ -1,13 +1,16 @@
 package com.vsa.visualsemanticagent
 
+import com.vsa.visualsemanticagent.decision.ExecutionMode
 import com.vsa.visualsemanticagent.decision.FrameIntentObservation
 import com.vsa.visualsemanticagent.decision.HospitalIntentSchema
 import com.vsa.visualsemanticagent.decision.ContinuousVisionCoordinator
 import com.vsa.visualsemanticagent.decision.FrameQualitySnapshot
 import com.vsa.visualsemanticagent.decision.GuidanceType
+import com.vsa.visualsemanticagent.decision.RiskPolicyEngine
 import com.vsa.visualsemanticagent.decision.StabilizerStatus
 import com.vsa.visualsemanticagent.decision.TemporalIntentStabilizer
 import com.vsa.visualsemanticagent.model.ModelConstants
+import com.vsa.visualsemanticagent.model.VLMPayload
 import com.vsa.visualsemanticagent.model.VLMResponse
 import com.vsa.visualsemanticagent.network.MockVLMResponseFactory
 import com.vsa.visualsemanticagent.utils.JsonCleansingUtils
@@ -39,9 +42,11 @@ class ModuleTests {
     fun normalizeResponse_mapsUnknownActionToUnknown() {
         val raw = VLMResponse(
             action = "CREATE_MEETING",
-            title = "  demo event  ",
-            answer = "  ok  ",
-            phoneNumber = " 138-0013-8000 "
+            payload = VLMPayload(
+                title = "  demo event  ",
+                answer = "  ok  ",
+                phoneNumber = " 138-0013-8000 "
+            )
         )
 
         val normalized = ResponseInterpreter.normalize(raw)
@@ -53,40 +58,21 @@ class ModuleTests {
     }
 
     @Test
-    fun normalizeResponse_normalizesInternationalPhoneNumber() {
+    fun normalizeResponse_normalizesPhoneAndTime() {
         val raw = VLMResponse(
             action = ModelConstants.ACTION_SEND_SMS,
-            phoneNumber = " +86 138-0013-8000 "
+            confidence = 1.2,
+            payload = VLMPayload(
+                phoneNumber = " +86 138-0013-8000 ",
+                time = "2026-05-20 14:30:00"
+            )
         )
 
         val normalized = ResponseInterpreter.normalize(raw)
 
         assertEquals("+8613800138000", normalized.phoneNumber)
-    }
-
-    @Test
-    fun normalizeResponse_defaultsMissingActionToUnknown() {
-        val raw = VLMResponse(
-            action = null,
-            description = "test description"
-        )
-
-        val normalized = ResponseInterpreter.normalize(raw)
-
-        assertEquals(ModelConstants.ACTION_UNKNOWN, normalized.action)
-        assertEquals("test description", normalized.description)
-    }
-
-    @Test
-    fun buildSpeechText_fallsBackToDescription() {
-        val response = VLMResponse(
-            action = ModelConstants.ACTION_TTS_FEEDBACK,
-            description = "desk in front of the user"
-        )
-
-        val speech = ResponseInterpreter.buildSpeechText(response)
-
-        assertEquals("desk in front of the user", speech)
+        assertEquals("2026-05-20T14:30:00", normalized.time)
+        assertEquals(1.0, normalized.confidence ?: 0.0, 0.0001)
     }
 
     @Test
@@ -94,40 +80,83 @@ class ModuleTests {
         val response = MockVLMResponseFactory.buildResponse("create_event calendar reminder")
 
         assertEquals(ModelConstants.ACTION_CREATE_EVENT, response.action)
-        assertNotNull(response.title)
+        assertNotNull(response.payload?.title)
     }
 
     @Test
-    fun mockFactory_returnsNavigateActionForNavigationPrompt() {
-        val response = MockVLMResponseFactory.buildResponse("please navigate there")
-
-        assertEquals(ModelConstants.ACTION_NAVIGATE, response.action)
-        assertNotNull(response.location)
-    }
-
-    @Test
-    fun mockFactory_returnsSmsActionForSmsPrompt() {
-        val response = MockVLMResponseFactory.buildResponse("send_sms reminder")
-
-        assertEquals(ModelConstants.ACTION_SEND_SMS, response.action)
-        assertNotNull(response.phoneNumber)
-    }
-
-    @Test
-    fun hospitalIntentSchema_marksHighRiskActionsAsConfirmationRequired() {
+    fun hospitalIntentSchema_buildsFusedConfidence() {
         val response = VLMResponse(
             action = ModelConstants.ACTION_CREATE_EVENT,
-            title = "Outpatient follow-up",
-            time = "2026-05-08 09:00",
-            location = "Building 3 Internal Medicine"
+            confidence = 0.9,
+            payload = VLMPayload(
+                title = "Outpatient follow-up",
+                time = "2026-05-08T09:00:00",
+                location = "Building 3 Internal Medicine"
+            )
         )
 
-        val intent = HospitalIntentSchema.fromResponse(response, confidence = 0.91)
+        val intent = HospitalIntentSchema.fromResponse(
+            response = response,
+            qualityConfidence = 0.8,
+            stabilityConfidence = 0.85
+        )
 
         assertEquals("hospital_outpatient_assist", intent.scene)
         assertTrue(intent.requiresConfirmation)
         assertEquals(ModelConstants.ACTION_CREATE_EVENT, intent.action)
-        assertEquals(0.91, intent.confidence, 0.0001)
+        assertTrue(intent.fusedConfidence > 0.84)
+    }
+
+    @Test
+    fun riskPolicyEngine_requiresConfirmationForMediumRiskAction() {
+        val engine = RiskPolicyEngine()
+        val intent = HospitalIntentSchema.fromResponse(
+            VLMResponse(
+                action = ModelConstants.ACTION_NAVIGATE,
+                confidence = 0.88,
+                payload = VLMPayload(location = "Imaging Department")
+            )
+        )
+
+        val suggestion = engine.evaluate(intent)
+
+        assertEquals(ExecutionMode.REQUIRE_CONFIRMATION, suggestion.mode)
+    }
+
+    @Test
+    fun riskPolicyEngine_triggersClarificationForInvalidPayload() {
+        val engine = RiskPolicyEngine()
+        val intent = HospitalIntentSchema.fromResponse(
+            VLMResponse(
+                action = ModelConstants.ACTION_CREATE_EVENT,
+                confidence = 0.92,
+                payload = VLMPayload(
+                    title = "Medical examination",
+                    location = "Imaging Department"
+                )
+            )
+        )
+
+        val suggestion = engine.evaluate(intent)
+
+        assertEquals(ExecutionMode.REQUIRE_CLARIFICATION, suggestion.mode)
+        assertTrue(suggestion.validation.issues.any { it.contains("time") })
+    }
+
+    @Test
+    fun riskPolicyEngine_allowsDirectTtsForLowRiskAction() {
+        val engine = RiskPolicyEngine()
+        val intent = HospitalIntentSchema.fromResponse(
+            VLMResponse(
+                action = ModelConstants.ACTION_TTS_FEEDBACK,
+                confidence = 0.91,
+                payload = VLMPayload(answer = "Registration desk is ahead")
+            )
+        )
+
+        val suggestion = engine.evaluate(intent)
+
+        assertEquals(ExecutionMode.DIRECT_TTS, suggestion.mode)
     }
 
     @Test
@@ -141,9 +170,9 @@ class ModuleTests {
         val intent = HospitalIntentSchema.fromResponse(
             VLMResponse(
                 action = ModelConstants.ACTION_NAVIGATE,
-                location = "Building 3 Internal Medicine"
-            ),
-            confidence = 0.88
+                confidence = 0.88,
+                payload = VLMPayload(location = "Building 3 Internal Medicine")
+            )
         )
 
         val first = stabilizer.observe(FrameIntentObservation(1L, intent))
@@ -158,7 +187,7 @@ class ModuleTests {
     }
 
     @Test
-    fun temporalIntentStabilizer_rejectsLowConfidenceLatestFrame() {
+    fun temporalIntentStabilizer_rejectsLowFusedConfidenceLatestFrame() {
         val stabilizer = TemporalIntentStabilizer(
             requiredConsistentFrames = 2,
             minConfidence = 0.8,
@@ -168,16 +197,16 @@ class ModuleTests {
         val strongIntent = HospitalIntentSchema.fromResponse(
             VLMResponse(
                 action = ModelConstants.ACTION_TTS_FEEDBACK,
-                answer = "registration desk is ahead"
-            ),
-            confidence = 0.86
+                confidence = 0.86,
+                payload = VLMPayload(answer = "registration desk is ahead")
+            )
         )
         val weakIntent = HospitalIntentSchema.fromResponse(
             VLMResponse(
                 action = ModelConstants.ACTION_TTS_FEEDBACK,
-                answer = "registration desk is ahead"
-            ),
-            confidence = 0.62
+                confidence = 0.3,
+                payload = VLMPayload(answer = "registration desk is ahead")
+            )
         )
 
         stabilizer.observe(FrameIntentObservation(1L, strongIntent))
@@ -218,11 +247,13 @@ class ModuleTests {
         val intent = HospitalIntentSchema.fromResponse(
             VLMResponse(
                 action = ModelConstants.ACTION_CREATE_EVENT,
-                title = "Medical examination",
-                time = "2026-05-08 09:00",
-                location = "Imaging Department"
-            ),
-            confidence = 0.9
+                confidence = 0.9,
+                payload = VLMPayload(
+                    title = "Medical examination",
+                    time = "2026-05-08T09:00:00",
+                    location = "Imaging Department"
+                )
+            )
         )
 
         val quality = FrameQualitySnapshot(

@@ -26,6 +26,17 @@ Typical user goal:
 
 ## Engineering Architecture
 
+The current prototype is now also aligned with a stricter
+Visual-to-Tool Agent Middleware framing:
+
+1. Extract: the model must output structured JSON with `action`,
+   `confidence`, `payload`, and `fallback_query`
+2. Suggest: the client computes fused confidence, validates required fields,
+   and applies risk thresholds before any execution
+3. Confirm: medium/high-risk actions are surfaced as confirmation prompts
+   before Android intents are launched
+4. Execute: only validated and confirmed actions are mapped to platform tools
+
 ### 1. Perception Layer
 
 - continuous video stream
@@ -100,15 +111,21 @@ Schema fields:
 
 - `scene`
 - `action`
+- `payload`
+- `modelConfidence`
+- `fusedConfidence`
+- `fallbackQuery`
+- `requiresConfirmation`
+- `riskLevel`
+
+Payload fields:
+
 - `title`
 - `time`
 - `location`
-- `answer`
-- `description`
 - `phoneNumber`
-- `confidence`
-- `requiresConfirmation`
-- `riskLevel`
+- `description`
+- `answer`
 
 Scene constant:
 
@@ -116,8 +133,16 @@ Scene constant:
 
 Risk policy:
 
-- `create_event`, `navigate`, `send_sms` -> high risk, confirmation required
+- `send_sms` -> high risk, confirmation required and opened as draft only
+- `create_event`, `navigate` -> medium risk, confirmation required
 - `tts_feedback` -> low risk, can be spoken directly
+
+Validation and routing:
+
+- invalid required fields -> clarification
+- confidence below threshold -> clarification
+- valid low-risk action -> direct TTS
+- valid medium/high-risk action -> confirm before execution
 
 ## Temporal Stability Mechanism
 

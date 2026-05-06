@@ -1,24 +1,24 @@
 package com.vsa.visualsemanticagent.network
 
 import com.google.gson.Gson
-import com.google.gson.JsonParseException
 import com.google.gson.JsonObject
+import com.google.gson.JsonParseException
 import com.vsa.visualsemanticagent.model.VLMResponse
 import com.vsa.visualsemanticagent.utils.JsonCleansingUtils
+import java.io.IOException
+import java.util.UUID
+import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.CancellationException
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
-import okhttp3.Response
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Response
 import timber.log.Timber
-import java.io.IOException
-import java.util.concurrent.TimeUnit
-import java.util.UUID
 
 class VLMNetworkClient(
     private val apiKey: String,
@@ -68,26 +68,26 @@ class VLMNetworkClient(
                 }
             } catch (e: VLMResponseParseException) {
                 lastError = e
-                Timber.w(e, "VLM response parsing failed on attempt ${attempt + 1}")
+                Timber.w(e, "VLM response parsing failed on attempt %s", attempt + 1)
                 throw e
             } catch (e: CancellationException) {
                 throw e
             } catch (e: VLMApiException) {
                 lastError = e
-                Timber.w(e, "VLM API rejected request on attempt ${attempt + 1}")
+                Timber.w(e, "VLM API rejected request on attempt %s", attempt + 1)
                 if (!e.isRetryable || attempt == 1) {
                     throw e
                 }
                 delay(1200)
             } catch (e: IOException) {
                 lastError = VLMNetworkException(e)
-                Timber.w(e, "VLM network failed on attempt ${attempt + 1}")
+                Timber.w(e, "VLM network failed on attempt %s", attempt + 1)
                 if (attempt == 0) {
                     delay(1200)
                 }
             } catch (e: Exception) {
                 lastError = e
-                Timber.w(e, "VLM request failed on attempt ${attempt + 1}")
+                Timber.w(e, "VLM request failed on attempt %s", attempt + 1)
                 if (attempt == 0) {
                     delay(1200)
                 }
@@ -144,6 +144,7 @@ class VLMNetworkClient(
                 modelName.contains("qwen", ignoreCase = true) -> {
                     put("enable_thinking", false)
                 }
+
                 modelName.contains("deepseek", ignoreCase = true) ||
                     modelName.contains("doubao", ignoreCase = true) ||
                     modelName.contains("seed", ignoreCase = true) -> {
@@ -155,35 +156,34 @@ class VLMNetworkClient(
 
     private fun buildSystemPrompt(): String {
         return """
-你是视觉语义执行代理的结构化决策引擎。
-你必须严格输出一个合法 JSON 对象，不能输出任何解释、Markdown、前后缀。
-你的输出会被 Android 客户端直接解析并驱动系统动作。
+You are the structured decision engine for a mobile visual-to-tool middleware.
+Return strict JSON only. Do not output markdown, explanation, or code fences.
 
-可选 action 只有：
-- create_event：从海报、通知、名片等图像中提取活动信息并建议写入日历
-- navigate：从图像或文字中提取地点并发起导航
-- tts_feedback：返回描述、问答、导视或寻物反馈
-- send_sms：当用户明确要求发短信时返回
-- unknown：无法判断时返回
-
-输出 JSON Schema：
+Required schema:
 {
-  "action": "create_event|navigate|tts_feedback|send_sms|unknown",
-  "title": "string",
-  "time": "string",
-  "location": "string",
-  "answer": "string",
-  "target_found": true,
-  "description": "string",
-  "phone_number": "string"
+  "action": "create_event|navigate|tts_feedback|send_sms|clarification|unknown",
+  "confidence": 0.0,
+  "payload": {
+    "title": "",
+    "time": "",
+    "location": "",
+    "phone_number": "",
+    "description": "",
+    "answer": ""
+  },
+  "fallback_query": "",
+  "target_found": true
 }
 
-要求：
-1. 如果信息缺失，不要臆造，字段可省略。
-2. 如果用户是描述/问答/导视类需求，优先返回 tts_feedback。
-3. 如果检测到活动主题、时间、地点且用户有安排意图，返回 create_event。
-4. 如果检测到明确地点且用户有前往意图，返回 navigate。
-5. 除 JSON 外不要输出任何额外文本。
+Rules:
+1. Always provide confidence between 0.0 and 1.0.
+2. If a critical field is missing or uncertain, use clarification and fill fallback_query.
+3. create_event should include title, ISO-like time, and location whenever possible.
+4. navigate should include a concrete location.
+5. send_sms must be conservative and should only be chosen when the user intent is explicit.
+6. tts_feedback should summarize or answer clearly for voice playback.
+7. Never invent absent details.
+8. Output JSON only.
         """.trimIndent()
     }
 
@@ -205,10 +205,10 @@ class VLMNetworkClient(
         } catch (e: VLMResponseParseException) {
             throw e
         } catch (e: JsonParseException) {
-            Timber.e(e, "Failed to parse VLM response JSON: $responseBody")
+            Timber.e(e, "Failed to parse VLM response JSON: %s", responseBody)
             throw VLMResponseParseException("Failed to parse VLM response JSON", responseBody, e)
         } catch (e: Exception) {
-            Timber.e(e, "Failed to parse VLM response: $responseBody")
+            Timber.e(e, "Failed to parse VLM response: %s", responseBody)
             throw VLMResponseParseException("Failed to parse VLM response", responseBody, e)
         }
     }

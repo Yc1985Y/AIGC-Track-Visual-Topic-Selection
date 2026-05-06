@@ -30,7 +30,7 @@ class TemporalIntentStabilizer(
         trimHistory()
 
         val latestIntent = observation.intent
-        if (latestIntent.confidence < minConfidence) {
+        if (latestIntent.fusedConfidence < minConfidence) {
             return StableIntentDecision(
                 status = StabilizerStatus.WAITING,
                 stableIntent = null,
@@ -43,7 +43,7 @@ class TemporalIntentStabilizer(
         val consecutiveMatches = history
             .reversed()
             .takeWhile { item ->
-                item.intent.confidence >= minConfidence &&
+                item.intent.fusedConfidence >= minConfidence &&
                     item.intent.stabilityKey == latestIntent.stabilityKey
             }
             .count()

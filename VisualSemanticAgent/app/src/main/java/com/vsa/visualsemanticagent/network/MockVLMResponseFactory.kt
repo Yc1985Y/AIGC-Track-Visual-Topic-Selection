@@ -1,10 +1,11 @@
 package com.vsa.visualsemanticagent.network
 
 import com.vsa.visualsemanticagent.model.ModelConstants
+import com.vsa.visualsemanticagent.model.VLMPayload
 import com.vsa.visualsemanticagent.model.VLMResponse
-import kotlinx.coroutines.delay
 import java.io.IOException
 import java.util.Locale
+import kotlinx.coroutines.delay
 
 object MockVLMResponseFactory {
 
@@ -25,66 +26,81 @@ object MockVLMResponseFactory {
                 "活动",
                 "海报",
                 "讲座",
-                "会议",
-                "答辩",
-                "比赛"
+                "门诊",
+                "提醒"
             ) -> VLMResponse(
                 action = ModelConstants.ACTION_CREATE_EVENT,
-                title = "中国高校计算机大赛 AIGC 赛道项目答辩",
-                time = "2026-05-20 14:30",
-                location = "信息楼 A201",
-                description = "Mock 模式示例：用于验证日历拉起、时间解析和结果卡片展示。"
+                confidence = 0.9,
+                payload = VLMPayload(
+                    title = "门诊复查提醒",
+                    time = "2026-05-20T14:30:00",
+                    location = "门诊楼三层影像科",
+                    description = "请提前十分钟到达并携带检查单。"
+                ),
+                fallbackQuery = "我识别到了日程，但如果时间不对，请直接告诉我完整时间。",
+                targetFound = true
             )
 
             containsAny(
                 normalized,
                 "navigate",
                 "导航",
-                "地点",
                 "地图",
-                "前往",
-                "怎么走",
-                "去这个地方"
+                "去这个地方",
+                "去门诊"
             ) -> VLMResponse(
                 action = ModelConstants.ACTION_NAVIGATE,
-                location = "深圳市南山区科技园科苑路 15 号",
-                description = "Mock 模式示例：用于验证地图跳转与中文地点兼容。"
+                confidence = 0.86,
+                payload = VLMPayload(
+                    location = "门诊楼三层影像科",
+                    description = "从当前位置前往门诊楼三层影像科。"
+                ),
+                fallbackQuery = "我识别到了一个可能的地点，请再对准地点信息或者直接说出楼名。",
+                targetFound = true
             )
 
             containsAny(
                 normalized,
                 "send_sms",
                 "短信",
-                "联系",
-                "通知",
+                "通知联系人",
                 "发消息"
             ) -> VLMResponse(
                 action = ModelConstants.ACTION_SEND_SMS,
-                phoneNumber = "+86 138-0013-8000",
-                answer = "已为联系人准备提醒短信。",
-                description = "您好，答辩将在今天下午两点半于信息楼 A201 准时开始。"
+                confidence = 0.81,
+                payload = VLMPayload(
+                    phoneNumber = "13800138000",
+                    description = "您好，我已到医院门诊楼，正在前往影像科。"
+                ),
+                fallbackQuery = "我整理出了短信草稿，但号码或内容还需要你再确认一次。",
+                targetFound = true
             )
 
             containsAny(
                 normalized,
-                "find",
-                "tts_feedback",
-                "寻物",
-                "导视",
-                "寻找",
-                "在哪",
-                "描述"
+                "clarify",
+                "不确定",
+                "模糊",
+                "看不清"
             ) -> VLMResponse(
-                action = ModelConstants.ACTION_TTS_FEEDBACK,
-                targetFound = true,
-                answer = "Mock 模式：目标位于画面右侧桌面附近，靠近显示器下方。",
-                description = "这是一个室内办公或学习场景，桌面上摆放着常见物品。"
+                action = ModelConstants.ACTION_CLARIFICATION,
+                confidence = 0.45,
+                payload = VLMPayload(
+                    answer = "我看到了一张通知，但时间和地点还不够清晰。"
+                ),
+                fallbackQuery = "请把手机再靠近一点，或者告诉我是上午还是下午。",
+                targetFound = true
             )
 
             else -> VLMResponse(
                 action = ModelConstants.ACTION_TTS_FEEDBACK,
-                answer = "Mock 模式：当前主链路已接通，你可以继续测试日历、导航或语音播报流程。",
-                description = "如果想测试错误弹层，可在输入框中键入 mock_error 后再点击拍照执行。"
+                confidence = 0.93,
+                payload = VLMPayload(
+                    answer = "我已经识别到这是一张医院通知，重点信息是时间、地点和注意事项。",
+                    description = "可继续追问我，或者让我帮你创建提醒。"
+                ),
+                fallbackQuery = "如果你希望我执行动作，可以继续说创建提醒或开始导航。",
+                targetFound = true
             )
         }
     }

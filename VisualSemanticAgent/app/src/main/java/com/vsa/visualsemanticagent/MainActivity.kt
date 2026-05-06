@@ -7,6 +7,7 @@ import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.core.ImageCaptureException
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,10 +23,14 @@ import androidx.core.view.doOnLayout
 import androidx.core.view.drawToBitmap
 import androidx.lifecycle.lifecycleScope
 import com.vsa.visualsemanticagent.camera.CameraManager
+import com.vsa.visualsemanticagent.decision.ExecutableIntent
+import com.vsa.visualsemanticagent.decision.ExecutionMode
+import com.vsa.visualsemanticagent.decision.ExecutionSuggestion
+import com.vsa.visualsemanticagent.decision.HospitalIntentSchema
+import com.vsa.visualsemanticagent.decision.RiskPolicyEngine
 import com.vsa.visualsemanticagent.intent.ActivityNotFoundException
 import com.vsa.visualsemanticagent.intent.IntentDispatcher
 import com.vsa.visualsemanticagent.model.VLMResponse
-import androidx.camera.core.ImageCaptureException
 import com.vsa.visualsemanticagent.network.VLMApiException
 import com.vsa.visualsemanticagent.network.VLMNetworkClient
 import com.vsa.visualsemanticagent.network.VLMNetworkException
@@ -66,6 +71,9 @@ class MainActivity : ComponentActivity() {
     private var lastError by mutableStateOf("")
     private var showErrorOverlay by mutableStateOf(false)
     private var currentRecoveryAction by mutableStateOf(RecoveryAction.NONE)
+    private var pendingExecutableIntent by mutableStateOf<ExecutableIntent?>(null)
+    private var pendingExecutionSuggestion by mutableStateOf<ExecutionSuggestion?>(null)
+    private var showConfirmationCard by mutableStateOf(false)
     private var appInitialized = false
 
     private lateinit var intentDispatcher: IntentDispatcher
@@ -73,6 +81,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var textToSpeechManager: TextToSpeechManager
     private lateinit var vlmNetworkClient: VLMNetworkClient
 
+    private val riskPolicyEngine = RiskPolicyEngine()
     private val presets = PromptPresets.defaults
 
     private val permissionLauncher = registerForActivityResult(
@@ -118,6 +127,8 @@ class MainActivity : ComponentActivity() {
                 onCapture = { onCaptureButtonClicked() },
                 onVoice = { onVoiceButtonClicked() },
                 onPreset = { onPresetSelected(it) },
+                onConfirmExecution = { onConfirmExecutionClicked() },
+                onCancelExecution = { onCancelExecutionClicked() },
                 bindPreview = { bindPreview(it) },
                 presets = presets,
                 showLivePreview = !BuildConfig.VLM_USE_MOCK,
@@ -127,6 +138,9 @@ class MainActivity : ComponentActivity() {
                 loadingStage = loadingStage,
                 statusText = statusText,
                 resultText = resultText,
+                confirmationIntent = pendingExecutableIntent,
+                confirmationSuggestion = pendingExecutionSuggestion,
+                showConfirmationCard = showConfirmationCard,
                 showErrorOverlay = showErrorOverlay,
                 errorText = lastError,
                 showRetry = currentRecoveryAction != RecoveryAction.NONE,
@@ -260,9 +274,7 @@ class MainActivity : ComponentActivity() {
                 commandText = voiceRecognitionManager.listenOnce()
                 statusText = "已识别语音指令"
             } catch (e: Exception) {
-                if (e is CancellationException) {
-                    throw e
-                }
+                if (e is CancellationException) throw e
                 Timber.e(e, "Voice capture failed")
                 handleError(e, RecoveryAction.RETRY_VOICE)
             } finally {
@@ -294,11 +306,13 @@ class MainActivity : ComponentActivity() {
         isLoading = true
         loadingStage = 0
         resultText = ""
+        pendingExecutableIntent = null
+        pendingExecutionSuggestion = null
+        showConfirmationCard = false
         clearErrorState()
 
         lifecycleScope.launch {
             try {
-                loadingStage = 0
                 val finalCommand = commandText.ifBlank { getString(R.string.default_command) }
                 val base64Image = if (BuildConfig.VLM_USE_MOCK && !CameraManager.isCaptureReady()) {
                     ""
@@ -309,22 +323,13 @@ class MainActivity : ComponentActivity() {
                 loadingStage = 1
                 val rawResponse = sendToVLM(base64Image, finalCommand)
                 val response = ResponseInterpreter.normalize(rawResponse)
+                val executableIntent = HospitalIntentSchema.fromResponse(response)
 
                 loadingStage = 2
-                val dispatchResult = dispatchAction(response)
-                val status = ResponseInterpreter.buildStatusMessage(response, dispatchResult.summary)
-                val speechText = ResponseInterpreter.buildSpeechText(response, dispatchResult.summary)
-
-                statusText = status
-                resultText = buildResultCardText(response, dispatchResult.summary)
-                if (!speechText.isNullOrBlank()) {
-                    playTextToSpeech(speechText)
-                }
+                handleExecutionSuggestion(executableIntent)
                 scheduleDebugSnapshot("mock-result")
             } catch (e: Exception) {
-                if (e is CancellationException) {
-                    throw e
-                }
+                if (e is CancellationException) throw e
                 Timber.e(e, "Error during capture flow")
                 handleError(e, RecoveryAction.RETRY_CAPTURE)
                 if (lastError.isNotBlank()) {
@@ -341,21 +346,94 @@ class MainActivity : ComponentActivity() {
         return vlmNetworkClient.sendMultimodalRequest(base64Image, userText)
     }
 
-    private fun dispatchAction(response: VLMResponse): IntentDispatcher.DispatchResult {
-        return intentDispatcher.dispatchIntent(response)
+    private fun handleExecutionSuggestion(executableIntent: ExecutableIntent) {
+        val suggestion = riskPolicyEngine.evaluate(executableIntent)
+        pendingExecutableIntent = executableIntent
+        pendingExecutionSuggestion = suggestion
+
+        when (suggestion.mode) {
+            ExecutionMode.DIRECT_TTS -> {
+                statusText = suggestion.summary
+                resultText = buildResultCardText(executableIntent, suggestion.summary, suggestion)
+                showConfirmationCard = false
+                playTextToSpeech(suggestion.prompt)
+            }
+
+            ExecutionMode.REQUIRE_CONFIRMATION -> {
+                statusText = suggestion.summary
+                resultText = buildResultCardText(executableIntent, suggestion.summary, suggestion)
+                showConfirmationCard = true
+                playTextToSpeech(suggestion.prompt)
+            }
+
+            ExecutionMode.REQUIRE_CLARIFICATION -> {
+                statusText = suggestion.summary
+                resultText = buildResultCardText(executableIntent, suggestion.summary, suggestion)
+                showConfirmationCard = false
+                playTextToSpeech(suggestion.prompt)
+            }
+
+            ExecutionMode.BLOCKED -> {
+                statusText = suggestion.summary
+                resultText = buildResultCardText(executableIntent, suggestion.summary, suggestion)
+                showConfirmationCard = false
+                playTextToSpeech(suggestion.prompt)
+            }
+        }
     }
 
-    private fun buildResultCardText(response: VLMResponse, summary: String): String {
+    private fun onConfirmExecutionClicked() {
+        val executableIntent = pendingExecutableIntent ?: return
+        val suggestion = pendingExecutionSuggestion ?: return
+
+        try {
+            val dispatchResult = intentDispatcher.dispatchIntent(executableIntent)
+            statusText = dispatchResult.summary
+            resultText = buildResultCardText(executableIntent, dispatchResult.summary, suggestion)
+            showConfirmationCard = false
+            playTextToSpeech(dispatchResult.summary)
+        } catch (e: Exception) {
+            Timber.e(e, "Execution failed after confirmation")
+            handleError(e, RecoveryAction.RETRY_CAPTURE)
+        }
+    }
+
+    private fun onCancelExecutionClicked() {
+        val suggestion = pendingExecutionSuggestion
+        showConfirmationCard = false
+        statusText = "已取消执行"
+        resultText = buildString {
+            append("已取消执行")
+            if (suggestion != null) {
+                append("\n")
+                append(suggestion.prompt)
+            }
+        }
+    }
+
+    private fun buildResultCardText(
+        intent: ExecutableIntent,
+        summary: String,
+        suggestion: ExecutionSuggestion
+    ): String {
         val parts = linkedSetOf<String>()
         if (BuildConfig.VLM_USE_MOCK) {
             parts.add(getString(R.string.mock_mode_result_tag))
         }
         parts.add(summary)
-        response.title?.let { parts.add("标题：$it") }
-        response.time?.let { parts.add("时间：$it") }
-        response.location?.let { parts.add("地点：$it") }
-        response.description?.let { parts.add("描述：$it") }
-        response.answer?.let { parts.add("回复：$it") }
+        parts.add("动作：${intent.action}")
+        parts.add("融合置信度：${"%.2f".format(intent.fusedConfidence)}")
+        parts.add("执行模式：${suggestion.mode}")
+        intent.title?.let { parts.add("标题：$it") }
+        intent.time?.let { parts.add("时间：$it") }
+        intent.location?.let { parts.add("地点：$it") }
+        intent.phoneNumber?.let { parts.add("号码：$it") }
+        intent.description?.let { parts.add("说明：$it") }
+        intent.answer?.let { parts.add("播报：$it") }
+        if (suggestion.validation.issues.isNotEmpty()) {
+            parts.add("校验问题：${suggestion.validation.issues.joinToString()}")
+        }
+        parts.add("建议话术：${suggestion.prompt}")
         return parts.joinToString(separator = "\n")
     }
 
@@ -371,6 +449,7 @@ class MainActivity : ComponentActivity() {
                 requestCamera = !cameraPermissionGranted,
                 requestAudio = !audioPermissionGranted
             )
+
             RecoveryAction.RETRY_CAPTURE -> onCaptureButtonClicked()
             RecoveryAction.RETRY_VOICE -> onVoiceButtonClicked()
             RecoveryAction.NONE -> Unit
@@ -423,12 +502,15 @@ class MainActivity : ComponentActivity() {
             throwable.code == 429 || responseBody.contains("rate limit") || responseBody.contains("429") -> {
                 getString(R.string.model_rate_limited)
             }
+
             responseBody.contains("no model access permission") || responseBody.contains("permission expires") -> {
                 getString(R.string.model_permission_denied)
             }
+
             responseBody.contains("today usage limit") -> {
                 getString(R.string.model_daily_quota_exceeded)
             }
+
             else -> getString(R.string.model_error)
         }
     }
@@ -454,8 +536,10 @@ class MainActivity : ComponentActivity() {
                 errorCode == VoiceRecognitionManager.ERROR_SERVER ||
                 errorCode == VoiceRecognitionManager.ERROR_NETWORK ||
                 errorCode == VoiceRecognitionManager.ERROR_NETWORK_TIMEOUT -> getString(R.string.voice_service_error)
+
             errorCode == VoiceRecognitionManager.ERROR_NO_MATCH ||
                 errorCode == VoiceRecognitionManager.ERROR_SPEECH_TIMEOUT -> getString(R.string.voice_capture_failed)
+
             else -> getString(R.string.voice_capture_failed)
         }
     }
@@ -466,6 +550,7 @@ class MainActivity : ComponentActivity() {
             message.contains("Camera is not ready", ignoreCase = true) -> getString(R.string.camera_not_ready)
             message.contains("No available camera can be found", ignoreCase = true) ->
                 getString(R.string.camera_preview_unavailable_mock_hint)
+
             message.contains("Voice recognition unavailable", ignoreCase = true) -> getString(R.string.voice_not_supported)
             message.contains("No speech recognized", ignoreCase = true) -> getString(R.string.voice_capture_failed)
             message.contains("Missing location", ignoreCase = true) -> getString(R.string.location_missing)
@@ -490,6 +575,7 @@ class MainActivity : ComponentActivity() {
             RecoveryAction.REQUEST_PERMISSIONS -> getString(R.string.retry_permission)
             RecoveryAction.RETRY_CAPTURE,
             RecoveryAction.RETRY_VOICE -> getString(R.string.retry)
+
             RecoveryAction.NONE -> getString(R.string.retry)
         }
     }
@@ -542,6 +628,8 @@ fun MainScreen(
     onCapture: () -> Unit,
     onVoice: () -> Unit,
     onPreset: (PromptPreset) -> Unit,
+    onConfirmExecution: () -> Unit,
+    onCancelExecution: () -> Unit,
     bindPreview: (PreviewView) -> Unit,
     presets: List<PromptPreset>,
     showLivePreview: Boolean,
@@ -551,6 +639,9 @@ fun MainScreen(
     loadingStage: Int,
     statusText: String,
     resultText: String,
+    confirmationIntent: ExecutableIntent?,
+    confirmationSuggestion: ExecutionSuggestion?,
+    showConfirmationCard: Boolean,
     showErrorOverlay: Boolean,
     errorText: String,
     showRetry: Boolean,
@@ -575,6 +666,11 @@ fun MainScreen(
                 onCaptureClick = onCapture,
                 onVoiceClick = onVoice,
                 onPresetClick = onPreset,
+                onConfirmExecution = onConfirmExecution,
+                onCancelExecution = onCancelExecution,
+                confirmationIntent = confirmationIntent,
+                confirmationSuggestion = confirmationSuggestion,
+                showConfirmationCard = showConfirmationCard,
                 bindPreview = bindPreview,
                 presets = presets,
                 showLivePreview = showLivePreview,

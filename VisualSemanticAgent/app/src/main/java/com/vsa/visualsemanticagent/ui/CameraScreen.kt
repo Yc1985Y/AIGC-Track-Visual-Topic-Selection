@@ -65,6 +65,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.vsa.visualsemanticagent.R
+import com.vsa.visualsemanticagent.decision.ExecutableIntent
+import com.vsa.visualsemanticagent.decision.ExecutionMode
+import com.vsa.visualsemanticagent.decision.ExecutionSuggestion
 import com.vsa.visualsemanticagent.utils.PromptPreset
 
 private val VsaNavy = Color(0xFF13263A)
@@ -85,6 +88,11 @@ fun CameraPreviewScreen(
     onCaptureClick: () -> Unit,
     onVoiceClick: () -> Unit,
     onPresetClick: (PromptPreset) -> Unit,
+    onConfirmExecution: () -> Unit,
+    onCancelExecution: () -> Unit,
+    confirmationIntent: ExecutableIntent?,
+    confirmationSuggestion: ExecutionSuggestion?,
+    showConfirmationCard: Boolean,
     bindPreview: (PreviewView) -> Unit,
     presets: List<PromptPreset>,
     showLivePreview: Boolean = true,
@@ -189,7 +197,12 @@ fun CameraPreviewScreen(
                                 summaryText = summary,
                                 insightText = insightText,
                                 isLoading = isLoading,
-                                isVoiceListening = isVoiceListening
+                                isVoiceListening = isVoiceListening,
+                                confirmationIntent = confirmationIntent,
+                                confirmationSuggestion = confirmationSuggestion,
+                                showConfirmationCard = showConfirmationCard,
+                                onConfirmExecution = onConfirmExecution,
+                                onCancelExecution = onCancelExecution
                             )
                         }
                     } else {
@@ -210,7 +223,12 @@ fun CameraPreviewScreen(
                                 summaryText = summary,
                                 insightText = insightText,
                                 isLoading = isLoading,
-                                isVoiceListening = isVoiceListening
+                                isVoiceListening = isVoiceListening,
+                                confirmationIntent = confirmationIntent,
+                                confirmationSuggestion = confirmationSuggestion,
+                                showConfirmationCard = showConfirmationCard,
+                                onConfirmExecution = onConfirmExecution,
+                                onCancelExecution = onCancelExecution
                             )
                         }
                     }
@@ -818,7 +836,12 @@ private fun ResultPanel(
     summaryText: String,
     insightText: List<String>,
     isLoading: Boolean,
-    isVoiceListening: Boolean
+    isVoiceListening: Boolean,
+    confirmationIntent: ExecutableIntent?,
+    confirmationSuggestion: ExecutionSuggestion?,
+    showConfirmationCard: Boolean,
+    onConfirmExecution: () -> Unit,
+    onCancelExecution: () -> Unit
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -850,6 +873,15 @@ private fun ResultPanel(
                 isLoading = isLoading,
                 isVoiceListening = isVoiceListening
             )
+
+            if (showConfirmationCard && confirmationIntent != null && confirmationSuggestion != null) {
+                ConfirmationCard(
+                    intent = confirmationIntent,
+                    suggestion = confirmationSuggestion,
+                    onConfirmExecution = onConfirmExecution,
+                    onCancelExecution = onCancelExecution
+                )
+            }
 
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -892,6 +924,82 @@ private fun InsightCard(
                 lineHeight = 26.sp,
                 fontWeight = FontWeight.SemiBold
             )
+        }
+    }
+}
+
+@Composable
+private fun ConfirmationCard(
+    intent: ExecutableIntent,
+    suggestion: ExecutionSuggestion,
+    onConfirmExecution: () -> Unit,
+    onCancelExecution: () -> Unit
+) {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F0FB)),
+        shape = RoundedCornerShape(24.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(18.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Text(
+                text = "确认执行",
+                color = VsaInk,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = suggestion.prompt,
+                color = VsaInk,
+                fontSize = 15.sp,
+                lineHeight = 22.sp
+            )
+            intent.title?.let {
+                Text(text = "标题：$it", color = VsaMuted, fontSize = 13.sp)
+            }
+            intent.time?.let {
+                Text(text = "时间：$it", color = VsaMuted, fontSize = 13.sp)
+            }
+            intent.location?.let {
+                Text(text = "地点：$it", color = VsaMuted, fontSize = 13.sp)
+            }
+            intent.phoneNumber?.let {
+                Text(text = "号码：$it", color = VsaMuted, fontSize = 13.sp)
+            }
+            Text(
+                text = "风险：${intent.riskLevel}  |  模式：${suggestion.mode}",
+                color = Color(0xFF6B7F95),
+                fontSize = 12.sp
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Button(
+                    modifier = Modifier.weight(1f),
+                    onClick = onConfirmExecution,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = VsaCopper,
+                        contentColor = VsaInk
+                    ),
+                    enabled = suggestion.mode == ExecutionMode.REQUIRE_CONFIRMATION,
+                    shape = RoundedCornerShape(18.dp)
+                ) {
+                    Text("确认执行", fontWeight = FontWeight.Bold)
+                }
+                Button(
+                    modifier = Modifier.weight(1f),
+                    onClick = onCancelExecution,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = VsaNavyAlt,
+                        contentColor = VsaWhite
+                    ),
+                    shape = RoundedCornerShape(18.dp)
+                ) {
+                    Text("取消", fontWeight = FontWeight.Bold)
+                }
+            }
         }
     }
 }
