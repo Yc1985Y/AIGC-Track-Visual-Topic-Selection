@@ -1,6 +1,6 @@
 # Visual Semantic Action Agent
 
-> Recommended current design references: `VISUAL_TO_TOOL_OS_DESIGN.md`, `REFERENCE_MATERIALS.md`, and `INITIAL_PRESENTATION_BRIEF.md`
+> Recommended current design references: `进度说明.md`, `VISUAL_TO_TOOL_OS_DESIGN.md`, `REFERENCE_MATERIALS.md`, and `INITIAL_PRESENTATION_BRIEF.md`
 
 一个面向比赛演示场景的 Android 视觉语义执行代理原型。  
 当前版本已重构为“Visual-to-Tool OS / Agent Middleware”叙事，目标是把“拍照 / 语音 / 文字输入”转成“结构化语义理解 + 风控判定 + Android 系统动作执行”，重点支持海报入日历、地点去导航、短信草稿和语音播报等跨应用视觉任务。
