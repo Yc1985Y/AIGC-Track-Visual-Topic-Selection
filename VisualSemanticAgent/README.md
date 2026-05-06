@@ -1,6 +1,6 @@
 # Visual Semantic Action Agent
 
-> Recommended current design reference: `HOSPITAL_ASSIST_DESIGN.md`
+> Recommended current design references: `HOSPITAL_ASSIST_DESIGN.md` and `REFERENCE_MATERIALS.md`
 
 一个面向比赛演示场景的 Android 视觉语义执行代理原型。  
 项目目标是把“拍照 / 语音 / 文字输入”转成“结构化语义理解 + Android 系统动作执行”，优先服务活动海报识别、地点导航、语音播报和结果展示等场景。
