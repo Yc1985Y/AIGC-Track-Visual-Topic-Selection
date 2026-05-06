@@ -126,8 +126,8 @@ data class ExecutableIntent(
     }
 }
 
-object HospitalIntentSchema {
-    const val SCENE_HOSPITAL_ASSIST = "hospital_outpatient_assist"
+object VisualActionIntentSchema {
+    const val SCENE_VISUAL_TO_TOOL_OS = "visual_to_tool_os"
 
     fun fromResponse(
         response: VLMResponse,
@@ -157,7 +157,7 @@ object HospitalIntentSchema {
         val riskLevel = riskLevelFor(safeAction)
 
         return ExecutableIntent(
-            scene = SCENE_HOSPITAL_ASSIST,
+            scene = SCENE_VISUAL_TO_TOOL_OS,
             action = safeAction,
             payload = payload,
             modelConfidence = modelConfidence,

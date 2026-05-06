@@ -301,7 +301,7 @@ private fun HeroCard(
         isLoading -> "语义执行中"
         isVoiceListening -> "语音接入中"
         isMock -> "Mock 演示模式"
-        else -> "视觉语义代理"
+        else -> "Visual-to-Tool OS"
     }
 
     Card(
@@ -357,7 +357,7 @@ private fun HeroCard(
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = "把识别、理解、执行和播报组织成一条适合比赛演示的产品主链路。",
+                        text = "把识别、理解、风控和系统调用组织成一条适合比赛展示的中间件主链路。",
                         color = Color(0xFFD5DEEA),
                         fontSize = 13.sp,
                         lineHeight = 19.sp
@@ -550,7 +550,7 @@ private fun CommandConsoleCard(
                 contentPadding = PaddingValues(vertical = 16.dp)
             ) {
                 Text(
-                    text = "进入视觉语义助手",
+                    text = "进入视觉动作系统",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -1470,8 +1470,8 @@ private fun summarizePreset(id: String): String {
     return when (id) {
         "event" -> "识别时间地点并整理为可直接入日历的事件。"
         "navigate" -> "抽取地标、教室、展区等地点并给出导航动作。"
-        "describe" -> "把复杂画面提炼成清晰、适合播报的解释。"
-        "find" -> "根据空间关系帮助定位目标物品或人物。"
+        "describe" -> "把复杂文本压缩成适合语音输出的摘要。"
+        "find" -> "提取电话与要点，生成可确认的短信草稿。"
         else -> "用视觉语义理解现实画面，并生成建议动作。"
     }
 }
@@ -1481,7 +1481,7 @@ private fun actionLabelForPreset(id: String): String {
         "event" -> "日历执行"
         "navigate" -> "导航执行"
         "describe" -> "语音反馈"
-        "find" -> "开始定位"
+        "find" -> "短信草稿"
         else -> "立即体验"
     }
 }

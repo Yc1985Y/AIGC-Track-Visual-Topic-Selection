@@ -26,10 +26,10 @@
     <string name="voice_service_error">语音识别服务暂时不可用，请稍后再试。</string>
     <string name="camera_not_ready">相机尚未准备完成，请稍等一秒后重试。</string>
     <string name="camera_capture_failed">拍照失败，请重新对准目标后再试一次。</string>
-    <string name="preset_event">活动入日历</string>
+    <string name="preset_event">海报入日历</string>
     <string name="preset_navigate">地点去导航</string>
-    <string name="preset_describe">场景描述</string>
-    <string name="preset_find">寻物导视</string>
+    <string name="preset_describe">长文本播报</string>
+    <string name="preset_find">短信草稿</string>
     <string name="scanning_features">正在扫描物理空间特征…</string>
     <string name="cloud_analysis">云端语义深度解析中…</string>
     <string name="generating_strategy">正在生成执行策略…</string>
@@ -49,7 +49,7 @@
     <string name="mock_mode_ready">当前为 Mock 演示模式，可直接验证本地主流程。</string>
     <string name="mock_mode_result_tag">模式：Mock 演示</string>
     <string name="mock_mode_badge">Mock 演示模式</string>
-    <string name="mock_mode_showcase_title">视觉语义代理已就绪</string>
+    <string name="mock_mode_showcase_title">Visual-to-Tool OS 已就绪</string>
     <string name="mock_mode_showcase_subtitle">当前页面不调用真实模型接口，适合先验证交互、动作分发和播报链路。</string>
     <string name="mock_mode_steps_title">快速体验路径</string>
     <string name="mock_mode_step_pick_title">选择场景</string>

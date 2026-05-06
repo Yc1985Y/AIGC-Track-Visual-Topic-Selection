@@ -89,7 +89,7 @@ scenario-specific:
 - voice-first non-visual interaction loop
 - executable intent schema
 - confirmation-before-execution decision flow
-- hospital outpatient assistive scenario logic
+- visual-to-tool action routing logic
 - multimodal understanding to Android action dispatch
 
 ## Practical Use In This Project
@@ -108,7 +108,7 @@ Planned borrowing direction:
 If a future UI or app-shell change is inspired by these materials, prefer:
 
 - adapting structure, hierarchy, and component ideas
-- redesigning visuals to match the hospital assistive product direction
+- redesigning visuals to match the Visual-to-Tool OS product direction
 - keeping the non-visual interaction model as the first-class product contract
 
-The app should feel like an assistive agent, not a generic admin client.
+The app should feel like an execution-aware agent, not a generic admin client.

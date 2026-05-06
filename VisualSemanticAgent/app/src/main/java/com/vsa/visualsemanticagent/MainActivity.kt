@@ -26,7 +26,7 @@ import com.vsa.visualsemanticagent.camera.CameraManager
 import com.vsa.visualsemanticagent.decision.ExecutableIntent
 import com.vsa.visualsemanticagent.decision.ExecutionMode
 import com.vsa.visualsemanticagent.decision.ExecutionSuggestion
-import com.vsa.visualsemanticagent.decision.HospitalIntentSchema
+import com.vsa.visualsemanticagent.decision.VisualActionIntentSchema
 import com.vsa.visualsemanticagent.decision.RiskPolicyEngine
 import com.vsa.visualsemanticagent.intent.ActivityNotFoundException
 import com.vsa.visualsemanticagent.intent.IntentDispatcher
@@ -323,7 +323,7 @@ class MainActivity : ComponentActivity() {
                 loadingStage = 1
                 val rawResponse = sendToVLM(base64Image, finalCommand)
                 val response = ResponseInterpreter.normalize(rawResponse)
-                val executableIntent = HospitalIntentSchema.fromResponse(response)
+                val executableIntent = VisualActionIntentSchema.fromResponse(response)
 
                 loadingStage = 2
                 handleExecutionSuggestion(executableIntent)

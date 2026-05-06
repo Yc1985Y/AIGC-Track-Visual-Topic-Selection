@@ -2,7 +2,7 @@ package com.vsa.visualsemanticagent
 
 import com.vsa.visualsemanticagent.decision.ExecutionMode
 import com.vsa.visualsemanticagent.decision.FrameIntentObservation
-import com.vsa.visualsemanticagent.decision.HospitalIntentSchema
+import com.vsa.visualsemanticagent.decision.VisualActionIntentSchema
 import com.vsa.visualsemanticagent.decision.ContinuousVisionCoordinator
 import com.vsa.visualsemanticagent.decision.FrameQualitySnapshot
 import com.vsa.visualsemanticagent.decision.GuidanceType
@@ -84,24 +84,24 @@ class ModuleTests {
     }
 
     @Test
-    fun hospitalIntentSchema_buildsFusedConfidence() {
+    fun visualActionIntentSchema_buildsFusedConfidence() {
         val response = VLMResponse(
             action = ModelConstants.ACTION_CREATE_EVENT,
             confidence = 0.9,
             payload = VLMPayload(
-                title = "Outpatient follow-up",
+                title = "AI Lecture",
                 time = "2026-05-08T09:00:00",
-                location = "Building 3 Internal Medicine"
+                location = "Library Hall"
             )
         )
 
-        val intent = HospitalIntentSchema.fromResponse(
+        val intent = VisualActionIntentSchema.fromResponse(
             response = response,
             qualityConfidence = 0.8,
             stabilityConfidence = 0.85
         )
 
-        assertEquals("hospital_outpatient_assist", intent.scene)
+        assertEquals("visual_to_tool_os", intent.scene)
         assertTrue(intent.requiresConfirmation)
         assertEquals(ModelConstants.ACTION_CREATE_EVENT, intent.action)
         assertTrue(intent.fusedConfidence > 0.84)
@@ -110,11 +110,11 @@ class ModuleTests {
     @Test
     fun riskPolicyEngine_requiresConfirmationForMediumRiskAction() {
         val engine = RiskPolicyEngine()
-        val intent = HospitalIntentSchema.fromResponse(
+        val intent = VisualActionIntentSchema.fromResponse(
             VLMResponse(
                 action = ModelConstants.ACTION_NAVIGATE,
                 confidence = 0.88,
-                payload = VLMPayload(location = "Imaging Department")
+                payload = VLMPayload(location = "Information Building A201")
             )
         )
 
@@ -126,13 +126,13 @@ class ModuleTests {
     @Test
     fun riskPolicyEngine_triggersClarificationForInvalidPayload() {
         val engine = RiskPolicyEngine()
-        val intent = HospitalIntentSchema.fromResponse(
+        val intent = VisualActionIntentSchema.fromResponse(
             VLMResponse(
                 action = ModelConstants.ACTION_CREATE_EVENT,
                 confidence = 0.92,
                 payload = VLMPayload(
-                    title = "Medical examination",
-                    location = "Imaging Department"
+                    title = "Research Sharing",
+                    location = "Innovation Center"
                 )
             )
         )
@@ -146,11 +146,11 @@ class ModuleTests {
     @Test
     fun riskPolicyEngine_allowsDirectTtsForLowRiskAction() {
         val engine = RiskPolicyEngine()
-        val intent = HospitalIntentSchema.fromResponse(
+        val intent = VisualActionIntentSchema.fromResponse(
             VLMResponse(
                 action = ModelConstants.ACTION_TTS_FEEDBACK,
                 confidence = 0.91,
-                payload = VLMPayload(answer = "Registration desk is ahead")
+                payload = VLMPayload(answer = "The registration desk is on your right")
             )
         )
 
@@ -167,11 +167,11 @@ class ModuleTests {
             maxWindowSize = 5
         )
 
-        val intent = HospitalIntentSchema.fromResponse(
+        val intent = VisualActionIntentSchema.fromResponse(
             VLMResponse(
                 action = ModelConstants.ACTION_NAVIGATE,
                 confidence = 0.88,
-                payload = VLMPayload(location = "Building 3 Internal Medicine")
+                payload = VLMPayload(location = "Library Hall")
             )
         )
 
@@ -194,14 +194,14 @@ class ModuleTests {
             maxWindowSize = 4
         )
 
-        val strongIntent = HospitalIntentSchema.fromResponse(
+        val strongIntent = VisualActionIntentSchema.fromResponse(
             VLMResponse(
                 action = ModelConstants.ACTION_TTS_FEEDBACK,
                 confidence = 0.86,
                 payload = VLMPayload(answer = "registration desk is ahead")
             )
         )
-        val weakIntent = HospitalIntentSchema.fromResponse(
+        val weakIntent = VisualActionIntentSchema.fromResponse(
             VLMResponse(
                 action = ModelConstants.ACTION_TTS_FEEDBACK,
                 confidence = 0.3,
@@ -244,14 +244,14 @@ class ModuleTests {
             )
         )
 
-        val intent = HospitalIntentSchema.fromResponse(
+        val intent = VisualActionIntentSchema.fromResponse(
             VLMResponse(
                 action = ModelConstants.ACTION_CREATE_EVENT,
                 confidence = 0.9,
                 payload = VLMPayload(
-                    title = "Medical examination",
+                    title = "Exam Briefing",
                     time = "2026-05-08T09:00:00",
-                    location = "Imaging Department"
+                    location = "Teaching Building B301"
                 )
             )
         )

@@ -26,18 +26,18 @@ object MockVLMResponseFactory {
                 "活动",
                 "海报",
                 "讲座",
-                "门诊",
+                "通知",
                 "提醒"
             ) -> VLMResponse(
                 action = ModelConstants.ACTION_CREATE_EVENT,
                 confidence = 0.9,
                 payload = VLMPayload(
-                    title = "门诊复查提醒",
+                    title = "AI 创新讲座",
                     time = "2026-05-20T14:30:00",
-                    location = "门诊楼三层影像科",
-                    description = "请提前十分钟到达并携带检查单。"
+                    location = "图书馆报告厅",
+                    description = "建议提前十分钟到场，并携带校园卡签到。"
                 ),
-                fallbackQuery = "我识别到了日程，但如果时间不对，请直接告诉我完整时间。",
+                fallbackQuery = "我识别到了一个活动，但如果时间不对，请直接告诉我完整时间。",
                 targetFound = true
             )
 
@@ -47,13 +47,14 @@ object MockVLMResponseFactory {
                 "导航",
                 "地图",
                 "去这个地方",
-                "去门诊"
+                "去会场",
+                "去教学楼"
             ) -> VLMResponse(
                 action = ModelConstants.ACTION_NAVIGATE,
                 confidence = 0.86,
                 payload = VLMPayload(
-                    location = "门诊楼三层影像科",
-                    description = "从当前位置前往门诊楼三层影像科。"
+                    location = "信息楼 A 座 201",
+                    description = "从当前位置前往信息楼 A 座 201 教室。"
                 ),
                 fallbackQuery = "我识别到了一个可能的地点，请再对准地点信息或者直接说出楼名。",
                 targetFound = true
@@ -70,7 +71,7 @@ object MockVLMResponseFactory {
                 confidence = 0.81,
                 payload = VLMPayload(
                     phoneNumber = "13800138000",
-                    description = "您好，我已到医院门诊楼，正在前往影像科。"
+                    description = "老师您好，我已经到达信息楼，预计五分钟后进入会场。"
                 ),
                 fallbackQuery = "我整理出了短信草稿，但号码或内容还需要你再确认一次。",
                 targetFound = true
@@ -96,8 +97,8 @@ object MockVLMResponseFactory {
                 action = ModelConstants.ACTION_TTS_FEEDBACK,
                 confidence = 0.93,
                 payload = VLMPayload(
-                    answer = "我已经识别到这是一张医院通知，重点信息是时间、地点和注意事项。",
-                    description = "可继续追问我，或者让我帮你创建提醒。"
+                    answer = "我已经识别到这是一张校园通知，重点信息是活动时间、地点和参与要求。",
+                    description = "你可以继续追问我，或者让我帮你创建提醒、开始导航。"
                 ),
                 fallbackQuery = "如果你希望我执行动作，可以继续说创建提醒或开始导航。",
                 targetFound = true
