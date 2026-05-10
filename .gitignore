@@ -1,6 +1,13 @@
-﻿.gradle/
+.gradle/
 .idea/
 *.iml
 local.properties
 /build/
 **/build/
+~$*.pptx
+tmp/
+VisualSemanticAgent_backup_*/
+*backup_*/
+中国高校计算机大赛AIGC赛道_backup_*/
+*_gitee_latest/
+*.zip

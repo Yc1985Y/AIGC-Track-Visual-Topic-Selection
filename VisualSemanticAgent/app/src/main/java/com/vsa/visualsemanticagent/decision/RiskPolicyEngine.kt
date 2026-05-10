@@ -50,11 +50,7 @@ class RiskPolicyEngine(
 
         if (intent.fusedConfidence < threshold) {
             return ExecutionSuggestion(
-                mode = if (intent.action == ModelConstants.ACTION_TTS_FEEDBACK) {
-                    ExecutionMode.REQUIRE_CLARIFICATION
-                } else {
-                    ExecutionMode.REQUIRE_CLARIFICATION
-                },
+                mode = ExecutionMode.REQUIRE_CLARIFICATION,
                 summary = summary,
                 prompt = intent.fallbackQuery ?: buildLowConfidencePrompt(intent),
                 threshold = threshold,
@@ -73,10 +69,15 @@ class RiskPolicyEngine(
         }
 
         if (intent.requiresConfirmation) {
+            val finalPrompt = when {
+                intent.riskLevel == IntentRiskLevel.HIGH && intent.action == com.vsa.visualsemanticagent.model.ModelConstants.ACTION_SEND_SMS ->
+                    "高风险动作已被拦截，当前版本只保留校园通知转日程主流程。"
+                else -> intent.buildConfirmationPrompt()
+            }
             return ExecutionSuggestion(
                 mode = ExecutionMode.REQUIRE_CONFIRMATION,
                 summary = summary,
-                prompt = intent.buildConfirmationPrompt(),
+                prompt = finalPrompt,
                 threshold = threshold,
                 validation = validation
             )
@@ -108,20 +109,20 @@ class RiskPolicyEngine(
         }
 
         return when {
+            validation.issues.any { it.contains("title", ignoreCase = true) } -> {
+                "我还不能确定这是哪个活动，请换个角度重拍，或直接补充活动名称。"
+            }
+
             validation.issues.any { it.contains("time", ignoreCase = true) } -> {
-                "我识别到了活动，但时间还不够确定。请告诉我是上午还是下午，或者直接说完整时间。"
+                "我识别到了活动，但没有看清开始时间，请补充完整时间。"
             }
 
             validation.issues.any { it.contains("location", ignoreCase = true) } -> {
-                "我还不能稳定确定地点。请把目标再对准一些，或者直接说出地点名称。"
-            }
-
-            validation.issues.any { it.contains("phone", ignoreCase = true) } -> {
-                "我还没有拿到稳定的联系电话。请再靠近一点，或者直接口述号码。"
+                "我识别到了活动时间，但地点不清楚，请补充地点。"
             }
 
             else -> {
-                "当前信息还不够完整。请调整角度或补充一句说明。"
+                "当前通知信息还不够完整。请调整角度，确保标题、时间和地点都在内容中。"
             }
         }
     }
@@ -129,19 +130,15 @@ class RiskPolicyEngine(
     private fun buildLowConfidencePrompt(intent: ExecutableIntent): String {
         return when (intent.action) {
             ModelConstants.ACTION_CREATE_EVENT -> {
-                "我识别到了一个可能的日程，但还不够确定。请再靠近海报，或者补充时间和地点。"
+                "我识别到了一个可能的校园日程，但还不够确定。请再靠近海报，或补充活动时间和地点。"
             }
 
             ModelConstants.ACTION_NAVIGATE -> {
-                "我识别到了一个可能的地点，但还不够稳定。请再对准地点信息。"
-            }
-
-            ModelConstants.ACTION_SEND_SMS -> {
-                "我整理出了短信草稿，但号码或内容还不够确定。请再确认一次。"
+                "我识别到了一个可能的校园地点，但还不够稳定。请对准地点文字再试。"
             }
 
             else -> {
-                "当前结果还不够稳定。请稍微调整一下再试。"
+                "当前画面还不够清晰，暂时无法生成稳定日程。请调整角度后重试。"
             }
         }
     }

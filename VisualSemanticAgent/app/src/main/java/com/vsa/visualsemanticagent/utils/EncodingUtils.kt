@@ -2,6 +2,7 @@ package com.vsa.visualsemanticagent.utils
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.graphics.ImageFormat
 import android.graphics.Rect
 import android.graphics.YuvImage
@@ -19,12 +20,36 @@ object ImageEncodingUtils {
     }
 
     fun imageProxyToBitmap(image: ImageProxy): Bitmap {
+        return when {
+            image.planes.size >= 3 -> yuv420888ToBitmap(image)
+            image.planes.isNotEmpty() -> decodeSinglePlaneBitmap(image)
+            else -> throw IllegalStateException("ImageProxy has no planes")
+        }
+    }
+
+    private fun yuv420888ToBitmap(image: ImageProxy): Bitmap {
         val nv21 = yuv420888ToNv21(image)
         val yuvImage = YuvImage(nv21, ImageFormat.NV21, image.width, image.height, null)
         val out = ByteArrayOutputStream()
         yuvImage.compressToJpeg(Rect(0, 0, image.width, image.height), 100, out)
         val bytes = out.toByteArray()
         return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+            ?: throw IllegalStateException("Failed to decode YUV image into bitmap")
+    }
+
+    private fun decodeSinglePlaneBitmap(image: ImageProxy): Bitmap {
+        val plane = image.planes.first()
+        val buffer = plane.buffer.duplicate().apply { rewind() }
+        val bytes = ByteArray(buffer.remaining())
+        buffer.get(bytes)
+
+        BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.let { return it }
+
+        return grayscaleFromLumaPlane(
+            plane = plane,
+            width = image.width,
+            height = image.height
+        )
     }
 
     private fun yuv420888ToNv21(image: ImageProxy): ByteArray {
@@ -83,6 +108,36 @@ object ImageEncodingUtils {
             val nextRowPosition = min(buffer.capacity(), (row + 1) * rowStride)
             buffer.position(nextRowPosition)
         }
+    }
+
+    private fun grayscaleFromLumaPlane(
+        plane: ImageProxy.PlaneProxy,
+        width: Int,
+        height: Int
+    ): Bitmap {
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val buffer = plane.buffer.duplicate().apply { rewind() }
+        val rowStride = plane.rowStride
+        val pixelStride = plane.pixelStride.coerceAtLeast(1)
+        val rowBuffer = ByteArray(rowStride.coerceAtLeast(width))
+        val pixels = IntArray(width * height)
+
+        repeat(height) { row ->
+            val rowLength = minOf(rowBuffer.size, buffer.remaining())
+            buffer.get(rowBuffer, 0, rowLength)
+
+            repeat(width) { col ->
+                val sourceIndex = (col * pixelStride).coerceAtMost(rowLength - 1).coerceAtLeast(0)
+                val gray = rowBuffer[sourceIndex].toInt() and 0xFF
+                pixels[row * width + col] = Color.rgb(gray, gray, gray)
+            }
+
+            val nextRowPosition = minOf(buffer.capacity(), (row + 1) * rowStride)
+            buffer.position(nextRowPosition)
+        }
+
+        bitmap.setPixels(pixels, 0, width, 0, 0, width, height)
+        return bitmap
     }
 
     private fun copyChromaPlanes(

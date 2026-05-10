@@ -78,6 +78,18 @@ object CameraManager {
         }, ContextCompat.getMainExecutor(context))
     }
 
+    fun unbindPreview(previewView: PreviewView? = null) {
+        if (previewView != null && boundPreviewView !== previewView) return
+        try {
+            cameraProvider?.unbindAll()
+        } catch (e: Exception) {
+            Timber.w(e, "Failed to unbind preview")
+        }
+        cameraReady = false
+        imageCapture = null
+        boundPreviewView = null
+    }
+
     suspend fun captureBase64Image(): String {
         val capture = imageCapture ?: throw IllegalStateException("Camera is not ready")
         val executor = getCameraExecutor()

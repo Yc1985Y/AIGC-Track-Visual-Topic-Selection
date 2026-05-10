@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>常用场景页</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&amp;family=Lexend:wght@600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#ffdad4",
+                        "primary": "#003528",
+                        "background": "#fff8f2",
+                        "outline-variant": "#bfc9c3",
+                        "secondary-fixed": "#ffdad8",
+                        "on-tertiary-fixed": "#370e08",
+                        "inverse-surface": "#402d00",
+                        "surface-container-highest": "#ffdea1",
+                        "on-tertiary-container": "#e79f93",
+                        "on-surface": "#261900",
+                        "surface-dim": "#ffd47e",
+                        "on-primary-container": "#82bda8",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed-dim": "#97d3bd",
+                        "primary-fixed": "#b2efd9",
+                        "on-surface-variant": "#404945",
+                        "on-background": "#261900",
+                        "surface-bright": "#fff8f2",
+                        "inverse-on-surface": "#ffefd5",
+                        "on-tertiary-fixed-variant": "#6c3830",
+                        "on-primary": "#ffffff",
+                        "inverse-primary": "#97d3bd",
+                        "on-secondary-fixed": "#410007",
+                        "secondary": "#9e3f42",
+                        "error": "#ba1a1a",
+                        "surface-container-low": "#fff2df",
+                        "surface-container": "#ffebcb",
+                        "surface-variant": "#ffdea1",
+                        "primary-container": "#0b4d3d",
+                        "surface": "#fff8f2",
+                        "on-primary-fixed-variant": "#105040",
+                        "secondary-container": "#fe8989",
+                        "on-secondary-fixed-variant": "#7f282c",
+                        "tertiary-fixed-dim": "#ffb4a8",
+                        "surface-container-high": "#ffe5b6",
+                        "outline": "#707975",
+                        "on-error": "#ffffff",
+                        "tertiary": "#4e2019",
+                        "on-secondary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed-dim": "#ffb3b1",
+                        "on-primary-fixed": "#002118",
+                        "tertiary-container": "#69352d",
+                        "surface-tint": "#2e6857",
+                        "on-tertiary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-secondary-container": "#762125"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-page": "24px",
+                        "stack-md": "16px",
+                        "stack-lg": "32px",
+                        "stack-sm": "8px",
+                        "gutter-grid": "16px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Plus Jakarta Sans"],
+                        "label-caps": ["Lexend"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "display-lg": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined[data-weight="fill"] {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #fff8f2;
+            color: #261900;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-[100px] md:pb-0 md:pt-[80px]">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-background/80 dark:bg-background/80 backdrop-blur-xl flex justify-between items-center px-margin-page py-4">
+<div class="flex items-center gap-3">
+<img alt="User profile photo" class="w-10 h-10 rounded-full object-cover" data-alt="A portrait of a young woman with a warm smile, wearing a simple shirt, set against a soft, bright background. The lighting is soft and flattering, highlighting her features. The overall mood is approachable and friendly, fitting a modern digital profile avatar." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXJBffjhVXQsWRCcH708cXzz3mbh019LOLwjzAMvv_wDGECT8VtIRTbE963abIevpxAFNzgCQRDbrq1WF20UET8c_ub97brAJJkJPA2W33Q2iQAcG5uAV8tC4_Ys6AmLy11oVvtar_4fMAGTjVxqxqToyAbkXQIdPg3glfXWailzkgGcFPiG7N2DVY3BG4fptd8qRtVpfk_QLDpgIH0RD6Jg1CNrXazt-e-KVLK0T0PNJykh2bhgTUfLCbK9adDq3F5MMm-8wsV4K6"/>
+<div>
+<h1 class="font-headline-md text-headline-md text-primary dark:text-primary-fixed-dim">Hi, Elizabeth</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Mon, 23 July</p>
+</div>
+</div>
+<button class="hover:opacity-70 transition-opacity Active:scale-95 duration-200">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim" data-icon="notifications_active">notifications_active</span>
+</button>
+</header>
+<main class="px-margin-page pt-24 md:pt-8 max-w-7xl mx-auto">
+<div class="mb-stack-lg">
+<h2 class="font-display-lg text-display-lg text-primary mb-stack-sm">常用场景</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">快速记录与安排你的校园生活</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter-grid">
+<!-- Card 1 -->
+<div class="bg-surface-container-high rounded-xl p-6 relative overflow-hidden group shadow-[0_8px_24px_rgba(11,77,61,0.05)]">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-xl group-hover:scale-150 transition-transform duration-500"></div>
+<div class="flex justify-between items-start mb-4 relative z-10">
+<div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined" data-icon="event">event</span>
+</div>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2 relative z-10">讲座入日程</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-6 relative z-10">一键提取海报时间地点，自动同步至日历。</p>
+<button class="w-full py-3 bg-white/50 hover:bg-white rounded-full font-label-caps text-label-caps text-primary transition-colors relative z-10">
+                    去使用
+                </button>
+</div>
+<!-- Card 2 -->
+<div class="bg-secondary-container rounded-xl p-6 relative overflow-hidden group shadow-[0_8px_24px_rgba(11,77,61,0.05)]">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-white/20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-500"></div>
+<div class="flex justify-between items-start mb-4 relative z-10">
+<div class="w-12 h-12 rounded-full bg-secondary flex items-center justify-center text-on-secondary">
+<span class="material-symbols-outlined" data-icon="school">school</span>
+</div>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2 relative z-10">考试安排</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-6 relative z-10">集中管理期末考表，设置多重倒计时提醒。</p>
+<button class="w-full py-3 bg-white/50 hover:bg-white rounded-full font-label-caps text-label-caps text-secondary transition-colors relative z-10">
+                    去使用
+                </button>
+</div>
+<!-- Card 3 -->
+<div class="bg-tertiary-fixed rounded-xl p-6 relative overflow-hidden group shadow-[0_8px_24px_rgba(11,77,61,0.05)]">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-white/20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-500"></div>
+<div class="flex justify-between items-start mb-4 relative z-10">
+<div class="w-12 h-12 rounded-full bg-tertiary flex items-center justify-center text-on-tertiary">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+</div>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2 relative z-10">社团活动</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-6 relative z-10">规划会议与招新，生成清晰的时间线视图。</p>
+<button class="w-full py-3 bg-white/50 hover:bg-white rounded-full font-label-caps text-label-caps text-tertiary transition-colors relative z-10">
+                    去使用
+                </button>
+</div>
+<!-- Card 4 -->
+<div class="bg-surface-container-highest rounded-xl p-6 relative overflow-hidden group shadow-[0_8px_24px_rgba(11,77,61,0.05)]">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-white/20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-500"></div>
+<div class="flex justify-between items-start mb-4 relative z-10">
+<div class="w-12 h-12 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined" data-icon="campaign">campaign</span>
+</div>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2 relative z-10">宣讲会提醒</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-6 relative z-10">不错过心仪名企，提前准备简历与面试。</p>
+<button class="w-full py-3 bg-white/50 hover:bg-white rounded-full font-label-caps text-label-caps text-primary transition-colors relative z-10">
+                    去使用
+                </button>
+</div>
+<!-- Card 5 -->
+<div class="bg-primary-fixed rounded-xl p-6 relative overflow-hidden group shadow-[0_8px_24px_rgba(11,77,61,0.05)]">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-white/20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-500"></div>
+<div class="flex justify-between items-start mb-4 relative z-10">
+<div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined" data-icon="chat">chat</span>
+</div>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2 relative z-10">群通知转日程</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-6 relative z-10">复制冗长群消息，智能解析关键时间节点。</p>
+<button class="w-full py-3 bg-white/50 hover:bg-white rounded-full font-label-caps text-label-caps text-primary transition-colors relative z-10">
+                    去使用
+                </button>
+</div>
+<!-- Card 6 -->
+<div class="bg-surface-dim rounded-xl p-6 relative overflow-hidden group shadow-[0_8px_24px_rgba(11,77,61,0.05)]">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-white/20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-500"></div>
+<div class="flex justify-between items-start mb-4 relative z-10">
+<div class="w-12 h-12 rounded-full bg-error flex items-center justify-center text-on-error">
+<span class="material-symbols-outlined" data-icon="timer">timer</span>
+</div>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2 relative z-10">报名截止</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-6 relative z-10">四六级、竞赛报名，最后期限强提醒防忘。</p>
+<button class="w-full py-3 bg-white/50 hover:bg-white rounded-full font-label-caps text-label-caps text-error transition-colors relative z-10">
+                    去使用
+                </button>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-lg bg-surface-container-low/90 dark:bg-surface-container/90 backdrop-blur-lg shadow-lg shadow-[0_-8px_24px_rgba(11,77,61,0.05)] flex justify-around items-center px-4 pb-6 pt-2 md:hidden">
+<a class="flex flex-col items-center justify-center bg-primary dark:bg-primary-container text-on-primary dark:text-on-primary-container rounded-full px-6 py-2 hover:opacity-70 transition-opacity Active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined font-headline-md text-primary" data-icon="home" data-weight="fill">home</span>
+<span class="font-label-caps text-label-caps mt-1">首页</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline p-2 hover:bg-surface-variant/50 rounded-full transition-all Active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined font-headline-md text-primary" data-icon="bubble_chart">bubble_chart</span>
+<span class="font-label-caps text-label-caps mt-1">时间线</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline p-2 hover:bg-surface-variant/50 rounded-full transition-all Active:scale-90 duration-150" href="#">
+<span class="material-symbols-outlined font-headline-md text-primary" data-icon="person">person</span>
+<span class="font-label-caps text-label-caps mt-1">我的</span>
+</a>
+</nav>
+</body></html>

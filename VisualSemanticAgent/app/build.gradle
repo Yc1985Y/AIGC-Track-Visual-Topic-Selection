@@ -3,6 +3,16 @@ plugins {
     id 'kotlin-android'
 }
 
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withInputStream { stream ->
+        localProperties.load(stream)
+    }
+}
+def vlmAppId = localProperties.getProperty("VLM_APP_ID", "")
+def vlmApiKey = localProperties.getProperty("VLM_API_KEY", "")
+
 android {
     namespace "com.vsa.visualsemanticagent"
     compileSdk 34
@@ -16,15 +26,17 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
-        buildConfigField "String", "VLM_API_KEY", "\"\""
+        buildConfigField "String", "VLM_APP_ID", "\"${vlmAppId}\""
+        buildConfigField "String", "VLM_API_KEY", "\"${vlmApiKey}\""
         buildConfigField "String", "VLM_MODEL_NAME", "\"Volc-DeepSeek-V3.2\""
         buildConfigField "String", "VLM_API_ENDPOINT", "\"https://api-ai.vivo.com.cn/v1/chat/completions\""
+        buildConfigField "String", "VLM_OCR_ENDPOINT", "\"https://api-ai.vivo.com.cn/ocr/general_recognition\""
         buildConfigField "boolean", "VLM_USE_MOCK", "false"
     }
 
     buildTypes {
         debug {
-            buildConfigField "boolean", "VLM_USE_MOCK", "true"
+            buildConfigField "boolean", "VLM_USE_MOCK", "false"
         }
 
         release {
@@ -88,6 +100,8 @@ dependencies {
     // Lifecycle
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.2'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2'
+    implementation 'androidx.work:work-runtime-ktx:2.9.0'
+    implementation 'androidx.datastore:datastore-preferences:1.1.1'
 
     // Network
     implementation 'com.squareup.okhttp3:okhttp:4.11.0'

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>日程详情</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@600&amp;family=Plus+Jakarta+Sans:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#ffdad4",
+                        "primary": "#003528",
+                        "background": "#fff8f2",
+                        "outline-variant": "#bfc9c3",
+                        "secondary-fixed": "#ffdad8",
+                        "on-tertiary-fixed": "#370e08",
+                        "inverse-surface": "#402d00",
+                        "surface-container-highest": "#ffdea1",
+                        "on-tertiary-container": "#e79f93",
+                        "on-surface": "#261900",
+                        "surface-dim": "#ffd47e",
+                        "on-primary-container": "#82bda8",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed-dim": "#97d3bd",
+                        "primary-fixed": "#b2efd9",
+                        "on-surface-variant": "#404945",
+                        "on-background": "#261900",
+                        "surface-bright": "#fff8f2",
+                        "inverse-on-surface": "#ffefd5",
+                        "on-tertiary-fixed-variant": "#6c3830",
+                        "on-primary": "#ffffff",
+                        "inverse-primary": "#97d3bd",
+                        "on-secondary-fixed": "#410007",
+                        "secondary": "#9e3f42",
+                        "error": "#ba1a1a",
+                        "surface-container-low": "#fff2df",
+                        "surface-container": "#ffebcb",
+                        "surface-variant": "#ffdea1",
+                        "primary-container": "#0b4d3d",
+                        "surface": "#fff8f2",
+                        "on-primary-fixed-variant": "#105040",
+                        "secondary-container": "#fe8989",
+                        "on-secondary-fixed-variant": "#7f282c",
+                        "tertiary-fixed-dim": "#ffb4a8",
+                        "surface-container-high": "#ffe5b6",
+                        "outline": "#707975",
+                        "on-error": "#ffffff",
+                        "tertiary": "#4e2019",
+                        "on-secondary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed-dim": "#ffb3b1",
+                        "on-primary-fixed": "#002118",
+                        "tertiary-container": "#69352d",
+                        "surface-tint": "#2e6857",
+                        "on-tertiary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-secondary-container": "#762125"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-page": "24px",
+                        "stack-md": "16px",
+                        "stack-lg": "32px",
+                        "stack-sm": "8px",
+                        "gutter-grid": "16px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Plus Jakarta Sans"],
+                        "label-caps": ["Lexend"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "display-lg": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-sm min-h-screen">
+<!-- Content Canvas -->
+<main class="pb-32 px-margin-page pt-8 max-w-2xl mx-auto space-y-stack-lg">
+<!-- Action Bar -->
+<header class="flex justify-between items-center w-full">
+<button class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-primary shadow-sm hover:opacity-70 transition-opacity">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<div class="flex gap-stack-sm">
+<button class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-primary shadow-sm hover:opacity-70 transition-opacity">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-primary shadow-sm hover:opacity-70 transition-opacity">
+<span class="material-symbols-outlined">share</span>
+</button>
+<button class="w-12 h-12 rounded-full bg-error-container flex items-center justify-center text-on-error-container shadow-sm hover:opacity-70 transition-opacity">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</header>
+<!-- Header Section -->
+<section class="space-y-stack-sm">
+<div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary-fixed text-on-primary-fixed font-label-caps text-label-caps">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+                会计基础
+            </div>
+<h1 class="font-display-lg text-display-lg text-primary mt-4">高级财务分析研讨会</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">深入探讨企业并购中的财务尽职调查及风险控制策略。</p>
+</section>
+<!-- Main Info Card -->
+<section class="bg-surface-container-low rounded-xl p-margin-page space-y-stack-md shadow-[0_8px_24px_rgba(11,77,61,0.05)] border border-white/50 backdrop-blur-sm">
+<!-- Time -->
+<div class="flex items-start gap-4">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined">schedule</span>
+</div>
+<div>
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-1">时间</h3>
+<p class="font-body-lg text-body-lg text-on-surface">2024年10月24日, 周四</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">下午 2:00 - 4:30 (2.5小时)</p>
+</div>
+</div>
+<hr class="border-outline-variant/30"/>
+<!-- Location -->
+<div class="flex items-start gap-4">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined">location_on</span>
+</div>
+<div class="w-full">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-1">地点</h3>
+<p class="font-body-lg text-body-lg text-on-surface">商学院 302 会议室</p>
+<!-- Map Placeholder -->
+<div class="mt-3 h-32 rounded-lg bg-surface-container overflow-hidden relative">
+<img alt="Map view" class="w-full h-full object-cover opacity-80 mix-blend-multiply" data-alt="A stylized, softly tinted digital map interface centered on a specific campus location. The map uses a light, pastel color palette with deep teal accents for roads and a subtle coral marker pin. The overall look is clean, modern, and perfectly matches a 'playful academic' aesthetic with no harsh borders." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBA3QN8hD4YHeX_DPk00mEUh1SzC0UDC-iY43Doo93_fiElyqhk9RIo2mu8XqWyYxAt6UEOjDtKRJXmZzZCKWQqilLZ98ooHUkC5CIyX6_QZZMoVaLlPMYZ3NavN3wN4MQSFDRtHTE5Whd4xDI-yKRDjiDyB2q2TxBSEJVbNeiy-n1w54t6-O3vjcUrCGPKTdylr-KZVkSvEVOl9aVqUhWdtgMU4soUg5a_qoWWU6ldVoZ9jAnFZxxU3l0Ibjvry7Ji76eCLp1IIdM0"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-low/80 to-transparent"></div>
+<button class="absolute bottom-2 right-2 bg-primary/90 text-on-primary px-3 py-1 rounded-full font-label-caps text-[10px] backdrop-blur-sm">
+                            查看导航
+                        </button>
+</div>
+</div>
+</div>
+<hr class="border-outline-variant/30"/>
+<!-- Reminder -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined">notifications</span>
+</div>
+<div>
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-1">提醒</h3>
+<p class="font-body-sm text-body-sm text-on-surface">提前 30 分钟</p>
+</div>
+</div>
+<div class="w-12 h-6 bg-primary rounded-full relative shadow-inner">
+<div class="absolute right-1 top-1 w-4 h-4 bg-white rounded-full shadow-sm"></div>
+</div>
+</div>
+</section>
+<!-- Secondary Info Bento -->
+<section class="grid grid-cols-2 gap-gutter-grid">
+<!-- Source -->
+<div class="bg-surface-container-highest rounded-lg p-4 shadow-[0_4px_12px_rgba(11,77,61,0.03)] flex flex-col justify-between aspect-square">
+<div class="w-10 h-10 rounded-full bg-white/50 flex items-center justify-center text-primary mb-2">
+<span class="material-symbols-outlined">account_circle</span>
+</div>
+<div>
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-1">来源</h3>
+<p class="font-body-sm text-body-sm text-on-surface font-medium truncate">Dr. Elizabeth</p>
+<p class="text-[10px] text-on-surface-variant mt-1">课程日历同步</p>
+</div>
+</div>
+<!-- Notes -->
+<div class="bg-secondary-fixed rounded-lg p-4 shadow-[0_4px_12px_rgba(11,77,61,0.03)] flex flex-col justify-between aspect-square">
+<div class="w-10 h-10 rounded-full bg-white/50 flex items-center justify-center text-secondary mb-2">
+<span class="material-symbols-outlined">notes</span>
+</div>
+<div>
+<h3 class="font-label-caps text-label-caps text-on-secondary-fixed-variant mb-1">备注</h3>
+<p class="font-body-sm text-body-sm text-on-secondary-fixed-variant line-clamp-2">请提前阅读案例分析材料第五章。</p>
+</div>
+</div>
+</section>
+</main>
+</body></html>

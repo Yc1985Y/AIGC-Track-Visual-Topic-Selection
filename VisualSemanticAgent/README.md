@@ -1,121 +1,88 @@
-# Visual Semantic Action Agent
+# 织时
 
-> Recommended current design references: `进度说明.md`, `VISUAL_TO_TOOL_OS_DESIGN.md`, `REFERENCE_MATERIALS.md`, and `INITIAL_PRESENTATION_BRIEF.md`
+面向高校场景的 `校园通知 -> 结构化时间线 -> 系统提醒 / 日历执行` Android 智能体原型。
 
-一个面向比赛演示场景的 Android 视觉语义执行代理原型。  
-当前版本已重构为“Visual-to-Tool OS / Agent Middleware”叙事，目标是把“拍照 / 语音 / 文字输入”转成“结构化语义理解 + 风控判定 + Android 系统动作执行”，重点支持海报入日历、地点去导航、短信草稿和语音播报等跨应用视觉任务。
+**织时：将校园信息碎片整合为专属时间线的智能助手**
 
-## 当前状态
+## 当前定位
 
-- 已具备主流程：相机预览、拍照采集、语音输入、云端多模态请求、结果解析、系统动作分发、TTS 播报。
-- 已具备中间件执行链：`Extract -> Suggest -> Confirm -> Execute`
-- `debug` 构建默认启用 `Mock` 模式，方便在没有正式模型额度时先验证界面和交互。
-- 主界面已重构为更适合比赛展示的产品化布局：
-  - 首屏英雄区
-  - 视觉动作场景快捷入口
-  - 主命令输入与发送区
-  - 视觉输入区与结果面板
-  - 演示图表与演示清单
-  - 确认执行卡片
+织时不是传统的手填日历，也不是只做识别的 Demo，而是把校园海报、群通知、截图、网页公告和语音指令，收束为一条可确认、可提醒、可回看的个人时间线。
 
-## 模型接口
+当前 App 已经稳定为三栏结构：
 
-当前项目对接 vivo 比赛接口：
+- `首页`：Today-First 焦点卡、意图输入舱、输入源预览、动态工作台、确认写入卡
+- `时间线`：日 / 周 / 月聚合、时间轴列表、详情底部卡、提醒策略、导出能力
+- `我的`：状态总览、数字福祉、快捷入口、智能体偏好、成就徽章
 
-- 接口地址：`https://api-ai.vivo.com.cn/v1/chat/completions`
-- 默认模型：`Volc-DeepSeek-V3.2`
-- 鉴权方式：`Authorization: Bearer AppKey`
-- 协议形式：OpenAI 兼容 `chat/completions`
+## 核心能力
 
-## Mock 模式
+- 多入口导入：拍照、相册、系统分享、粘贴文本、语音输入
+- vivo AI 双阶段链路
+  - 文本输入：直接调用 vivo `chat/completions`
+  - 图片输入：先调用 vivo OCR，再把 OCR 结果送入 vivo LLM 做结构化理解
+- 结构化输出：`create_event / navigate / clarification / tts_feedback`
+- 安全执行：先建议、再确认，保留人在回路
+- 本地提醒：已接入真实通知调度，支持提前一天、提前若干分钟提醒
+- 时间线沉淀：已接入 DataStore，本地保存日程、提醒偏好和风险控制偏好
+- 计划导出：支持 `PDF / JPG / PNG`
 
-为了方便 Android Studio 本地验证，工程已内置 `Mock` 演示模式：
+## vivo AI 接入
 
-- `debug` 默认：`VLM_USE_MOCK = true`
-- `release` 默认：`VLM_USE_MOCK = false`
-- `Mock` 模式下不会访问真实 vivo 接口，也不依赖 `VLM_API_KEY`
+项目从根目录 `local.properties` 读取：
 
-可直接验证：
+```properties
+VLM_APP_ID=你的AppID
+VLM_API_KEY=你的AppKEY
+```
 
-- 输入框与发送流程
-- 快捷场景切换
-- 结果卡片展示
-- 日历 / 地图 / 短信 / TTS 链路
-- 错误弹层和状态提示
+当前默认在线模型配置：
 
-## 本地构建
+- `VLM_MODEL_NAME=Volc-DeepSeek-V3.2`
+- `VLM_API_ENDPOINT=https://api-ai.vivo.com.cn/v1/chat/completions`
+- `VLM_OCR_ENDPOINT=https://api-ai.vivo.com.cn/ocr/general_recognition`
 
-### 重要说明
+## 构建
 
-在你当前这台 Windows 机器上，完整 `assembleDebug` 构建需要使用 **JDK 17**。  
-如果直接用 Android Studio 自带的 **JBR 21**，会触发 `androidJdkImage / jlink / core-for-system-modules.jar` 相关失败。
-
-当前已经验证通过的 JDK 路径：
-
-`E:\AIGC\tools\jdk17\jdk-17.0.19+10`
-
-另外，由于仓库目录本身包含中文路径，项目内已经在 `gradle.properties` 中启用：
-
-`android.overridePathCheck=true`
-
-这样可以避免 Windows 下 AGP 因非 ASCII 路径直接拦截构建。
-
-### 命令行构建
-
-在 PowerShell 中先切换到 JDK 17，再执行构建：
+推荐使用本机 JDK 17：
 
 ```powershell
 $env:JAVA_HOME='E:\AIGC\tools\jdk17\jdk-17.0.19+10'
 $env:Path="$env:JAVA_HOME\bin;$env:Path"
-.\gradlew.bat assembleDebug
+
+C:\Users\yc\.gradle\wrapper\dists\gradle-8.2-bin\bbg7u40eoinfdyxsxr3z4i7ta\gradle-8.2\bin\gradle.bat :app:assembleDebug --no-daemon
 ```
 
-当前这条命令已经验证可成功完成构建。
+当前工程为了适配本机稳定工具链，已临时收敛为：
 
-### Android Studio 设置
+- `compileSdk 34`
+- `targetSdk 34`
+- AGP `8.2.1`
 
-建议在 Android Studio 中把 **Gradle JDK** 指向 JDK 17，而不是 Embedded JBR 21。
+## 当前验证状态
 
-推荐值：
+- 已通过：`:app:compileDebugKotlin`
+- 已通过：`:app:assembleDebug`
+- 最新 APK：
+  - `E:\AIGC\vivo\vivo\VisualSemanticAgent\app\build\outputs\apk\debug\app-debug.apk`
+- 已安装到 Google Android Emulator
+- 已完成冷启动前台验证，主 Activity 正常恢复
 
-- Gradle JDK：`E:\AIGC\tools\jdk17\jdk-17.0.19+10`
+## 本轮新增优化
 
-如果只做界面调试和 Mock 验证，优先使用：
+- 首页相机预览改为按需绑定，减少预览在切页和重组时的额外负担
+- 首页动态工作台做减法，空态与有结果态更清晰，减少信息堆叠
+- 时间线详情页改为“摘要头卡 + 关键字段”的展示结构，更适合答辩演示
+- “我的”页合并重复说明块，保留状态、偏好和成果三类核心信息
+- 清理未使用的调试截图逻辑，降低维护噪音
+- 视觉表现继续升级为决赛展示版：
+  - 启动页、首页和“我的”页接入弥散光背景
+  - 品牌字与关键标题加入渐变排印
+  - 置信度和统计数字改为更强的等宽数字表达
+  - 输入舱加入轻微呼吸感
+  - 加载层改为骨架化微光状态
+  - 时间线空状态加入抽象线团式图形表达
 
-- 工程目录：`E:\AIGC\VisualSemanticAgent`
-- 模拟器：`VSA_API34_GOOGLE`
+## 注意事项
 
-## 主要文件
-
-- 主入口：[MainActivity.kt](app/src/main/java/com/vsa/visualsemanticagent/MainActivity.kt)
-- 主界面：[CameraScreen.kt](app/src/main/java/com/vsa/visualsemanticagent/ui/CameraScreen.kt)
-- 相机管理：[CameraManager.kt](app/src/main/java/com/vsa/visualsemanticagent/camera/CameraManager.kt)
-- 接口调用：[VLMNetworkClient.kt](app/src/main/java/com/vsa/visualsemanticagent/network/VLMNetworkClient.kt)
-- 动作分发：[IntentDispatcher.kt](app/src/main/java/com/vsa/visualsemanticagent/intent/IntentDispatcher.kt)
-
-## 当前支持的动作
-
-模型输出中的 `action` 当前支持：
-
-- `create_event`
-- `navigate`
-- `tts_feedback`
-- `send_sms`
-- `clarification`
-- `unknown`
-
-## 验证建议
-
-优先按下面顺序验证：
-
-1. 使用 JDK 17 完成 `assembleDebug`
-2. 启动模拟器或真机
-3. 先在 `Mock` 模式下验证首屏、发送、结果区和按钮交互
-4. 再验证海报入日历、地点去导航两条主展示链路
-5. 有正式接口额度后，再关闭 `Mock` 模式验证真实模型返回
-
-## 后续建议
-
-- 继续补齐真实设备端联调
-- 为结果面板补更贴近比赛场景的真实图表示例
-- 增加关键链路自动化测试与错误重试策略
+- `local.properties` 仅本地使用，不应提交仓库
+- `adb file://...` 方式不等价于真实系统分享，正式演示请优先使用相册或支持分享的 App 发送 `content://` URI

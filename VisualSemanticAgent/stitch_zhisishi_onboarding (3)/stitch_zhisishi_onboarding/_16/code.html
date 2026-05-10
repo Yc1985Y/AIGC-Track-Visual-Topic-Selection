@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&amp;family=Lexend:wght@600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-fixed": "#ffdad4",
+                      "primary": "#003528",
+                      "background": "#fff8f2",
+                      "outline-variant": "#bfc9c3",
+                      "secondary-fixed": "#ffdad8",
+                      "on-tertiary-fixed": "#370e08",
+                      "inverse-surface": "#402d00",
+                      "surface-container-highest": "#ffdea1",
+                      "on-tertiary-container": "#e79f93",
+                      "on-surface": "#261900",
+                      "surface-dim": "#ffd47e",
+                      "on-primary-container": "#82bda8",
+                      "surface-container-lowest": "#ffffff",
+                      "primary-fixed-dim": "#97d3bd",
+                      "primary-fixed": "#b2efd9",
+                      "on-surface-variant": "#404945",
+                      "on-background": "#261900",
+                      "surface-bright": "#fff8f2",
+                      "inverse-on-surface": "#ffefd5",
+                      "on-tertiary-fixed-variant": "#6c3830",
+                      "on-primary": "#ffffff",
+                      "inverse-primary": "#97d3bd",
+                      "on-secondary-fixed": "#410007",
+                      "secondary": "#9e3f42",
+                      "error": "#ba1a1a",
+                      "surface-container-low": "#fff2df",
+                      "surface-container": "#ffebcb",
+                      "surface-variant": "#ffdea1",
+                      "primary-container": "#0b4d3d",
+                      "surface": "#fff8f2",
+                      "on-primary-fixed-variant": "#105040",
+                      "secondary-container": "#fe8989",
+                      "on-secondary-fixed-variant": "#7f282c",
+                      "tertiary-fixed-dim": "#ffb4a8",
+                      "surface-container-high": "#ffe5b6",
+                      "outline": "#707975",
+                      "on-error": "#ffffff",
+                      "tertiary": "#4e2019",
+                      "on-secondary": "#ffffff",
+                      "on-error-container": "#93000a",
+                      "secondary-fixed-dim": "#ffb3b1",
+                      "on-primary-fixed": "#002118",
+                      "tertiary-container": "#69352d",
+                      "surface-tint": "#2e6857",
+                      "on-tertiary": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "on-secondary-container": "#762125"
+              },
+              "borderRadius": {
+                      "DEFAULT": "1rem",
+                      "lg": "2rem",
+                      "xl": "3rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-page": "24px",
+                      "stack-md": "16px",
+                      "stack-lg": "32px",
+                      "stack-sm": "8px",
+                      "gutter-grid": "16px"
+              },
+              "fontFamily": {
+                      "body-sm": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "label-caps": [
+                              "Lexend"
+                      ],
+                      "headline-md": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "display-lg": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "body-lg": [
+                              "Plus Jakarta Sans"
+                      ]
+              },
+              "fontSize": {
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "display-lg": [
+                              "36px",
+                              {
+                                      "lineHeight": "44px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "800"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "500"
+                              }
+                      ]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-filled {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body-sm text-body-sm pb-24 md:pb-0 pt-20">
+<!-- TopAppBar (Web & Mobile Hybrid Setup based on JSON, suppressing on Web to show side nav normally, but adhering to prompt) -->
+<header class="fixed top-0 w-full z-50 bg-background/80 dark:bg-background/80 backdrop-blur-xl flex justify-between items-center px-margin-page py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-variant overflow-hidden">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A close-up portrait of a cheerful young woman with light skin and dark hair tied back. She is smiling softly. The lighting is warm and bright, consistent with a modern, optimistic light-mode aesthetic. High quality, professional photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbSEpUdqmhcvh3LlYnmLz8pPgTUvI3DAlIUgxLnHvuRKDRRxTLvvVrTsLYR1_ASZzlcuXn7IoFC2vFGoBTLjbhJ5s9KvI6o0-EoqwRXYU55dBUuOt_LcZlzChoMzey5-HU6hq0mvxgP9nKX2Mbh1N8v4j_Qe8i-Q2nJQ4oUnSi4F_mpOccM22N6XFWOdLmXgYikmFOxxdgBnY6cRYWB6m-_DdgbiAo3AZ-LSADetV8VLm_n4bOCz7Jc3N1UpVimPPY_nVpFMBzL2ms"/>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md text-primary font-extrabold">Hi, Elizabeth</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant">今天有什么安排？</p>
+</div>
+</div>
+<button class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-primary hover:opacity-70 transition-opacity">
+<span class="material-symbols-outlined" data-icon="notifications_active">notifications_active</span>
+</button>
+</header>
+<main class="px-margin-page space-y-stack-lg max-w-4xl mx-auto">
+<!-- Stats Row Bento -->
+<section class="grid grid-cols-3 gap-gutter-grid mt-4">
+<div class="bg-primary-fixed/30 rounded-xl p-4 flex flex-col items-center justify-center relative overflow-hidden group">
+<div class="absolute inset-0 bg-primary-fixed opacity-0 group-hover:opacity-10 transition-opacity"></div>
+<div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center mb-2">
+<span class="material-symbols-outlined text-primary text-sm">calendar_today</span>
+</div>
+<h2 class="font-display-lg text-display-lg text-on-surface">44</h2>
+<p class="font-label-caps text-label-caps text-on-surface-variant text-center">今日安排</p>
+</div>
+<div class="bg-secondary-fixed/30 rounded-xl p-4 flex flex-col items-center justify-center relative overflow-hidden group">
+<div class="absolute inset-0 bg-secondary-fixed opacity-0 group-hover:opacity-10 transition-opacity"></div>
+<div class="w-8 h-8 rounded-full bg-secondary-fixed flex items-center justify-center mb-2">
+<span class="material-symbols-outlined text-secondary text-sm">pending_actions</span>
+</div>
+<h2 class="font-display-lg text-display-lg text-on-surface">12</h2>
+<p class="font-label-caps text-label-caps text-on-surface-variant text-center">待确认</p>
+</div>
+<div class="bg-surface-container-highest/50 rounded-xl p-4 flex flex-col items-center justify-center relative overflow-hidden group">
+<div class="absolute inset-0 bg-surface-container-highest opacity-0 group-hover:opacity-10 transition-opacity"></div>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center mb-2">
+<span class="material-symbols-outlined text-on-surface text-sm">alarm</span>
+</div>
+<h2 class="font-display-lg text-display-lg text-on-surface">34</h2>
+<p class="font-label-caps text-label-caps text-on-surface-variant text-center">下次提醒</p>
+</div>
+</section>
+<!-- Main Card -->
+<section class="bg-surface-container rounded-[2rem] p-6 shadow-[0_8px_24px_rgba(11,77,61,0.05)] relative overflow-hidden">
+<!-- Decorative blur -->
+<div class="absolute top-0 right-0 w-32 h-32 bg-secondary-container/20 rounded-full blur-2xl -mr-10 -mt-10"></div>
+<div class="flex justify-between items-start mb-6 relative z-10">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface">把通知变成清楚的日程</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">智能提取，轻松管理</p>
+</div>
+<button class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+<!-- Quick Actions Grid -->
+<div class="grid grid-cols-4 gap-4 relative z-10">
+<button class="flex flex-col items-center gap-2 group">
+<div class="w-14 h-14 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container group-hover:scale-105 transition-transform shadow-sm">
+<span class="material-symbols-outlined">photo_camera</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant text-center">拍海报</span>
+</button>
+<button class="flex flex-col items-center gap-2 group">
+<div class="w-14 h-14 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed group-hover:scale-105 transition-transform shadow-sm">
+<span class="material-symbols-outlined">image</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant text-center">选截图</span>
+</button>
+<button class="flex flex-col items-center gap-2 group">
+<div class="w-14 h-14 rounded-full bg-surface-dim flex items-center justify-center text-on-surface group-hover:scale-105 transition-transform shadow-sm">
+<span class="material-symbols-outlined">content_paste</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant text-center">粘贴通知</span>
+</button>
+<button class="flex flex-col items-center gap-2 group">
+<div class="w-14 h-14 rounded-full bg-tertiary-container flex items-center justify-center text-on-tertiary-container group-hover:scale-105 transition-transform shadow-sm">
+<span class="material-symbols-outlined">mic</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface-variant text-center">语音输入</span>
+</button>
+</div>
+</section>
+<!-- Recent Activity Card -->
+<section>
+<div class="flex justify-between items-center mb-4">
+<h3 class="font-body-lg text-body-lg text-on-surface">最近识别结果</h3>
+<button class="font-label-caps text-label-caps text-primary hover:underline">查看全部</button>
+</div>
+<div class="bg-surface rounded-xl p-4 shadow-[0_8px_24px_rgba(11,77,61,0.05)] border border-outline-variant/30 flex gap-4 items-center">
+<div class="w-12 h-12 rounded-lg bg-surface-container-highest flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-primary">event_note</span>
+</div>
+<div class="flex-grow">
+<h4 class="font-body-lg text-body-lg text-on-surface line-clamp-1">周五下午产品设计评审会议</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">明天 14:00 - 15:30</p>
+</div>
+<button class="px-4 py-2 bg-primary text-on-primary rounded-full font-label-caps text-label-caps hover:opacity-90 transition-opacity">
+                    添加
+                </button>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 rounded-t-lg bg-surface-container-low/90 dark:bg-surface-container/90 backdrop-blur-lg shadow-[0_-8px_24px_rgba(11,77,61,0.05)] shadow-lg flex justify-around items-center px-4 pb-6 pt-2">
+<!-- Active Tab: 首页 -->
+<button class="flex flex-col items-center justify-center bg-primary dark:bg-primary-container text-on-primary dark:text-on-primary-container rounded-full px-6 py-2 scale-90 duration-150">
+<span class="material-symbols-outlined icon-filled" data-icon="home" data-weight="fill" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-caps text-label-caps mt-1">首页</span>
+</button>
+<!-- Inactive Tab: 时间线 -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline p-2 hover:bg-surface-variant/50 rounded-full transition-all">
+<span class="material-symbols-outlined" data-icon="bubble_chart">bubble_chart</span>
+<span class="font-label-caps text-label-caps mt-1">时间线</span>
+</button>
+<!-- Inactive Tab: 我的 -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline p-2 hover:bg-surface-variant/50 rounded-full transition-all">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-caps text-label-caps mt-1">我的</span>
+</button>
+</nav>
+</body></html>

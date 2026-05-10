@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Voice Input</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&amp;family=Lexend:wght@600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#ffdad4",
+                        "primary": "#003528",
+                        "background": "#fff8f2",
+                        "outline-variant": "#bfc9c3",
+                        "secondary-fixed": "#ffdad8",
+                        "on-tertiary-fixed": "#370e08",
+                        "inverse-surface": "#402d00",
+                        "surface-container-highest": "#ffdea1",
+                        "on-tertiary-container": "#e79f93",
+                        "on-surface": "#261900",
+                        "surface-dim": "#ffd47e",
+                        "on-primary-container": "#82bda8",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed-dim": "#97d3bd",
+                        "primary-fixed": "#b2efd9",
+                        "on-surface-variant": "#404945",
+                        "on-background": "#261900",
+                        "surface-bright": "#fff8f2",
+                        "inverse-on-surface": "#ffefd5",
+                        "on-tertiary-fixed-variant": "#6c3830",
+                        "on-primary": "#ffffff",
+                        "inverse-primary": "#97d3bd",
+                        "on-secondary-fixed": "#410007",
+                        "secondary": "#9e3f42",
+                        "error": "#ba1a1a",
+                        "surface-container-low": "#fff2df",
+                        "surface-container": "#ffebcb",
+                        "surface-variant": "#ffdea1",
+                        "primary-container": "#0b4d3d",
+                        "surface": "#fff8f2",
+                        "on-primary-fixed-variant": "#105040",
+                        "secondary-container": "#fe8989",
+                        "on-secondary-fixed-variant": "#7f282c",
+                        "tertiary-fixed-dim": "#ffb4a8",
+                        "surface-container-high": "#ffe5b6",
+                        "outline": "#707975",
+                        "on-error": "#ffffff",
+                        "tertiary": "#4e2019",
+                        "on-secondary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed-dim": "#ffb3b1",
+                        "on-primary-fixed": "#002118",
+                        "tertiary-container": "#69352d",
+                        "surface-tint": "#2e6857",
+                        "on-tertiary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-secondary-container": "#762125"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-page": "24px",
+                        "stack-md": "16px",
+                        "stack-lg": "32px",
+                        "stack-sm": "8px",
+                        "gutter-grid": "16px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Plus Jakarta Sans"],
+                        "label-caps": ["Lexend"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "display-lg": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-body-sm pb-24 relative overflow-hidden">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-background/80 dark:bg-background/80 backdrop-blur-xl flex justify-between items-center px-margin-page py-4 w-full">
+<div class="flex items-center gap-3">
+<button class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="font-headline-md text-headline-md text-primary dark:text-primary-fixed-dim">Voice Note</h1>
+</div>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</header>
+<!-- Main Content -->
+<main class="flex-grow flex flex-col px-margin-page pt-24 pb-6 space-y-stack-lg z-10">
+<!-- Transcription Preview Area -->
+<section class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_8px_24px_rgba(11,77,61,0.05)] flex-grow flex flex-col relative overflow-hidden">
+<!-- Decorative elements -->
+<div class="absolute -top-10 -right-10 w-32 h-32 bg-surface-container-high rounded-full opacity-50 blur-2xl"></div>
+<div class="absolute -bottom-10 -left-10 w-40 h-40 bg-secondary-fixed rounded-full opacity-30 blur-2xl"></div>
+<div class="flex items-center gap-2 mb-4 relative z-10">
+<span class="material-symbols-outlined text-primary-container" data-icon="transcribe" style="font-variation-settings: 'FILL' 1;">transcribe</span>
+<h2 class="font-label-caps text-label-caps text-primary-container uppercase tracking-wider">Live Transcription</h2>
+</div>
+<div class="flex-grow overflow-y-auto relative z-10">
+<p class="font-body-lg text-body-lg text-on-surface-variant leading-relaxed">
+                    Here is a summary of the latest lecture on macroeconomics. We discussed the impact of fiscal policy on inflation... <span class="text-primary-container animate-pulse">|</span>
+</p>
+</div>
+</section>
+<!-- Recording Interface -->
+<section class="flex flex-col items-center justify-end flex-grow space-y-stack-lg">
+<!-- Waveform Animation Placeholder -->
+<div class="w-full flex justify-center items-center h-20 gap-1 opacity-70">
+<div class="w-2 h-8 bg-secondary-container rounded-full animate-pulse" style="animation-delay: 0.1s;"></div>
+<div class="w-2 h-12 bg-primary-fixed-dim rounded-full animate-pulse" style="animation-delay: 0.2s;"></div>
+<div class="w-2 h-16 bg-surface-variant rounded-full animate-pulse" style="animation-delay: 0.3s;"></div>
+<div class="w-2 h-10 bg-tertiary-fixed-dim rounded-full animate-pulse" style="animation-delay: 0.4s;"></div>
+<div class="w-2 h-14 bg-secondary-container rounded-full animate-pulse" style="animation-delay: 0.2s;"></div>
+<div class="w-2 h-8 bg-primary-fixed-dim rounded-full animate-pulse" style="animation-delay: 0.1s;"></div>
+<div class="w-2 h-12 bg-surface-variant rounded-full animate-pulse" style="animation-delay: 0.3s;"></div>
+</div>
+<!-- Timer -->
+<div class="font-display-lg text-display-lg text-primary">
+                02:14
+            </div>
+<!-- Main Record Button area -->
+<div class="relative flex items-center justify-center w-full max-w-xs mx-auto">
+<!-- Action: Retake -->
+<button class="absolute left-0 w-14 h-14 bg-surface-container rounded-full flex items-center justify-center text-on-surface-variant shadow-sm hover:bg-surface-variant transition-colors z-20">
+<span class="material-symbols-outlined" data-icon="replay">replay</span>
+</button>
+<!-- Huge Record Button -->
+<button class="relative w-32 h-32 flex items-center justify-center z-30 group">
+<!-- Ripple effect layers -->
+<div class="absolute inset-0 bg-primary/10 rounded-full animate-ping opacity-75"></div>
+<div class="absolute inset-2 bg-primary/20 rounded-full animate-pulse"></div>
+<!-- Core button -->
+<div class="w-24 h-24 bg-primary text-on-primary rounded-full shadow-lg flex items-center justify-center transition-transform group-active:scale-95">
+<span class="material-symbols-outlined text-4xl" data-icon="mic" style="font-variation-settings: 'FILL' 1;">mic</span>
+</div>
+</button>
+<!-- Action: Process/Done -->
+<button class="absolute right-0 w-14 h-14 bg-primary text-on-primary rounded-full flex items-center justify-center shadow-sm hover:opacity-90 transition-opacity z-20">
+<span class="material-symbols-outlined" data-icon="check" style="font-variation-settings: 'FILL' 1;">check</span>
+</button>
+</div>
+</section>
+</main>
+<!-- BottomNavBar - Suppressed as this is a task-focused screen (recording) -->
+<!-- Background Decor (Campus Vibe) -->
+<div class="fixed top-0 left-0 w-full h-full pointer-events-none z-[-1] overflow-hidden">
+<div class="absolute top-[-10%] right-[-5%] w-[40vw] h-[40vw] bg-surface-container-high rounded-full opacity-40 blur-[80px]"></div>
+<div class="absolute bottom-[20%] left-[-10%] w-[50vw] h-[50vw] bg-tertiary-fixed rounded-full opacity-30 blur-[100px]"></div>
+</div>
+</body></html>

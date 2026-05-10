@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>确认信息</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600&amp;family=Plus+Jakarta+Sans:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined[data-weight="fill"] {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "tertiary-fixed": "#ffdad4",
+                        "primary": "#003528",
+                        "background": "#fff8f2",
+                        "outline-variant": "#bfc9c3",
+                        "secondary-fixed": "#ffdad8",
+                        "on-tertiary-fixed": "#370e08",
+                        "inverse-surface": "#402d00",
+                        "surface-container-highest": "#ffdea1",
+                        "on-tertiary-container": "#e79f93",
+                        "on-surface": "#261900",
+                        "surface-dim": "#ffd47e",
+                        "on-primary-container": "#82bda8",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed-dim": "#97d3bd",
+                        "primary-fixed": "#b2efd9",
+                        "on-surface-variant": "#404945",
+                        "on-background": "#261900",
+                        "surface-bright": "#fff8f2",
+                        "inverse-on-surface": "#ffefd5",
+                        "on-tertiary-fixed-variant": "#6c3830",
+                        "on-primary": "#ffffff",
+                        "inverse-primary": "#97d3bd",
+                        "on-secondary-fixed": "#410007",
+                        "secondary": "#9e3f42",
+                        "error": "#ba1a1a",
+                        "surface-container-low": "#fff2df",
+                        "surface-container": "#ffebcb",
+                        "surface-variant": "#ffdea1",
+                        "primary-container": "#0b4d3d",
+                        "surface": "#fff8f2",
+                        "on-primary-fixed-variant": "#105040",
+                        "secondary-container": "#fe8989",
+                        "on-secondary-fixed-variant": "#7f282c",
+                        "tertiary-fixed-dim": "#ffb4a8",
+                        "surface-container-high": "#ffe5b6",
+                        "outline": "#707975",
+                        "on-error": "#ffffff",
+                        "tertiary": "#4e2019",
+                        "on-secondary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed-dim": "#ffb3b1",
+                        "on-primary-fixed": "#002118",
+                        "tertiary-container": "#69352d",
+                        "surface-tint": "#2e6857",
+                        "on-tertiary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-secondary-container": "#762125"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "margin-page": "24px",
+                        "stack-md": "16px",
+                        "stack-lg": "32px",
+                        "stack-sm": "8px",
+                        "gutter-grid": "16px"
+                    },
+                    fontFamily: {
+                        "body-sm": ["Plus Jakarta Sans"],
+                        "label-caps": ["Lexend"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"]
+                    },
+                    fontSize: {
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "display-lg": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background antialiased min-h-screen flex flex-col pt-[88px]">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-background/80 dark:bg-background/80 backdrop-blur-xl">
+<div class="flex justify-between items-center px-margin-page py-4 w-full">
+<div class="flex items-center gap-3">
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-high text-primary hover:opacity-70 transition-opacity">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+</div>
+<h1 class="font-headline-md text-headline-md text-primary font-extrabold flex-1 text-center">我整理出了这些信息</h1>
+<div class="w-10"></div> <!-- Spacer for centering -->
+</div>
+</header>
+<main class="flex-1 px-margin-page py-stack-lg space-y-stack-md flex flex-col h-full overflow-y-auto">
+<!-- Info Card Bento -->
+<div class="bg-surface-container-low rounded-xl p-6 shadow-[0_8px_24px_rgba(11,77,61,0.05)] border border-surface-variant flex flex-col gap-6 relative overflow-hidden">
+<!-- Decorative Blob -->
+<div class="absolute -top-10 -right-10 w-32 h-32 bg-secondary-fixed/50 rounded-full blur-2xl"></div>
+<div class="space-y-4 relative z-10">
+<!-- Field: 事项 -->
+<div class="flex flex-col gap-1 border-b border-surface-variant pb-3">
+<label class="font-label-caps text-label-caps text-outline uppercase">事项</label>
+<div class="font-body-lg text-body-lg text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" data-icon="event_note">event_note</span>
+                        高等数学复习小组会
+                    </div>
+</div>
+<!-- Field: 时间 -->
+<div class="flex flex-col gap-1 border-b border-surface-variant pb-3">
+<label class="font-label-caps text-label-caps text-outline uppercase">时间</label>
+<div class="font-body-lg text-body-lg text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-fixed-dim" data-icon="schedule">schedule</span>
+                        明天下午 3:00 - 5:00
+                    </div>
+</div>
+<!-- Field: 地点 -->
+<div class="flex flex-col gap-1 border-b border-surface-variant pb-3">
+<label class="font-label-caps text-label-caps text-outline uppercase">地点</label>
+<div class="font-body-lg text-body-lg text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-surface-dim" data-icon="location_on">location_on</span>
+                        图书馆 3 楼讨论室 B
+                    </div>
+</div>
+<!-- Field: 备注 -->
+<div class="flex flex-col gap-1 border-b border-surface-variant pb-3">
+<label class="font-label-caps text-label-caps text-outline uppercase">备注</label>
+<div class="font-body-lg text-body-lg text-on-surface flex items-start gap-2">
+<span class="material-symbols-outlined text-outline mt-1" data-icon="notes">notes</span>
+                        带上课本和历年真题，重点看第三章积分部分。
+                    </div>
+</div>
+<!-- Field: 提醒 -->
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps text-outline uppercase">提醒</label>
+<div class="flex items-center gap-3">
+<div class="bg-primary-fixed/30 text-primary-container px-3 py-1 rounded-full font-label-caps text-label-caps flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="notifications">notifications</span>
+                            提前 30 分钟
+                        </div>
+</div>
+</div>
+</div>
+</div>
+<div class="flex-1"></div> <!-- Push content up, footer down -->
+<!-- Footer Actions Area -->
+<div class="mt-auto space-y-4 pt-4">
+<!-- Gentle Warning/Tip -->
+<div class="bg-error-container/50 text-on-error-container rounded-lg p-4 flex items-start gap-3 text-body-sm font-body-sm">
+<span class="material-symbols-outlined text-error mt-0.5" data-icon="info">info</span>
+<p>信息如果不太清楚，可以先修改补充后再加入日程哦。</p>
+</div>
+<!-- Action Buttons -->
+<div class="flex flex-col sm:flex-row gap-3">
+<button class="flex-1 bg-surface-container-high text-primary font-body-lg text-body-lg py-4 rounded-full shadow-sm hover:opacity-80 transition-opacity flex justify-center items-center gap-2">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+                    修改信息
+                </button>
+<button class="flex-1 bg-primary text-on-primary font-body-lg text-body-lg py-4 rounded-full shadow-[0_4px_12px_rgba(11,77,61,0.2)] hover:opacity-90 transition-opacity flex justify-center items-center gap-2">
+<span class="material-symbols-outlined" data-icon="check_circle">check_circle</span>
+                    确认加入日程
+                </button>
+</div>
+</div>
+</main>
+</body></html>

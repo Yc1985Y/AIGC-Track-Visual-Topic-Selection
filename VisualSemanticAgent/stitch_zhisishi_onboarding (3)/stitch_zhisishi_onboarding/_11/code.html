@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Processing Information...</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&amp;family=Lexend:wght@600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-fixed": "#ffdad4",
+                      "primary": "#003528",
+                      "background": "#fff8f2",
+                      "outline-variant": "#bfc9c3",
+                      "secondary-fixed": "#ffdad8",
+                      "on-tertiary-fixed": "#370e08",
+                      "inverse-surface": "#402d00",
+                      "surface-container-highest": "#ffdea1",
+                      "on-tertiary-container": "#e79f93",
+                      "on-surface": "#261900",
+                      "surface-dim": "#ffd47e",
+                      "on-primary-container": "#82bda8",
+                      "surface-container-lowest": "#ffffff",
+                      "primary-fixed-dim": "#97d3bd",
+                      "primary-fixed": "#b2efd9",
+                      "on-surface-variant": "#404945",
+                      "on-background": "#261900",
+                      "surface-bright": "#fff8f2",
+                      "inverse-on-surface": "#ffefd5",
+                      "on-tertiary-fixed-variant": "#6c3830",
+                      "on-primary": "#ffffff",
+                      "inverse-primary": "#97d3bd",
+                      "on-secondary-fixed": "#410007",
+                      "secondary": "#9e3f42",
+                      "error": "#ba1a1a",
+                      "surface-container-low": "#fff2df",
+                      "surface-container": "#ffebcb",
+                      "surface-variant": "#ffdea1",
+                      "primary-container": "#0b4d3d",
+                      "surface": "#fff8f2",
+                      "on-primary-fixed-variant": "#105040",
+                      "secondary-container": "#fe8989",
+                      "on-secondary-fixed-variant": "#7f282c",
+                      "tertiary-fixed-dim": "#ffb4a8",
+                      "surface-container-high": "#ffe5b6",
+                      "outline": "#707975",
+                      "on-error": "#ffffff",
+                      "tertiary": "#4e2019",
+                      "on-secondary": "#ffffff",
+                      "on-error-container": "#93000a",
+                      "secondary-fixed-dim": "#ffb3b1",
+                      "on-primary-fixed": "#002118",
+                      "tertiary-container": "#69352d",
+                      "surface-tint": "#2e6857",
+                      "on-tertiary": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "on-secondary-container": "#762125"
+              },
+              "borderRadius": {
+                      "DEFAULT": "1rem",
+                      "lg": "2rem",
+                      "xl": "3rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-page": "24px",
+                      "stack-md": "16px",
+                      "stack-lg": "32px",
+                      "stack-sm": "8px",
+                      "gutter-grid": "16px"
+              },
+              "fontFamily": {
+                      "body-sm": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "label-caps": [
+                              "Lexend"
+                      ],
+                      "headline-md": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "display-lg": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "body-lg": [
+                              "Plus Jakarta Sans"
+                      ]
+              },
+              "fontSize": {
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "display-lg": [
+                              "36px",
+                              {
+                                      "lineHeight": "44px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "800"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "500"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+          .bg-dots {
+              background-image: radial-gradient(#97d3bd 2px, transparent 2px);
+              background-size: 20px 20px;
+          }
+      </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-body-sm bg-dots">
+<!-- Main Content Area - Full height to center content -->
+<main class="flex-grow flex flex-col items-center justify-center px-margin-page relative overflow-hidden">
+<!-- Decorative Background Elements (Abstract Shapes) -->
+<div class="absolute top-10 left-[-20%] w-[150%] h-64 bg-primary-fixed opacity-30 rounded-[100%] blur-3xl -z-10"></div>
+<div class="absolute bottom-10 right-[-20%] w-96 h-96 bg-secondary-fixed opacity-40 rounded-full blur-3xl -z-10"></div>
+<!-- Central Glassmorphism Card for Loading Content -->
+<div class="bg-surface-container-lowest/80 backdrop-blur-xl rounded-xl p-8 w-full max-w-sm shadow-[0_8px_32px_rgba(11,77,61,0.08)] flex flex-col items-center text-center relative border border-surface-container-highest/50">
+<!-- Playful Illustration / Animation Placeholder -->
+<div class="w-48 h-48 mb-stack-lg relative flex items-center justify-center">
+<!-- Abstract "Scanning" or "Processing" Visual -->
+<div class="absolute inset-0 bg-primary-fixed/20 rounded-full animate-pulse"></div>
+<div class="absolute w-32 h-32 bg-primary-container rounded-full flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined text-on-primary text-6xl" style="font-variation-settings: 'FILL' 1;">
+                        document_scanner
+                    </span>
+</div>
+<!-- Floating Elements around the central icon -->
+<div class="absolute top-0 right-4 bg-secondary-container w-8 h-8 rounded-full flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-on-secondary-container text-sm font-bold">schedule</span>
+</div>
+<div class="absolute bottom-4 left-0 bg-surface-dim w-10 h-10 rounded-xl flex items-center justify-center shadow-sm transform rotate-12">
+<span class="material-symbols-outlined text-on-surface text-lg font-bold">location_on</span>
+</div>
+<div class="absolute top-12 left-2 bg-primary-fixed w-6 h-6 rounded-md flex items-center justify-center shadow-sm transform -rotate-12">
+<span class="material-symbols-outlined text-primary-container text-xs font-bold">check</span>
+</div>
+</div>
+<!-- Primary Loading Message -->
+<h1 class="font-display-lg text-display-lg text-primary mb-stack-sm w-full">
+                正在整理通知...
+            </h1>
+<!-- Secondary Status Details -->
+<div class="flex flex-col gap-2 mt-stack-md w-full">
+<div class="flex items-center gap-3 bg-surface-container/50 p-3 rounded-lg w-full">
+<span class="material-symbols-outlined text-primary-container">search</span>
+<p class="font-body-lg text-body-lg text-on-surface-variant flex-1 text-left">正在识别事项</p>
+<span class="material-symbols-outlined text-primary text-sm animate-spin">progress_activity</span>
+</div>
+<div class="flex items-center gap-3 bg-surface-container/30 p-3 rounded-lg w-full">
+<span class="material-symbols-outlined text-outline">schedule</span>
+<p class="font-body-sm text-body-sm text-outline flex-1 text-left">时间、地点...</p>
+</div>
+<div class="flex items-center gap-3 bg-surface-container/30 p-3 rounded-lg w-full">
+<span class="material-symbols-outlined text-outline">hourglass_empty</span>
+<p class="font-body-sm text-body-sm text-outline flex-1 text-left">很快就好</p>
+</div>
+</div>
+<!-- Custom Progress Bar -->
+<div class="w-full mt-stack-lg">
+<div class="h-3 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary-container rounded-full w-2/3 relative">
+<!-- Shimmer effect on progress bar -->
+<div class="absolute top-0 right-0 bottom-0 left-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-[shimmer_2s_infinite]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Cancel Action (Bottom, out of the card to signify aborting the whole process) -->
+<div class="mt-stack-lg w-full max-w-sm px-4">
+<button class="w-full py-4 rounded-full bg-surface-container-highest text-on-surface-variant font-label-caps text-label-caps tracking-widest flex items-center justify-center gap-2 hover:bg-surface-variant transition-colors shadow-sm">
+<span class="material-symbols-outlined text-lg">close</span>
+                取消
+            </button>
+</div>
+</main>
+</body></html>

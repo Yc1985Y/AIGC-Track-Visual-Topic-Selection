@@ -10,14 +10,12 @@ object ResponseInterpreter {
         ModelConstants.ACTION_CREATE_EVENT,
         ModelConstants.ACTION_NAVIGATE,
         ModelConstants.ACTION_TTS_FEEDBACK,
-        ModelConstants.ACTION_SEND_SMS,
         ModelConstants.ACTION_CLARIFICATION,
         ModelConstants.ACTION_UNKNOWN
     )
 
     fun normalize(response: VLMResponse): VLMResponse {
-        val normalizedAction = response.action.cleanValue()?.lowercase().orEmpty()
-        val safeAction = normalizedAction.takeIf { it in supportedActions } ?: ModelConstants.ACTION_UNKNOWN
+        val safeAction = normalizeAction(response.action)
         val payload = response.payload.normalizePayload()
 
         return response.copy(
@@ -41,17 +39,17 @@ object ResponseInterpreter {
 
         return when (response.action) {
             ModelConstants.ACTION_CREATE_EVENT -> {
-                response.title?.let { "已识别到可创建日程：$it" } ?: "已识别到日程信息"
+                response.title?.let { "已提取校园日程信息：$it" } ?: "已提取校园日程信息"
             }
 
             ModelConstants.ACTION_NAVIGATE -> {
-                response.location?.let { "已识别到地点：$it" } ?: "已识别到导航地点"
+                response.location?.let { "已识别校园地点：$it" } ?: "已识别校园地点"
             }
 
-            ModelConstants.ACTION_SEND_SMS -> "已整理出短信草稿"
+            ModelConstants.ACTION_SEND_SMS -> "当前版本聚焦校园通知转日程，短信不作为主流程。"
             ModelConstants.ACTION_CLARIFICATION -> response.fallbackQuery
                 ?: response.answer
-                ?: "当前结果还不够确定，请补充一点信息。"
+                ?: "信息还不完整，需要补充。"
 
             ModelConstants.ACTION_TTS_FEEDBACK -> response.answer
                 ?: response.description
@@ -59,7 +57,7 @@ object ResponseInterpreter {
 
             else -> response.answer
                 ?: response.description
-                ?: "暂时无法确定最合适的动作"
+                ?: "未识别到可创建日程的校园通知"
         }
     }
 
@@ -80,6 +78,18 @@ object ResponseInterpreter {
             description = this?.description.cleanValue(),
             answer = this?.answer.cleanValue()
         )
+    }
+
+    private fun normalizeAction(action: String?): String {
+        return when (action.cleanValue()?.lowercase()) {
+            ModelConstants.ACTION_CREATE_EVENT -> ModelConstants.ACTION_CREATE_EVENT
+            ModelConstants.ACTION_NAVIGATE -> ModelConstants.ACTION_NAVIGATE
+            ModelConstants.ACTION_TTS_FEEDBACK -> ModelConstants.ACTION_TTS_FEEDBACK
+            ModelConstants.ACTION_CLARIFICATION -> ModelConstants.ACTION_CLARIFICATION
+            ModelConstants.ACTION_SEND_SMS -> ModelConstants.ACTION_UNKNOWN
+            ModelConstants.ACTION_UNKNOWN -> ModelConstants.ACTION_UNKNOWN
+            else -> ModelConstants.ACTION_UNKNOWN
+        }
     }
 
     private fun String?.cleanValue(): String? {

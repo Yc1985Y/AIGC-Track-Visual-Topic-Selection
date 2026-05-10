@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Import Notification</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&amp;family=Lexend:wght@600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#ffdad4",
+                        "primary": "#003528",
+                        "background": "#fff8f2",
+                        "outline-variant": "#bfc9c3",
+                        "secondary-fixed": "#ffdad8",
+                        "on-tertiary-fixed": "#370e08",
+                        "inverse-surface": "#402d00",
+                        "surface-container-highest": "#ffdea1",
+                        "on-tertiary-container": "#e79f93",
+                        "on-surface": "#261900",
+                        "surface-dim": "#ffd47e",
+                        "on-primary-container": "#82bda8",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed-dim": "#97d3bd",
+                        "primary-fixed": "#b2efd9",
+                        "on-surface-variant": "#404945",
+                        "on-background": "#261900",
+                        "surface-bright": "#fff8f2",
+                        "inverse-on-surface": "#ffefd5",
+                        "on-tertiary-fixed-variant": "#6c3830",
+                        "on-primary": "#ffffff",
+                        "inverse-primary": "#97d3bd",
+                        "on-secondary-fixed": "#410007",
+                        "secondary": "#9e3f42",
+                        "error": "#ba1a1a",
+                        "surface-container-low": "#fff2df",
+                        "surface-container": "#ffebcb",
+                        "surface-variant": "#ffdea1",
+                        "primary-container": "#0b4d3d",
+                        "surface": "#fff8f2",
+                        "on-primary-fixed-variant": "#105040",
+                        "secondary-container": "#fe8989",
+                        "on-secondary-fixed-variant": "#7f282c",
+                        "tertiary-fixed-dim": "#ffb4a8",
+                        "surface-container-high": "#ffe5b6",
+                        "outline": "#707975",
+                        "on-error": "#ffffff",
+                        "tertiary": "#4e2019",
+                        "on-secondary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed-dim": "#ffb3b1",
+                        "on-primary-fixed": "#002118",
+                        "tertiary-container": "#69352d",
+                        "surface-tint": "#2e6857",
+                        "on-tertiary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-secondary-container": "#762125"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-page": "24px",
+                        "stack-md": "16px",
+                        "stack-lg": "32px",
+                        "stack-sm": "8px",
+                        "gutter-grid": "16px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Plus Jakarta Sans"],
+                        "label-caps": ["Lexend"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "display-lg": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-lg min-h-screen pb-[100px] flex flex-col md:max-w-md md:mx-auto">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full md:max-w-md z-50 bg-background/80 backdrop-blur-xl flex justify-between items-center px-margin-page py-4">
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 rounded-full overflow-hidden hover:opacity-70 transition-opacity">
+<img alt="Profile avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXWixPVZOjawZJu3lAZClPlMq0B3o6CGS86GRwIbetM9ywsq32u0My8twp5S3jsQ0F7GY0NejxCnSNydZPAg6SQB0r8scoQQnGN3otujW8ZqSa0E063eacTG3oeZB0cJp5smKl4RwPrfLdqr6SAenrNaX5wHBUZKifsF1qoGgS2THS_Id2RTdlmYcCT65muVHS7cMFch7MDVrjfY-tSIxMbiWqU2Eb2tx6DIfFawym-rEdUgwdiAVSeGikjyi5ASzxTUmVZniwFIsp"/>
+</button>
+<div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Mon, 23 July</p>
+<h1 class="font-headline-md text-headline-md text-primary font-extrabold">Hi, Elizabeth</h1>
+</div>
+</div>
+<button class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-primary hover:opacity-70 transition-opacity">
+<span class="material-symbols-outlined">notifications_active</span>
+</button>
+</header>
+<main class="pt-[100px] px-margin-page flex-1 flex flex-col gap-stack-lg">
+<!-- Header Section -->
+<section class="flex flex-col gap-stack-sm pt-4">
+<h2 class="font-display-lg text-display-lg text-primary">随时导入校园通知。</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant max-w-[250px]">Capture or paste text to easily add notifications to your timeline.</p>
+</section>
+<!-- Camera Card / Viewfinder Area -->
+<section class="relative bg-primary-fixed/30 rounded-[3rem] aspect-[3/4] overflow-hidden flex flex-col items-center justify-center border-4 border-white shadow-[0_8px_24px_rgba(11,77,61,0.05)] p-6">
+<!-- Simulated Viewfinder/Camera Preview -->
+<div class="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-multiply rounded-[2.5rem]" data-alt="A soft-focus view of a notebook page with handwritten notes and a pencil, resting on a wooden desk. Warm, natural sunlight streams in, creating a cozy and productive study environment. The overall tone is calm, inviting, and academic, fitting a playful student app aesthetic with subtle pastel tints." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAvB_LpnXvyGoLect4C-8CuADGFL27O9ubmKhmy5xJq3l4mS8ixkDw-SVCx7WiW_8pXE1YWRj_tHGpZvMEHShbqY-Enwm6UXRZpSbiTmV8WTdnDUQ7Z9QyWb00O38GjWCw74WWyCem5YPHUGAnjg4-H1n4f566wTIhWZyke-0D6IczkgafMeJk87hoXZVzZgCmnF5uIH8gEZDWJzuloWGVPsFe82M7ghBMfOs2Xk9sS31pvEUhRQrcSabmop3dLhZg5fz6rvgYAYNkf'); background-size: cover; background-position: center;">
+</div>
+<div class="absolute inset-0 border-2 border-dashed border-primary/30 rounded-[2.5rem] m-6 pointer-events-none"></div>
+<div class="z-10 flex flex-col items-center gap-4 text-center mt-auto mb-10">
+<div class="bg-white/80 backdrop-blur-md rounded-full px-6 py-3 shadow-sm mb-4">
+<p class="font-label-caps text-label-caps text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">info</span>
+                        为了识别更准，请开启权限
+                    </p>
+</div>
+<button class="w-20 h-20 bg-primary text-on-primary rounded-full shadow-lg flex items-center justify-center hover:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[32px]">photo_camera</span>
+</button>
+<p class="font-body-sm text-body-sm text-primary-container font-medium mt-2">Tap to Scan</p>
+</div>
+</section>
+<!-- Alternative Input Methods -->
+<section class="grid grid-cols-3 gap-4 pb-8">
+<button class="bg-surface-container-high rounded-2xl p-4 flex flex-col items-center justify-center gap-2 hover:bg-surface-variant transition-colors shadow-sm">
+<div class="w-12 h-12 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined">image</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface">相册导入</span>
+</button>
+<button class="bg-surface-container-high rounded-2xl p-4 flex flex-col items-center justify-center gap-2 hover:bg-surface-variant transition-colors shadow-sm">
+<div class="w-12 h-12 rounded-full bg-surface-dim text-on-surface flex items-center justify-center">
+<span class="material-symbols-outlined">content_paste</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface">粘贴文本</span>
+</button>
+<button class="bg-surface-container-high rounded-2xl p-4 flex flex-col items-center justify-center gap-2 hover:bg-surface-variant transition-colors shadow-sm">
+<div class="w-12 h-12 rounded-full bg-primary-fixed-dim text-on-primary-fixed flex items-center justify-center">
+<span class="material-symbols-outlined">mic</span>
+</div>
+<span class="font-label-caps text-label-caps text-on-surface">语音输入</span>
+</button>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full md:max-w-md z-50 rounded-t-lg bg-surface-container-low/90 backdrop-blur-lg shadow-[0_-8px_24px_rgba(11,77,61,0.05)] flex justify-around items-center px-4 pb-6 pt-2">
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:bg-surface-variant/50 rounded-full transition-all" href="#">
+<span class="material-symbols-outlined mb-1">home</span>
+<span class="font-label-caps text-label-caps">首页</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary text-on-primary rounded-full px-6 py-2 hover:bg-primary/90 transition-all scale-90" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">bubble_chart</span>
+<span class="font-label-caps text-label-caps">时间线</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:bg-surface-variant/50 rounded-full transition-all" href="#">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="font-label-caps text-label-caps">我的</span>
+</a>
+</nav>
+</body></html>

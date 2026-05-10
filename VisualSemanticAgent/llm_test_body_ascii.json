@@ -1,0 +1,1 @@
+{"model":"Volc-DeepSeek-V3.2","stream":false,"temperature":0.2,"max_tokens":64,"messages":[{"role":"system","content":"Reply with plain text OK"},{"role":"user","content":"hello"}]}

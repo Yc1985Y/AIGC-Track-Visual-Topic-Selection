@@ -1,0 +1,1 @@
+{"cos_time":0.004934787750244141,"error_code":0,"error_msg":"succ","result":{"OCR":[],"angle":0,"words":[]},"support":"VIVO\u8bc6\u56fe\u63d0\u4f9b\u6280\u672f\u652f\u6301","version":"ocr_VUG_v13.0.0_20230731"}

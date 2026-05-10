@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+
+<html class="light" lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>加入成功 &amp; 地图弹窗</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@600&amp;family=Plus+Jakarta+Sans:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed": "#ffdad4",
+                    "primary": "#003528",
+                    "background": "#fff8f2",
+                    "outline-variant": "#bfc9c3",
+                    "secondary-fixed": "#ffdad8",
+                    "on-tertiary-fixed": "#370e08",
+                    "inverse-surface": "#402d00",
+                    "surface-container-highest": "#ffdea1",
+                    "on-tertiary-container": "#e79f93",
+                    "on-surface": "#261900",
+                    "surface-dim": "#ffd47e",
+                    "on-primary-container": "#82bda8",
+                    "surface-container-lowest": "#ffffff",
+                    "primary-fixed-dim": "#97d3bd",
+                    "primary-fixed": "#b2efd9",
+                    "on-surface-variant": "#404945",
+                    "on-background": "#261900",
+                    "surface-bright": "#fff8f2",
+                    "inverse-on-surface": "#ffefd5",
+                    "on-tertiary-fixed-variant": "#6c3830",
+                    "on-primary": "#ffffff",
+                    "inverse-primary": "#97d3bd",
+                    "on-secondary-fixed": "#410007",
+                    "secondary": "#9e3f42",
+                    "error": "#ba1a1a",
+                    "surface-container-low": "#fff2df",
+                    "surface-container": "#ffebcb",
+                    "surface-variant": "#ffdea1",
+                    "primary-container": "#0b4d3d",
+                    "surface": "#fff8f2",
+                    "on-primary-fixed-variant": "#105040",
+                    "secondary-container": "#fe8989",
+                    "on-secondary-fixed-variant": "#7f282c",
+                    "tertiary-fixed-dim": "#ffb4a8",
+                    "surface-container-high": "#ffe5b6",
+                    "outline": "#707975",
+                    "on-error": "#ffffff",
+                    "tertiary": "#4e2019",
+                    "on-secondary": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "secondary-fixed-dim": "#ffb3b1",
+                    "on-primary-fixed": "#002118",
+                    "tertiary-container": "#69352d",
+                    "surface-tint": "#2e6857",
+                    "on-tertiary": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "on-secondary-container": "#762125"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-page": "24px",
+                    "stack-md": "16px",
+                    "stack-lg": "32px",
+                    "stack-sm": "8px",
+                    "gutter-grid": "16px"
+            },
+            "fontFamily": {
+                    "body-sm": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "label-caps": [
+                            "Lexend"
+                    ],
+                    "headline-md": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "display-lg": [
+                            "Plus Jakarta Sans"
+                    ],
+                    "body-lg": [
+                            "Plus Jakarta Sans"
+                    ]
+            },
+            "fontSize": {
+                    "body-sm": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "label-caps": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "display-lg": [
+                            "36px",
+                            {
+                                    "lineHeight": "44px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "800"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "500"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="relative overflow-hidden">
+<!-- Top App Bar (Suppressed due to context: Transactional/Modal) -->
+<!-- Content Canvas -->
+<main class="flex-1 flex flex-col justify-center items-center px-margin-page relative z-10 min-h-screen">
+<!-- Success Indicator Container -->
+<div class="flex flex-col items-center justify-center mb-12">
+<!-- Animated Checkmark/Circle (Simulated with static styling) -->
+<div class="w-24 h-24 rounded-full bg-primary-fixed flex items-center justify-center mb-6 shadow-[0_8px_24px_rgba(11,77,61,0.15)] relative">
+<span class="material-symbols-outlined text-primary font-display-lg" style="font-variation-settings: 'FILL' 1; font-size: 48px;">
+                    check_circle
+                </span>
+<!-- Decorative rings -->
+<div class="absolute inset-0 rounded-full border-4 border-primary-fixed-dim opacity-50 scale-125"></div>
+<div class="absolute inset-0 rounded-full border-2 border-primary-fixed-dim opacity-30 scale-150"></div>
+</div>
+<h1 class="font-display-lg text-display-lg text-primary text-center mb-2">已加入日程</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant text-center max-w-[280px]">
+                您的学术活动已成功添加到时间线。
+            </p>
+</div>
+</main>
+<!-- Bottom Map Suggestion Modal / Card (Glassmorphism) -->
+<div class="fixed bottom-0 left-0 w-full z-40 px-4 pb-8 transform transition-transform translate-y-0">
+<div class="glass-panel rounded-[2rem] p-6 shadow-[0_-8px_32px_rgba(11,77,61,0.1)] flex flex-col gap-6 relative overflow-hidden">
+<!-- Subtle background tint -->
+<div class="absolute inset-0 bg-surface-container-high opacity-40 pointer-events-none"></div>
+<div class="relative z-10 flex items-start gap-4">
+<div class="w-12 h-12 rounded-full bg-secondary-fixed flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">
+                        location_on
+                    </span>
+</div>
+<div class="flex-1">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-1 leading-tight">识别到地点</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                        活动地点位于 <span class="font-bold text-primary">上海图书馆</span>，要打开地图查看路线吗？
+                    </p>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="relative z-10 flex flex-col sm:flex-row gap-4 w-full mt-2">
+<button class="flex-1 bg-primary text-on-primary font-body-lg text-body-lg py-4 rounded-full shadow-[0_4px_12px_rgba(11,77,61,0.2)] hover:opacity-90 transition-opacity flex justify-center items-center gap-2">
+<span class="material-symbols-outlined" style="font-size: 20px;">
+                        map
+                    </span>
+                    打开地图
+                </button>
+<button class="flex-1 bg-surface-variant/50 text-on-surface font-body-lg text-body-lg py-4 rounded-full hover:bg-surface-variant/80 transition-colors flex justify-center items-center">
+                    仅保存
+                </button>
+</div>
+</div>
+</div>
+<!-- Decorative Background Elements -->
+<div class="fixed inset-0 z-0 pointer-events-none overflow-hidden flex items-center justify-center">
+<div class="absolute top-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-primary-fixed/20 blur-3xl"></div>
+<div class="absolute bottom-[-10%] left-[-10%] w-[80vw] h-[80vw] rounded-full bg-surface-container-highest/40 blur-3xl"></div>
+</div>
+</body></html>

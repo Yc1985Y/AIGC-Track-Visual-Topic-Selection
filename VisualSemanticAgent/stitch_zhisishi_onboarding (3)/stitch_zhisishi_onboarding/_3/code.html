@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>时间线 - 月历</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&amp;family=Lexend:wght@600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "tertiary-fixed": "#ffdad4",
+                "primary": "#003528",
+                "background": "#fff8f2",
+                "outline-variant": "#bfc9c3",
+                "secondary-fixed": "#ffdad8",
+                "on-tertiary-fixed": "#370e08",
+                "inverse-surface": "#402d00",
+                "surface-container-highest": "#ffdea1",
+                "on-tertiary-container": "#e79f93",
+                "on-surface": "#261900",
+                "surface-dim": "#ffd47e",
+                "on-primary-container": "#82bda8",
+                "surface-container-lowest": "#ffffff",
+                "primary-fixed-dim": "#97d3bd",
+                "primary-fixed": "#b2efd9",
+                "on-surface-variant": "#404945",
+                "on-background": "#261900",
+                "surface-bright": "#fff8f2",
+                "inverse-on-surface": "#ffefd5",
+                "on-tertiary-fixed-variant": "#6c3830",
+                "on-primary": "#ffffff",
+                "inverse-primary": "#97d3bd",
+                "on-secondary-fixed": "#410007",
+                "secondary": "#9e3f42",
+                "error": "#ba1a1a",
+                "surface-container-low": "#fff2df",
+                "surface-container": "#ffebcb",
+                "surface-variant": "#ffdea1",
+                "primary-container": "#0b4d3d",
+                "surface": "#fff8f2",
+                "on-primary-fixed-variant": "#105040",
+                "secondary-container": "#fe8989",
+                "on-secondary-fixed-variant": "#7f282c",
+                "tertiary-fixed-dim": "#ffb4a8",
+                "surface-container-high": "#ffe5b6",
+                "outline": "#707975",
+                "on-error": "#ffffff",
+                "tertiary": "#4e2019",
+                "on-secondary": "#ffffff",
+                "on-error-container": "#93000a",
+                "secondary-fixed-dim": "#ffb3b1",
+                "on-primary-fixed": "#002118",
+                "tertiary-container": "#69352d",
+                "surface-tint": "#2e6857",
+                "on-tertiary": "#ffffff",
+                "error-container": "#ffdad6",
+                "on-secondary-container": "#762125"
+        },
+        "borderRadius": {
+                "DEFAULT": "1rem",
+                "lg": "2rem",
+                "xl": "3rem",
+                "full": "9999px"
+        },
+        "spacing": {
+                "margin-page": "24px",
+                "stack-md": "16px",
+                "stack-lg": "32px",
+                "stack-sm": "8px",
+                "gutter-grid": "16px"
+        },
+        "fontFamily": {
+                "body-sm": [
+                        "Plus Jakarta Sans"
+                ],
+                "label-caps": [
+                        "Lexend"
+                ],
+                "headline-md": [
+                        "Plus Jakarta Sans"
+                ],
+                "display-lg": [
+                        "Plus Jakarta Sans"
+                ],
+                "body-lg": [
+                        "Plus Jakarta Sans"
+                ]
+        },
+        "fontSize": {
+                "body-sm": [
+                        "14px",
+                        {
+                                "lineHeight": "20px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "label-caps": [
+                        "12px",
+                        {
+                                "lineHeight": "16px",
+                                "letterSpacing": "0.05em",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-md": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "fontWeight": "700"
+                        }
+                ],
+                "display-lg": [
+                        "36px",
+                        {
+                                "lineHeight": "44px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "800"
+                        }
+                ],
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "500"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+  body { font-family: 'Plus Jakarta Sans', sans-serif; }
+  .material-symbols-outlined {
+    font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24
+  }
+</style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="bg-background/80 dark:bg-background/80 backdrop-blur-xl fixed top-0 w-full z-50 shadow-sm">
+<div class="flex justify-between items-center px-margin-page py-4 w-full">
+<div class="flex items-center gap-3">
+<img alt="Profile avatar" class="w-10 h-10 rounded-full object-cover border-2 border-surface-container-high" data-alt="A small, high-quality circular avatar portrait of a smiling young woman with dark hair tied back, wearing a light-colored top. The background is softly blurred. The image is brightly lit and fits perfectly into a modern UI top navigation bar." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCuMy5dTEIZ7aNQKmcq-3VuP2OoXlx2LgL-u484NTrQDlqRJVaHd8GlTRdcROFa4YOdPnwUGl8otUHLVsuCBJRSX4uNGMk4mF1LqaePhKp0EC_fwPTJi0TQSB6v1EjqZK36RaPsQ7PmtRxUVi6O5hjLHDzA9av20gz21_xDfUozqeGe-0TCUphfJfM2oI0-Cn17iUjYfvmty2nu-JpDVOC5dR8Mpf2JZ4Hmdrmb7nCrumtLvksjNm1IOUFVJKqrR-KHJfdSxiBEDuhi"/>
+<h1 class="font-headline-md text-headline-md text-primary dark:text-primary-fixed-dim">Hi, Elizabeth</h1>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container hover:opacity-70 transition-opacity">
+<span class="material-symbols-outlined text-primary">notifications_active</span>
+</button>
+</div>
+</header>
+<main class="pt-24 px-margin-page space-y-stack-lg max-w-2xl mx-auto">
+<!-- Header Section with Month Switcher and Export -->
+<section class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<h2 class="font-display-lg text-display-lg text-primary">August</h2>
+<button class="w-8 h-8 flex items-center justify-center rounded-full bg-surface-container text-primary hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined">expand_more</span>
+</button>
+</div>
+<button class="flex items-center gap-2 px-4 py-2 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-caps text-label-caps hover:bg-secondary-fixed-dim transition-colors shadow-sm">
+<span class="material-symbols-outlined text-sm">ios_share</span>
+      Export
+    </button>
+</section>
+<!-- Calendar Grid -->
+<section class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_8px_24px_rgba(11,77,61,0.05)] border border-surface-container-high">
+<div class="grid grid-cols-7 gap-2 mb-4">
+<div class="text-center font-label-caps text-label-caps text-outline">S</div>
+<div class="text-center font-label-caps text-label-caps text-outline">M</div>
+<div class="text-center font-label-caps text-label-caps text-outline">T</div>
+<div class="text-center font-label-caps text-label-caps text-outline">W</div>
+<div class="text-center font-label-caps text-label-caps text-outline">T</div>
+<div class="text-center font-label-caps text-label-caps text-outline">F</div>
+<div class="text-center font-label-caps text-label-caps text-outline">S</div>
+</div>
+<div class="grid grid-cols-7 gap-y-4 gap-x-2">
+<!-- Week 1 -->
+<div class="flex flex-col items-center justify-center h-10 w-10 mx-auto text-outline-variant font-body-lg text-body-lg">28</div>
+<div class="flex flex-col items-center justify-center h-10 w-10 mx-auto text-outline-variant font-body-lg text-body-lg">29</div>
+<div class="flex flex-col items-center justify-center h-10 w-10 mx-auto text-outline-variant font-body-lg text-body-lg">30</div>
+<div class="flex flex-col items-center justify-center h-10 w-10 mx-auto text-outline-variant font-body-lg text-body-lg">31</div>
+<div class="flex flex-col items-center justify-center h-10 w-10 mx-auto text-on-surface font-body-lg text-body-lg">1</div>
+<div class="flex flex-col items-center justify-center h-10 w-10 mx-auto text-on-surface font-body-lg text-body-lg">2</div>
+<div class="flex flex-col items-center justify-center h-10 w-10 mx-auto text-on-surface font-body-lg text-body-lg">3</div>
+<!-- Week 2 -->
+<div class="flex flex-col items-center justify-center h-10 w-10 mx-auto text-on-surface font-body-lg text-body-lg relative">
+        4
+        <div class="absolute bottom-1 w-1.5 h-1.5 rounded-full bg-secondary-container"></div>
+</div>
+<div class="flex flex-col items-center justify-center h-10 w-10 mx-auto text-on-surface font-body-lg text-body-lg relative">
+        5
+        <div class="absolute bottom-1 w-1.5 h-1.5 rounded-full bg-surface-dim"></div>
+</div>
+<div class="flex flex-col items-center justify-center h-10 w-10 mx-auto text-on-surface font-body-lg text-body-lg">6</div>
+<div class="flex flex-col items-center justify-center h-10 w-10 mx-auto text-on-surface font-body-lg text-body-lg relative">
+        7
+        <div class="absolute bottom-1 w-1.5 h-1.5 rounded-full bg-primary-fixed"></div>
+</div>
+<div class="flex flex-col items-center justify-center h-10 w-10 mx-auto text-on-surface font-body-lg text-body-lg">8</div>
+<div class="flex flex-col items-center justify-center h-10 w-10 mx-auto text-on-surface font-body-lg text-body-lg">9</div>
+<div class="flex flex-col items-center justify-center h-10 w-10 mx-auto text-on-surface font-body-lg text-body-lg relative">
+        10
+        <div class="absolute bottom-1 flex gap-0.5">
+<div class="w-1.5 h-1.5 rounded-full bg-secondary-container"></div>
+<div class="w-1.5 h-1.5 rounded-full bg-primary-fixed"></div>
+</div>
+</div>
+<!-- Week 3 (Selected Week) -->
+<div class="flex flex-col items-center justify-center h-10 w-10 mx-auto text-on-surface font-body-lg text-body-lg">11</div>
+<div class="flex flex-col items-center justify-center h-10 w-10 mx-auto text-on-surface font-body-lg text-body-lg relative">
+        12
+        <div class="absolute bottom-1 w-1.5 h-1.5 rounded-full bg-surface-dim"></div>
+</div>
+<!-- Selected Day -->
+<div class="flex flex-col items-center justify-center h-10 w-10 mx-auto bg-primary text-on-primary rounded-full font-body-lg text-body-lg relative shadow-md">
+        13
+        <div class="absolute bottom-1 flex gap-0.5">
+<div class="w-1.5 h-1.5 rounded-full bg-surface-container-highest"></div>
+<div class="w-1.5 h-1.5 rounded-full bg-secondary-container"></div>
+</div>
+</div>
+<div class="flex flex-col items-center justify-center h-10 w-10 mx-auto text-on-surface font-body-lg text-body-lg">14</div>
+<div class="flex flex-col items-center justify-center h-10 w-10 mx-auto text-on-surface font-body-lg text-body-lg">15</div>
+<div class="flex flex-col items-center justify-center h-10 w-10 mx-auto text-on-surface font-body-lg text-body-lg relative">
+        16
+        <div class="absolute bottom-1 w-1.5 h-1.5 rounded-full bg-primary-fixed"></div>
+</div>
+<div class="flex flex-col items-center justify-center h-10 w-10 mx-auto text-on-surface font-body-lg text-body-lg">17</div>
+<!-- Week 4 -->
+<div class="flex flex-col items-center justify-center h-10 w-10 mx-auto text-on-surface font-body-lg text-body-lg">18</div>
+<div class="flex flex-col items-center justify-center h-10 w-10 mx-auto text-on-surface font-body-lg text-body-lg">19</div>
+<div class="flex flex-col items-center justify-center h-10 w-10 mx-auto text-on-surface font-body-lg text-body-lg relative">
+        20
+        <div class="absolute bottom-1 w-1.5 h-1.5 rounded-full bg-secondary-container"></div>
+</div>
+<div class="flex flex-col items-center justify-center h-10 w-10 mx-auto text-on-surface font-body-lg text-body-lg">21</div>
+<div class="flex flex-col items-center justify-center h-10 w-10 mx-auto text-on-surface font-body-lg text-body-lg">22</div>
+<div class="flex flex-col items-center justify-center h-10 w-10 mx-auto text-on-surface font-body-lg text-body-lg relative">
+        23
+        <div class="absolute bottom-1 flex gap-0.5">
+<div class="w-1.5 h-1.5 rounded-full bg-primary-fixed"></div>
+<div class="w-1.5 h-1.5 rounded-full bg-surface-dim"></div>
+</div>
+</div>
+<div class="flex flex-col items-center justify-center h-10 w-10 mx-auto text-on-surface font-body-lg text-body-lg">24</div>
+</div>
+</section>
+<!-- Schedule for Selected Date -->
+<section class="space-y-stack-md relative">
+<div class="flex justify-between items-end mb-2">
+<h3 class="font-headline-md text-headline-md text-primary">Today's Schedule</h3>
+<span class="font-label-caps text-label-caps text-outline">Aug 13</span>
+</div>
+<!-- Event Card 1 -->
+<div class="bg-surface-container rounded-xl p-5 shadow-sm border border-surface-container-high flex gap-4">
+<div class="flex flex-col items-center justify-start min-w-[50px]">
+<span class="font-label-caps text-label-caps text-on-surface-variant">09:00</span>
+<div class="w-[2px] h-full bg-outline-variant mt-2 rounded-full"></div>
+</div>
+<div class="flex-1 bg-surface-lowest rounded-lg p-4 bg-white border border-surface-variant">
+<div class="flex justify-between items-start mb-2">
+<div class="px-3 py-1 bg-surface-dim text-on-surface font-label-caps text-[10px] rounded-full uppercase tracking-wider">Accounting</div>
+<button class="text-outline hover:text-primary transition-colors"><span class="material-symbols-outlined" style="font-variation-settings: 'opsz' 20">more_horiz</span></button>
+</div>
+<h4 class="font-body-lg text-body-lg text-on-surface font-bold">Advanced Accounting Basics</h4>
+<p class="font-body-sm text-body-sm text-outline mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">location_on</span> Room 302, Science Building
+        </p>
+</div>
+</div>
+<!-- Event Card 2 -->
+<div class="bg-secondary-fixed/50 rounded-xl p-5 shadow-sm border border-secondary-fixed flex gap-4">
+<div class="flex flex-col items-center justify-start min-w-[50px]">
+<span class="font-label-caps text-label-caps text-on-surface-variant">13:30</span>
+<div class="w-[2px] h-full bg-secondary-fixed-dim mt-2 rounded-full"></div>
+</div>
+<div class="flex-1 bg-surface-lowest rounded-lg p-4 bg-white border border-secondary-fixed-dim">
+<div class="flex justify-between items-start mb-2">
+<div class="px-3 py-1 bg-secondary-container text-on-secondary-container font-label-caps text-[10px] rounded-full uppercase tracking-wider">Study Group</div>
+<button class="text-outline hover:text-primary transition-colors"><span class="material-symbols-outlined" style="font-variation-settings: 'opsz' 20">more_horiz</span></button>
+</div>
+<h4 class="font-body-lg text-body-lg text-on-surface font-bold">Midterm Prep Session</h4>
+<div class="flex -space-x-2 mt-3">
+<img alt="Student" class="w-8 h-8 rounded-full border-2 border-white" data-alt="A small circular portrait of a young woman with dark hair, used as an avatar in a UI. Soft lighting, neutral background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_3qjnBYhN8iIFFYCxlrc_-7nG0BVFVhIs9daGuCcrA5znnu2ydqwVJZ26FCvTgSZT3mUsZ_F7gM_wQsRpOe-ttaQ1rtLxr_7MHegfjRej9xNamKkxDAznjNE3s12ZwfvZY5jSzC2EPiLZ8NCazM0hDYdZdPKJbzZsfBhSnxEoyz9pTgMA8Jy1_iktpRpKqJkNwIg15OITtvZIaxc9lkaDg_gFJUhvVjwIiE7GBEC89qVEeT6h42AnLminNnyL4JcvplV80-Y0p8_R"/>
+<img alt="Student" class="w-8 h-8 rounded-full border-2 border-white" data-alt="A small circular portrait of a young man with short hair, used as an avatar in a UI. Soft lighting, neutral background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCjHwnhlNSUgAy7vF5Ew-8zK47iuo2oQoXvziidBGbldV-prAFqojCdYs_fFmpceIq9KL9yDskxdEHMGncBok1fh_n-GKAmuZ9POHv35qi0xkcjVvA_u5pi1ZQoOSFA_pavCFZ0PxCnsDqlV0yKFh4WQ5jztd8SbFBlVv1I49R7Xb3ZOyOPbWWZTiElKNTgZ2cYjrChfr23Ri1u5RM80B5Gwy-fUoBuE-YFHTzd-OdX0mYXAHOF4y8BT0-9kEOGtNJxlK_YdwMRUoxw"/>
+<div class="w-8 h-8 rounded-full border-2 border-white bg-surface-container-high flex items-center justify-center font-label-caps text-[10px] text-on-surface">+2</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Floating Action Button -->
+<button class="fixed bottom-28 right-margin-page w-14 h-14 bg-primary text-on-primary rounded-xl flex items-center justify-center shadow-lg hover:scale-105 transition-transform z-40">
+<span class="material-symbols-outlined" style="font-variation-settings: 'wght' 600, 'opsz' 28">add</span>
+</button>
+<!-- BottomNavBar -->
+<nav class="bg-surface-container-low/90 dark:bg-surface-container/90 backdrop-blur-lg fixed bottom-0 w-full z-50 rounded-t-lg shadow-[0_-8px_24px_rgba(11,77,61,0.05)] shadow-lg md:hidden">
+<div class="flex justify-around items-center w-full px-4 pb-6 pt-2">
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline p-2 hover:bg-surface-variant/50 rounded-full transition-all">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-caps text-label-caps mt-1">首页</span>
+</button>
+<button class="flex flex-col items-center justify-center bg-primary dark:bg-primary-container text-on-primary dark:text-on-primary-container rounded-full px-6 py-2 Active: scale-90 duration-150 shadow-sm">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">bubble_chart</span>
+<span class="font-label-caps text-label-caps mt-1">时间线</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline p-2 hover:bg-surface-variant/50 rounded-full transition-all">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-caps text-label-caps mt-1">我的</span>
+</button>
+</div>
+</nav>
+</body></html>

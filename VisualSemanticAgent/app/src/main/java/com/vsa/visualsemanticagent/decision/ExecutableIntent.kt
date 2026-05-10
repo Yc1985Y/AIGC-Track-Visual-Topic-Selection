@@ -60,20 +60,20 @@ data class ExecutableIntent(
     fun buildConfirmationPrompt(): String {
         return when (action) {
             ModelConstants.ACTION_CREATE_EVENT -> {
-                val eventTitle = title ?: "新的提醒"
+                val eventTitle = title ?: "新的校园日程"
                 val eventTime = time ?: "未确认时间"
                 val eventLocation = location ?: "未确认地点"
-                "识别到日程信息：$eventTitle，时间 $eventTime，地点 $eventLocation。是否创建提醒？"
+                "识别到校园日程：$eventTitle，时间 $eventTime，地点 $eventLocation。是否添加到系统日历？"
             }
 
             ModelConstants.ACTION_NAVIGATE -> {
-                val target = location ?: "目标地点"
-                "识别到导航目标：$target。是否开始导航？"
+                val target = location ?: "校园地点"
+                "识别到校园地点：$target。是否打开地图导航？"
             }
 
             ModelConstants.ACTION_SEND_SMS -> {
                 val number = phoneNumber ?: "联系人"
-                "已整理出一条短信草稿，接收方为 $number。是否打开短信草稿？"
+                "当前版本聚焦校园日程提醒，暂不执行短信草稿（号码：$number）。"
             }
 
             ModelConstants.ACTION_TTS_FEEDBACK -> {
@@ -92,27 +92,27 @@ data class ExecutableIntent(
         val confidencePercent = (fusedConfidence * 100).roundToInt()
         return when (action) {
             ModelConstants.ACTION_CREATE_EVENT -> {
-                "建议创建日程，可信度 ${confidencePercent}%"
+                "建议添加校园日程，可信度 ${confidencePercent}%"
             }
 
             ModelConstants.ACTION_NAVIGATE -> {
-                "建议发起导航，可信度 ${confidencePercent}%"
+                "建议打开校园地点导航，可信度 ${confidencePercent}%"
             }
 
             ModelConstants.ACTION_SEND_SMS -> {
-                "建议生成短信草稿，可信度 ${confidencePercent}%"
+                "当前版本不再主打短信草稿能力"
             }
 
             ModelConstants.ACTION_TTS_FEEDBACK -> {
-                "建议直接语音播报，可信度 ${confidencePercent}%"
+                "建议语音说明识别结果，可信度 ${confidencePercent}%"
             }
 
             ModelConstants.ACTION_CLARIFICATION -> {
-                "信息还不够完整，建议追问修复"
+                "通知信息不完整，建议补充确认"
             }
 
             else -> {
-                "当前结果暂不适合直接执行"
+                "当前画面暂不适合生成日程"
             }
         }
     }
@@ -127,7 +127,7 @@ data class ExecutableIntent(
 }
 
 object VisualActionIntentSchema {
-    const val SCENE_VISUAL_TO_TOOL_OS = "visual_to_tool_os"
+    const val SCENE_CAMPUS_SCHEDULE_AGENT = "campus_schedule_agent"
 
     fun fromResponse(
         response: VLMResponse,
@@ -157,7 +157,7 @@ object VisualActionIntentSchema {
         val riskLevel = riskLevelFor(safeAction)
 
         return ExecutableIntent(
-            scene = SCENE_VISUAL_TO_TOOL_OS,
+            scene = SCENE_CAMPUS_SCHEDULE_AGENT,
             action = safeAction,
             payload = payload,
             modelConfidence = modelConfidence,

@@ -7,12 +7,12 @@ import android.provider.CalendarContract
 import android.provider.CalendarContract.Events
 import com.vsa.visualsemanticagent.decision.ExecutableIntent
 import com.vsa.visualsemanticagent.model.ModelConstants
-import java.net.URLEncoder
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeParseException
+import java.net.URLEncoder
 import timber.log.Timber
 
 class IntentDispatcher(private val context: Context) {
@@ -34,7 +34,12 @@ class IntentDispatcher(private val context: Context) {
                     )
                 }
 
-                ModelConstants.ACTION_SEND_SMS -> sendSmsDraft(intent)
+                ModelConstants.ACTION_SEND_SMS -> {
+                    DispatchResult(
+                        launchedIntent = false,
+                        summary = "当前版本聚焦校园通知转日程，短信不作为主流程。"
+                    )
+                }
                 else -> {
                     DispatchResult(
                         launchedIntent = false,
@@ -64,7 +69,7 @@ class IntentDispatcher(private val context: Context) {
             val title = intentData.title ?: "新提醒"
             return DispatchResult(
                 launchedIntent = true,
-                summary = "已打开日历待确认页面：$title"
+                summary = "已打开日历确认页面：$title"
             )
         } else {
             throw ActivityNotFoundException("Calendar app not found")
@@ -94,31 +99,10 @@ class IntentDispatcher(private val context: Context) {
             context.startActivity(finalIntent)
             return DispatchResult(
                 launchedIntent = true,
-                summary = "已打开地图导航：$location"
+                summary = "已打开地图，准备导航到：$location"
             )
         } else {
             throw ActivityNotFoundException("Map app not found")
-        }
-    }
-
-    private fun sendSmsDraft(intentData: ExecutableIntent): DispatchResult {
-        val phoneNumber = intentData.phoneNumber ?: throw IllegalArgumentException("Missing phone number")
-        val message = intentData.description ?: intentData.answer
-            ?: throw IllegalArgumentException("Missing sms content")
-
-        val intent = Intent(Intent.ACTION_SENDTO).apply {
-            data = Uri.parse("smsto:${Uri.encode(phoneNumber)}")
-            putExtra("sms_body", message)
-        }
-
-        if (intent.resolveActivity(context.packageManager) != null) {
-            context.startActivity(intent)
-            return DispatchResult(
-                launchedIntent = true,
-                summary = "已打开短信草稿：$phoneNumber"
-            )
-        } else {
-            throw ActivityNotFoundException("SMS app not found")
         }
     }
 

@@ -5,7 +5,7 @@
 
 ## 系统整体概览
 
-**项目名称**: Visual Semantic Action Agent (VSAA)  
+**项目名称**: 织时  
 **项目类型**: Android 智能应用  
 **开发语言**: Kotlin  
 **平台**: Android 29+  

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>提醒设置</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@600&amp;family=Plus+Jakarta+Sans:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config from Design System -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#ffdad4",
+                        "primary": "#003528",
+                        "background": "#fff8f2",
+                        "outline-variant": "#bfc9c3",
+                        "secondary-fixed": "#ffdad8",
+                        "on-tertiary-fixed": "#370e08",
+                        "inverse-surface": "#402d00",
+                        "surface-container-highest": "#ffdea1",
+                        "on-tertiary-container": "#e79f93",
+                        "on-surface": "#261900",
+                        "surface-dim": "#ffd47e",
+                        "on-primary-container": "#82bda8",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed-dim": "#97d3bd",
+                        "primary-fixed": "#b2efd9",
+                        "on-surface-variant": "#404945",
+                        "on-background": "#261900",
+                        "surface-bright": "#fff8f2",
+                        "inverse-on-surface": "#ffefd5",
+                        "on-tertiary-fixed-variant": "#6c3830",
+                        "on-primary": "#ffffff",
+                        "inverse-primary": "#97d3bd",
+                        "on-secondary-fixed": "#410007",
+                        "secondary": "#9e3f42",
+                        "error": "#ba1a1a",
+                        "surface-container-low": "#fff2df",
+                        "surface-container": "#ffebcb",
+                        "surface-variant": "#ffdea1",
+                        "primary-container": "#0b4d3d",
+                        "surface": "#fff8f2",
+                        "on-primary-fixed-variant": "#105040",
+                        "secondary-container": "#fe8989",
+                        "on-secondary-fixed-variant": "#7f282c",
+                        "tertiary-fixed-dim": "#ffb4a8",
+                        "surface-container-high": "#ffe5b6",
+                        "outline": "#707975",
+                        "on-error": "#ffffff",
+                        "tertiary": "#4e2019",
+                        "on-secondary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed-dim": "#ffb3b1",
+                        "on-primary-fixed": "#002118",
+                        "tertiary-container": "#69352d",
+                        "surface-tint": "#2e6857",
+                        "on-tertiary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-secondary-container": "#762125"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-page": "24px",
+                        "stack-md": "16px",
+                        "stack-lg": "32px",
+                        "stack-sm": "8px",
+                        "gutter-grid": "16px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Plus Jakarta Sans", "sans-serif"],
+                        "label-caps": ["Lexend", "sans-serif"],
+                        "headline-md": ["Plus Jakarta Sans", "sans-serif"],
+                        "display-lg": ["Plus Jakarta Sans", "sans-serif"],
+                        "body-lg": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "display-lg": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background min-h-screen text-on-background selection:bg-surface-dim selection:text-on-surface antialiased pb-32">
+<!-- TopAppBar -->
+<header class="bg-background/80 dark:bg-background/80 backdrop-blur-xl fixed top-0 w-full z-50 flex justify-between items-center px-margin-page py-4 w-full">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden flex items-center justify-center">
+<!-- Avatar placeholder -->
+<img alt="User profile photo" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA80Dfbd4nI97OGEbEHp8jjr0fs8XOukAKWBoB3qFO_2cK6ckr_dT3C_em0U6FN_DeSPHBw3ZJy5QT_3mH4xaY0txK5sI2YCAaAaliR4IqzjsauTCEnZhHlx5W2H-BDu6xxPHYdKR0kcEh3zEqnlKzB6iMqHPP8Vd6n16PgWxTfk3dXKPK4qj8x2DDzguvAeoQh2wYeMqcZXSRrtI3MEm8qYQvJkvkXY_pdiNTABxWyUuh5UZJ7kVFbvcJvtSVYmQ_n6YCFXB26vmdc"/>
+</div>
+<h1 class="font-headline-md text-headline-md text-primary dark:text-primary-fixed-dim font-extrabold">
+                Hi, Elizabeth
+            </h1>
+</div>
+<button class="w-12 h-12 flex items-center justify-center rounded-full hover:opacity-70 transition-opacity active:scale-95 duration-200 text-primary dark:text-primary-fixed-dim bg-surface-container-lowest shadow-sm">
+<span class="material-symbols-outlined icon-fill">notifications_active</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-28 px-margin-page max-w-2xl mx-auto space-y-stack-md">
+<!-- Page Title -->
+<div class="mb-stack-lg">
+<h2 class="font-display-lg text-display-lg text-primary">提醒设置</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-2">管理你的学习节奏与通知偏好</p>
+</div>
+<!-- Section: Default Reminder Time -->
+<section class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_8px_24px_rgba(11,77,61,0.05)]">
+<div class="flex items-center gap-3 mb-4">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface">
+<span class="material-symbols-outlined" style="font-size: 18px;">schedule</span>
+</div>
+<h3 class="font-body-lg text-body-lg text-on-surface">默认提醒时间</h3>
+</div>
+<div class="bg-surface-container-low rounded-full p-1 flex mt-4 relative isolate">
+<!-- Active background pill -->
+<div class="absolute inset-y-1 left-1 w-[calc(33.333%-4px)] bg-primary rounded-full z-0 transition-transform duration-300 ease-in-out translate-x-full"></div>
+<button class="flex-1 relative z-10 py-3 rounded-full text-center font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-variant/30 transition-colors">
+                    15 分钟
+                </button>
+<button class="flex-1 relative z-10 py-3 rounded-full text-center font-body-sm text-body-sm text-on-primary transition-colors">
+                    30 分钟
+                </button>
+<button class="flex-1 relative z-10 py-3 rounded-full text-center font-body-sm text-body-sm text-on-surface-variant hover:bg-surface-variant/30 transition-colors">
+                    60 分钟
+                </button>
+</div>
+</section>
+<!-- Section: System & Confirmations (Bento Grid Style) -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-stack-md">
+<!-- Calendar Sync -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_8px_24px_rgba(11,77,61,0.05)] flex flex-col justify-between h-full">
+<div class="flex items-start justify-between mb-8">
+<div class="w-10 h-10 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined">event_upcoming</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-outline-variant rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-container after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div>
+<h3 class="font-body-lg text-body-lg text-on-surface mb-1">系统日历同步</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">将学习计划自动添加至设备日历</p>
+</div>
+</div>
+<!-- Confirmations Group -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_8px_24px_rgba(11,77,61,0.05)] flex flex-col gap-6 justify-center">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-size: 16px;">error</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface">重要操作前确认</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-outline-variant rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-container after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="h-px w-full bg-surface-container-high rounded-full"></div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-size: 16px;">playlist_add_check</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface">加入日程前先确认</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-outline-variant rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-container after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+</section>
+<!-- Section: Location Linked Map -->
+<section class="bg-surface-container-lowest rounded-xl p-2 shadow-[0_8px_24px_rgba(11,77,61,0.05)] overflow-hidden">
+<div class="p-4 flex items-center justify-between z-10 relative bg-surface-container-lowest/80 backdrop-blur-sm rounded-t-[14px]">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined">location_on</span>
+</div>
+<div>
+<h3 class="font-body-lg text-body-lg text-on-surface">地点识别联动</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">到达图书馆或自习室时自动开启免打扰</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-outline-variant rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-surface-container after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="relative h-48 w-full rounded-b-[14px] overflow-hidden mt-2">
+<img alt="Map view" class="w-full h-full object-cover" data-alt="A highly stylized, minimal map illustration in a pastel UI design style. The map shows soft, curving roads and rounded city blocks in cream, light teal, and warm coral tones. There are no harsh lines or text labels. A distinct, friendly location pin with a soft shadow marks a central spot. The overall mood is optimistic, clean, and perfectly suited for a playful academic application's light-mode interface." data-location="University Campus Library" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCozQmsROhKFQCudC9tt_G5fF8oCbr0kxc92hRS0lYpWi4HtNLLjG0mIh_mk8hkkMskGhDJS3-H4rxrtNYl75ySk-X0g1yODxwYGLc359ez4vdTZPWCl8jiz9aL4geLeyIZ_WMWlh8ZSLD4nWkTcvHIlPCl9Zyb9FjSjQuuoSFAEww9C59dWJckOo8EEeAqY_6V8x5WMTkkBJWFe7cvPHGmovbu-oVpIXZZPLnJAh89Tb7UzM0u-1PJp2aLYYAzU8GQmFrYvse8_4XZ"/>
+<!-- Floating Pin over map -->
+<div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center animate-bounce" style="animation-duration: 2s;">
+<div class="bg-primary text-on-primary px-3 py-1 rounded-full font-label-caps text-label-caps shadow-lg mb-1">
+                        图书馆
+                    </div>
+<span class="material-symbols-outlined text-primary icon-fill text-3xl drop-shadow-md">location_on</span>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="bg-surface-container-low/90 dark:bg-surface-container/90 backdrop-blur-lg fixed bottom-0 w-full z-50 rounded-t-lg shadow-[0_-8px_24px_rgba(11,77,61,0.05)] flex justify-around items-center w-full px-4 pb-6 pt-2">
+<!-- Inactive: 首页 -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline p-2 hover:bg-surface-variant/50 rounded-full transition-all group w-16">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">home</span>
+<span class="font-label-caps text-label-caps mt-1">首页</span>
+</button>
+<!-- Inactive: 时间线 -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline p-2 hover:bg-surface-variant/50 rounded-full transition-all group w-16">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">bubble_chart</span>
+<span class="font-label-caps text-label-caps mt-1">时间线</span>
+</button>
+<!-- Active: 我的 (Settings belongs here) -->
+<button class="flex flex-col items-center justify-center bg-primary dark:bg-primary-container text-on-primary dark:text-on-primary-container rounded-full px-6 py-2 Active: scale-90 duration-150 shadow-sm">
+<span class="material-symbols-outlined icon-fill">person</span>
+<span class="font-label-caps text-label-caps mt-1">我的</span>
+</button>
+</nav>
+</body></html>

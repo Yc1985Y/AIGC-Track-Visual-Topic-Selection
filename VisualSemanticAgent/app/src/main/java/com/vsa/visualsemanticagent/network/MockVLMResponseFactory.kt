@@ -21,23 +21,80 @@ object MockVLMResponseFactory {
         return when {
             containsAny(
                 normalized,
-                "create_event",
-                "日历",
-                "活动",
-                "海报",
-                "讲座",
-                "通知",
-                "提醒"
+                "缺时间",
+                "时间不清楚",
+                "模糊",
+                "看不清"
+            ) -> VLMResponse(
+                action = ModelConstants.ACTION_CLARIFICATION,
+                confidence = 0.54,
+                payload = VLMPayload(
+                    title = "就业宣讲会",
+                    location = "大学生活动中心",
+                    description = "海报中开始时间不清楚。",
+                    answer = "我识别到了宣讲会和地点，但开始时间不够清楚。"
+                ),
+                fallbackQuery = "请补充这个活动的开始时间。",
+                targetFound = true
+            )
+
+            containsAny(
+                normalized,
+                "exam",
+                "考试",
+                "考场",
+                "期末",
+                "安排"
             ) -> VLMResponse(
                 action = ModelConstants.ACTION_CREATE_EVENT,
-                confidence = 0.9,
+                confidence = 0.88,
                 payload = VLMPayload(
-                    title = "AI 创新讲座",
-                    time = "2026-05-20T14:30:00",
-                    location = "图书馆报告厅",
-                    description = "建议提前十分钟到场，并携带校园卡签到。"
+                    title = "数据结构期末考试",
+                    time = "2026-06-18T09:00:00",
+                    location = "A 教 203",
+                    description = "来源：考试安排通知；请携带学生证。"
                 ),
-                fallbackQuery = "我识别到了一个活动，但如果时间不对，请直接告诉我完整时间。",
+                fallbackQuery = "",
+                targetFound = true
+            )
+
+            containsAny(
+                normalized,
+                "career",
+                "宣讲",
+                "招聘",
+                "就业",
+                "企业"
+            ) -> VLMResponse(
+                action = ModelConstants.ACTION_CREATE_EVENT,
+                confidence = 0.87,
+                payload = VLMPayload(
+                    title = "vivo 校园招聘宣讲会",
+                    time = "2026-05-25T19:00:00",
+                    location = "大学生活动中心报告厅",
+                    description = "来源：校园宣讲海报；建议提前报名并携带简历。"
+                ),
+                fallbackQuery = "",
+                targetFound = true
+            )
+
+            containsAny(
+                normalized,
+                "群",
+                "截图",
+                "班级",
+                "实验室群",
+                "社团群"
+            ) -> VLMResponse(
+                action = ModelConstants.ACTION_CREATE_EVENT,
+                confidence = 0.86,
+                payload = VLMPayload(
+                    title = "班级主题班会",
+                    time = "2026-05-15T15:00:00",
+                    location = "教学楼 B302",
+                    description = "来源：班级群通知截图；请全体同学准时参加。"
+                ),
+                fallbackQuery = "",
                 targetFound = true
             )
 
@@ -45,62 +102,51 @@ object MockVLMResponseFactory {
                 normalized,
                 "navigate",
                 "导航",
-                "地图",
-                "去这个地方",
+                "怎么去",
                 "去会场",
-                "去教学楼"
+                "地点"
             ) -> VLMResponse(
                 action = ModelConstants.ACTION_NAVIGATE,
                 confidence = 0.86,
                 payload = VLMPayload(
-                    location = "信息楼 A 座 201",
-                    description = "从当前位置前往信息楼 A 座 201 教室。"
+                    location = "图书馆报告厅",
+                    description = "从当前位置前往图书馆报告厅。"
                 ),
-                fallbackQuery = "我识别到了一个可能的地点，请再对准地点信息或者直接说出楼名。",
+                fallbackQuery = "我识别到了会场地点，请确认是否开始导航。",
                 targetFound = true
             )
 
             containsAny(
                 normalized,
-                "send_sms",
-                "短信",
-                "通知联系人",
-                "发消息"
+                "lecture",
+                "讲座",
+                "活动",
+                "海报",
+                "通知",
+                "提醒",
+                "日程",
+                "日历"
             ) -> VLMResponse(
-                action = ModelConstants.ACTION_SEND_SMS,
-                confidence = 0.81,
+                action = ModelConstants.ACTION_CREATE_EVENT,
+                confidence = 0.91,
                 payload = VLMPayload(
-                    phoneNumber = "13800138000",
-                    description = "老师您好，我已经到达信息楼，预计五分钟后进入会场。"
+                    title = "人工智能前沿讲座",
+                    time = "2026-05-12T19:00:00",
+                    location = "图书馆报告厅",
+                    description = "来源：校园讲座海报；主办方：计算机学院；建议提前 30 分钟提醒。"
                 ),
-                fallbackQuery = "我整理出了短信草稿，但号码或内容还需要你再确认一次。",
-                targetFound = true
-            )
-
-            containsAny(
-                normalized,
-                "clarify",
-                "不确定",
-                "模糊",
-                "看不清"
-            ) -> VLMResponse(
-                action = ModelConstants.ACTION_CLARIFICATION,
-                confidence = 0.45,
-                payload = VLMPayload(
-                    answer = "我看到了一张通知，但时间和地点还不够清晰。"
-                ),
-                fallbackQuery = "请把手机再靠近一点，或者告诉我是上午还是下午。",
+                fallbackQuery = "",
                 targetFound = true
             )
 
             else -> VLMResponse(
                 action = ModelConstants.ACTION_TTS_FEEDBACK,
-                confidence = 0.93,
+                confidence = 0.78,
                 payload = VLMPayload(
-                    answer = "我已经识别到这是一张校园通知，重点信息是活动时间、地点和参与要求。",
-                    description = "你可以继续追问我，或者让我帮你创建提醒、开始导航。"
+                    answer = "我可以帮你识别校园海报、群通知、考试安排和宣讲会，并生成可确认的日程提醒。",
+                    description = "你可以拍照、导入截图，或直接粘贴校园通知文本。"
                 ),
-                fallbackQuery = "如果你希望我执行动作，可以继续说创建提醒或开始导航。",
+                fallbackQuery = "你可以说：帮我把这个讲座加入日程。",
                 targetFound = true
             )
         }

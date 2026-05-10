@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Empty States Showcase</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@600&amp;family=Plus+Jakarta+Sans:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#ffdad4",
+                        "primary": "#003528",
+                        "background": "#fff8f2",
+                        "outline-variant": "#bfc9c3",
+                        "secondary-fixed": "#ffdad8",
+                        "on-tertiary-fixed": "#370e08",
+                        "inverse-surface": "#402d00",
+                        "surface-container-highest": "#ffdea1",
+                        "on-tertiary-container": "#e79f93",
+                        "on-surface": "#261900",
+                        "surface-dim": "#ffd47e",
+                        "on-primary-container": "#82bda8",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed-dim": "#97d3bd",
+                        "primary-fixed": "#b2efd9",
+                        "on-surface-variant": "#404945",
+                        "on-background": "#261900",
+                        "surface-bright": "#fff8f2",
+                        "inverse-on-surface": "#ffefd5",
+                        "on-tertiary-fixed-variant": "#6c3830",
+                        "on-primary": "#ffffff",
+                        "inverse-primary": "#97d3bd",
+                        "on-secondary-fixed": "#410007",
+                        "secondary": "#9e3f42",
+                        "error": "#ba1a1a",
+                        "surface-container-low": "#fff2df",
+                        "surface-container": "#ffebcb",
+                        "surface-variant": "#ffdea1",
+                        "primary-container": "#0b4d3d",
+                        "surface": "#fff8f2",
+                        "on-primary-fixed-variant": "#105040",
+                        "secondary-container": "#fe8989",
+                        "on-secondary-fixed-variant": "#7f282c",
+                        "tertiary-fixed-dim": "#ffb4a8",
+                        "surface-container-high": "#ffe5b6",
+                        "outline": "#707975",
+                        "on-error": "#ffffff",
+                        "tertiary": "#4e2019",
+                        "on-secondary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed-dim": "#ffb3b1",
+                        "on-primary-fixed": "#002118",
+                        "tertiary-container": "#69352d",
+                        "surface-tint": "#2e6857",
+                        "on-tertiary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-secondary-container": "#762125"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-page": "24px",
+                        "stack-md": "16px",
+                        "stack-lg": "32px",
+                        "stack-sm": "8px",
+                        "gutter-grid": "16px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Plus Jakarta Sans"],
+                        "label-caps": ["Lexend"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "display-lg": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "display-lg": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen relative overflow-x-hidden selection:bg-primary-fixed selection:text-on-primary-fixed">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-background/80 dark:bg-background/80 backdrop-blur-xl transition-all duration-200">
+<div class="flex justify-between items-center px-margin-page py-4 w-full">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container flex-shrink-0">
+<img alt="User profile photo" class="w-full h-full object-cover" data-alt="A softly lit, close-up portrait of a young woman with a calm, approachable expression. The lighting is bright and modern, creating a clean, high-key light mode aesthetic. She has natural makeup and her hair is pulled back neatly. The background is completely out of focus, a warm, soft creamy beige color that matches the global ui palette perfectly." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrLzRcpCpy7VXoVKrMrZB3mVNaP3zhyqIADWgPsg6wHyAfiFQWoLRexQhx4XZ68HeOitMdKEwbM74yqrbvQ3sRbYiAGrcjec8InfRkATbczPh011MkOYDYrm8hetjXBumLqFM_YpL39bNkuWJJ7oCbpQc5brZ31LPFaK94ORj8vQWqH-qkOEaHfBbAqEvdFVH-6IroOOJUBQ3Q6VFs7mJNM1GKQa_FbJPKcIGqPuePhsy43mSf6pWhducgg2nIuH8vvah_gYFNjL_q"/>
+</div>
+<h1 class="font-headline-md text-headline-md text-primary dark:text-primary-fixed font-extrabold tracking-tight">Hi, Elizabeth</h1>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-primary dark:text-primary-fixed-dim hover:opacity-70 transition-opacity active:scale-95 duration-200 bg-surface-container-low/50">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">notifications_active</span>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-[100px] pb-[120px] px-margin-page flex flex-col gap-stack-lg max-w-2xl mx-auto">
+<!-- Header for showcase -->
+<div class="mb-stack-sm text-center">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-2">State Guidelines</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Playful Academicism Empty States</p>
+</div>
+<!-- 1. Empty State: No Tasks Today -->
+<section class="bg-surface-container rounded-xl p-8 flex flex-col items-center justify-center text-center shadow-[0_8px_24px_rgba(11,77,61,0.05)] relative overflow-hidden group">
+<div class="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent opacity-50 pointer-events-none"></div>
+<div class="w-48 h-48 mb-6 relative z-10">
+<img alt="Cute illustration of an empty desk" class="w-full h-full object-cover rounded-full shadow-lg border-4 border-surface-container-lowest" data-alt="A minimalist 3D illustration of a neat, empty wooden desk with a single small potted plant and a warm, glowing table lamp. The scene is rendered in a soft, playful style with rounded edges and pastel colors, fitting a cozy study companion app. The background is a very soft, creamy off-white. The lighting is diffused and inviting, suggesting a peaceful, task-free afternoon." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdYGqfDr7vQgh99kDEiGqucBDv6P3U1yxUBIPAhZxoKRGFFCdHBpJ6xldFDYnWTZr4-Wf8rY2lLm58jY7l6MB19SxC9iCfIIRUrdowi7A1qpp0DulI_gWokAsGNRRyUN8tcVSbiBMpIZF366JvIyDiX9leO39F-IyUnleJBGO7IIU2Ac8VwogWDOvkCw_WjsqYjvdOn9LnV653LRxVP6a4Qr-M_e5GDMRUcUM_JlUCpJA7WzN454QQLv2ic7D7XXAvZQymTh8rryuC"/>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary mb-3 relative z-10">暂无今日安排</h3>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-8 max-w-[250px] relative z-10">
+                太棒了！所有的任务都已经搞定啦。给自己泡杯茶放松一下吧。
+            </p>
+<button class="bg-primary text-on-primary font-label-caps text-label-caps px-8 py-4 rounded-full shadow-md hover:opacity-90 hover:shadow-lg transition-all active:scale-95 duration-200 relative z-10 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+                添加新计划
+            </button>
+</section>
+<!-- 2. Permission Guidance -->
+<section class="bg-tertiary-fixed rounded-xl p-8 flex flex-col items-center justify-center text-center shadow-[0_8px_24px_rgba(11,77,61,0.05)] relative overflow-hidden">
+<div class="absolute inset-0 bg-white/20 backdrop-blur-sm pointer-events-none"></div>
+<div class="w-24 h-24 mb-6 rounded-full bg-white/50 flex items-center justify-center text-tertiary relative z-10 shadow-inner">
+<span class="material-symbols-outlined text-[48px]" style="font-variation-settings: 'FILL' 1;">no_photography</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-tertiary-fixed-variant mb-3 relative z-10">请给个权限吧</h3>
+<p class="font-body-sm text-body-sm text-tertiary mb-8 max-w-[260px] relative z-10">
+                我们需要访问相机才能帮你扫描和分析错题哦。去设置里开启一下吧~
+            </p>
+<button class="bg-tertiary text-on-tertiary font-label-caps text-label-caps px-8 py-4 rounded-full shadow-md hover:bg-tertiary/90 transition-all active:scale-95 duration-200 relative z-10">
+                去设置开启
+            </button>
+</section>
+<!-- 3. Recognition Failed -->
+<section class="bg-surface-variant rounded-xl p-8 flex flex-col items-center justify-center text-center shadow-[0_8px_24px_rgba(11,77,61,0.05)] relative overflow-hidden">
+<div class="absolute -right-10 -top-10 w-40 h-40 bg-surface-container-highest rounded-full blur-2xl opacity-60 pointer-events-none"></div>
+<div class="absolute -left-10 -bottom-10 w-32 h-32 bg-primary-fixed rounded-full blur-2xl opacity-40 pointer-events-none"></div>
+<div class="w-24 h-24 mb-6 rounded-full bg-primary-fixed-dim/30 flex items-center justify-center text-primary relative z-10 border border-primary-fixed">
+<span class="material-symbols-outlined text-[40px]">search_off</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-3 relative z-10">哎呀，没找到信息...</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-8 max-w-[240px] relative z-10">
+                图片有点模糊或者角度不对，小助手没有看清。我们再试一次好吗？
+            </p>
+<div class="flex gap-4 w-full justify-center relative z-10">
+<button class="bg-white/60 text-primary font-label-caps text-label-caps px-6 py-4 rounded-full hover:bg-white/80 transition-all active:scale-95 duration-200 border border-white">
+                    手动输入
+                </button>
+<button class="bg-primary text-on-primary font-label-caps text-label-caps px-6 py-4 rounded-full shadow-md hover:opacity-90 transition-all active:scale-95 duration-200">
+                    重新拍照
+                </button>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-[2rem] bg-surface-container-low/90 dark:bg-surface-container/90 backdrop-blur-lg shadow-[0_-8px_24px_rgba(11,77,61,0.05)] pb-safe transition-transform duration-300">
+<div class="flex justify-around items-center w-full px-4 pb-6 pt-4">
+<!-- Active Tab: 首页 -->
+<button class="flex flex-col items-center justify-center bg-primary dark:bg-primary-container text-on-primary dark:text-on-primary-container rounded-full px-6 py-2 hover:opacity-90 transition-all active:scale-90 duration-150 group">
+<span class="material-symbols-outlined mb-1 transition-transform group-active:scale-90" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-caps text-label-caps">首页</span>
+</button>
+<!-- Inactive Tab: 时间线 -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline p-2 hover:bg-surface-variant/50 rounded-full transition-all active:scale-90 duration-150 group">
+<span class="material-symbols-outlined mb-1 text-on-surface-variant group-hover:text-primary transition-colors">bubble_chart</span>
+<span class="font-label-caps text-label-caps text-[10px] opacity-80 group-hover:opacity-100 group-hover:text-primary transition-all">时间线</span>
+</button>
+<!-- Inactive Tab: 我的 -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline p-2 hover:bg-surface-variant/50 rounded-full transition-all active:scale-90 duration-150 group">
+<span class="material-symbols-outlined mb-1 text-on-surface-variant group-hover:text-primary transition-colors">person</span>
+<span class="font-label-caps text-label-caps text-[10px] opacity-80 group-hover:opacity-100 group-hover:text-primary transition-all">我的</span>
+</button>
+</div>
+</nav>
+</body></html>

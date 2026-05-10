@@ -60,7 +60,7 @@ class ModuleTests {
     @Test
     fun normalizeResponse_normalizesPhoneAndTime() {
         val raw = VLMResponse(
-            action = ModelConstants.ACTION_SEND_SMS,
+            action = ModelConstants.ACTION_UNKNOWN,
             confidence = 1.2,
             payload = VLMPayload(
                 phoneNumber = " +86 138-0013-8000 ",
@@ -76,11 +76,13 @@ class ModuleTests {
     }
 
     @Test
-    fun mockFactory_returnsCalendarActionForEventPrompt() {
-        val response = MockVLMResponseFactory.buildResponse("create_event calendar reminder")
+    fun mockFactory_returnsCampusLectureEventForLecturePrompt() {
+        val response = MockVLMResponseFactory.buildResponse("帮我把这个讲座加入日程")
 
         assertEquals(ModelConstants.ACTION_CREATE_EVENT, response.action)
-        assertNotNull(response.payload?.title)
+        assertTrue(response.payload?.title?.contains("讲座") == true)
+        assertNotNull(response.payload?.time)
+        assertNotNull(response.payload?.location)
     }
 
     @Test
@@ -101,7 +103,7 @@ class ModuleTests {
             stabilityConfidence = 0.85
         )
 
-        assertEquals("visual_to_tool_os", intent.scene)
+        assertEquals("campus_schedule_agent", intent.scene)
         assertTrue(intent.requiresConfirmation)
         assertEquals(ModelConstants.ACTION_CREATE_EVENT, intent.action)
         assertTrue(intent.fusedConfidence > 0.84)
@@ -124,15 +126,15 @@ class ModuleTests {
     }
 
     @Test
-    fun riskPolicyEngine_triggersClarificationForInvalidPayload() {
+    fun riskPolicyEngine_requiresClarificationWhenCampusEventTimeMissing() {
         val engine = RiskPolicyEngine()
         val intent = VisualActionIntentSchema.fromResponse(
             VLMResponse(
                 action = ModelConstants.ACTION_CREATE_EVENT,
                 confidence = 0.92,
                 payload = VLMPayload(
-                    title = "Research Sharing",
-                    location = "Innovation Center"
+                    title = "就业宣讲会",
+                    location = "大学生活动中心"
                 )
             )
         )
@@ -141,6 +143,26 @@ class ModuleTests {
 
         assertEquals(ExecutionMode.REQUIRE_CLARIFICATION, suggestion.mode)
         assertTrue(suggestion.validation.issues.any { it.contains("time") })
+    }
+
+    @Test
+    fun riskPolicyEngine_requiresConfirmationForValidCampusEvent() {
+        val engine = RiskPolicyEngine()
+        val intent = VisualActionIntentSchema.fromResponse(
+            VLMResponse(
+                action = ModelConstants.ACTION_CREATE_EVENT,
+                confidence = 0.9,
+                payload = VLMPayload(
+                    title = "人工智能前沿讲座",
+                    time = "2026-05-20T14:30:00",
+                    location = "图书馆报告厅"
+                )
+            )
+        )
+
+        val suggestion = engine.evaluate(intent)
+
+        assertEquals(ExecutionMode.REQUIRE_CONFIRMATION, suggestion.mode)
     }
 
     @Test
